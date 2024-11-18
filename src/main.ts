@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS: CreateFileSettings = {
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
+	private isCommandExecuting: boolean = false; // 添加命令执行状态标志
 
 	async onload() {
 		await this.loadSettings();
@@ -22,21 +23,28 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		// 注册文件删除事件监听器
 		this.registerEvent(
 			this.app.vault.on('create', (file: TAbstractFile) => {
-				if (this.settings.showCreateFileNotification) {
-					// 当文件被删除时显示自定义通知
-					new Notice(`File create: ${file.path}`);
-				}
+				// 只在命令执行期间响应文件创建事件
+				if (this.isCommandExecuting) {
+					if (this.settings.showCreateFileNotification) {
+						// 当文件被添加时显示自定义通知
+						new Notice(`File create: ${file.path}`);
+					}
 
-				// 在控制台记录删除操作
-				console.log(`File create: ${file.path} at ${new Date().toLocaleString()}`);
+					// 在控制台记录添加操作
+					console.log(`File create: ${file.path} at ${new Date().toLocaleString()}`);
+				}
 			})
 		);
 
-		// 新增删除当前文件的命令
+		// 校验当前文件关联的文件链接新增文件的命令
 		this.addCommand({
 			id: 'check-and-create-md-files',
 			name: 'Check and Create Linked MD Files',
-			callback: () => this.checkAndCreateMDFiles(),
+			callback: async () => {
+				this.isCommandExecuting = true; // 设置命令执行标志
+				await this.checkAndCreateMDFiles();
+				this.isCommandExecuting = false; // 命令执行完成后重置标志
+			},
 		});
 
 		// 添加设置标签
@@ -110,7 +118,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		}
 
 		// 创建新的 Markdown 文件
-		const fileContent = `# ${fileName}\n\nCreated by CheckAndCreateMDFilePlugin.`;
+		const fileContent = ``;
 		try {
 			// 使用 Vault.create 来创建文件
 			await this.app.vault.create(fullFilePath, fileContent);
