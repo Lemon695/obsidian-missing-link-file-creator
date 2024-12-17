@@ -1,4 +1,5 @@
-import {App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile} from 'obsidian';
+import {App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, Vault} from 'obsidian';
+import {FileOperations} from './utils/fileOperations';
 
 interface CreateFileSettings {
 	createFileSetting: string;
@@ -15,10 +16,21 @@ const DEFAULT_SETTINGS: CreateFileSettings = {
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
-	private isCommandExecuting: boolean = false; // 添加命令执行状态标志
+	private fileOperations: FileOperations;
+	// 添加命令执行状态标志
+	private isCommandExecuting: boolean = false;
 
 	async onload() {
 		await this.loadSettings();
+
+		// 初始化 FileOperations
+		this.fileOperations = new FileOperations({
+			app: this.app,
+			settings: {
+				defaultFolderPath: this.settings.defaultFolderPath,
+				showCreateFileNotification: this.settings.showCreateFileNotification
+			}
+		});
 
 		// 注册文件删除事件监听器
 		this.registerEvent(
@@ -41,9 +53,21 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			id: 'check-and-create-md-files',
 			name: 'Check and Create Linked MD Files',
 			callback: async () => {
-				this.isCommandExecuting = true; // 设置命令执行标志
-				await this.checkAndCreateMDFiles();
-				this.isCommandExecuting = false; // 命令执行完成后重置标志
+				// 设置命令执行标志
+				this.isCommandExecuting = true;
+				await this.fileOperations.checkAndCreateMDFiles();
+				// 命令执行完成后重置标志
+				this.isCommandExecuting = false;
+			},
+		});
+
+		this.addCommand({
+			id: 'check-and-create-linked-md-files-in-folder',
+			name: 'Check and Create Linked MD Files in Folder',
+			callback: async () => {
+				this.isCommandExecuting = true;
+				await this.fileOperations.checkAndCreateMDFilesInFolder();
+				this.isCommandExecuting = false;
 			},
 		});
 
@@ -63,70 +87,6 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	async checkAndCreateMDFiles() {
-		const currentFile = this.app.workspace.getActiveFile();
-		if (!currentFile) {
-			console.log("No active file found.");
-			return;
-		}
-
-		const fileContent = await this.app.vault.read(currentFile);
-		const linkedFiles = this.extractMDLinks(fileContent);
-
-		for (const link of linkedFiles) {
-			const filePath = link.trim();
-
-			console.log("filePath--->" + filePath)
-			const existingFile = this.app.vault.getAbstractFileByPath(filePath);
-
-			// 如果文件不存在，则创建
-			if (!existingFile) {
-				await this.createFile(filePath);
-			}
-		}
-	}
-
-	extractMDLinks(content: string): string[] {
-		// 使用正则表达式提取 [[...]] 中的内容
-		const regex = /\[\[([^\\[\]]+)]]/g;
-		const fileLinks: string[] = [];
-		let match;
-		while ((match = regex.exec(content)) !== null) {
-			fileLinks.push(match[1]);
-		}
-
-		console.log(`fileLinks--->${fileLinks.length}`);
-		return fileLinks;
-	}
-
-	async createFile(filePath: string) {
-		const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-
-		// 使用配置的默认文件夹路径
-		const folderPath = this.settings.defaultFolderPath || '';
-
-		const fullFilePath = folderPath ? `${folderPath}/${filePath}.md` : `${filePath}.md`;
-
-		console.log(`fullFilePath--->${fullFilePath},filePath--->${folderPath}`)
-		if (folderPath.length > 0) {
-			const folder = this.app.vault.getAbstractFileByPath(folderPath);
-			// 使用 Obsidian API 创建文件夹（如果文件夹不存在）
-			if (!folder) {
-				console.log(`Folder does not exist. Creating folder: ${folderPath}`);
-				await this.app.vault.createFolder(folderPath);
-			}
-		}
-
-		// 创建新的 Markdown 文件
-		const fileContent = ``;
-		try {
-			// 使用 Vault.create 来创建文件
-			await this.app.vault.create(fullFilePath, fileContent);
-			console.log(`Created new file: ${fullFilePath}`);
-		} catch (error) {
-			console.error(`Failed to create file: ${fullFilePath}`, error);
-		}
-	}
 }
 
 class CreateFileSettingTab extends PluginSettingTab {
