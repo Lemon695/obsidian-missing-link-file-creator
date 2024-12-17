@@ -57,7 +57,7 @@ export class FileOperations {
 
 			console.log("filePath--->" + filePath)
 			// 检查文件是否已存在于库中的任何位置
-			const existingFile = this.fileUtils.getFileByFileName(filePath);
+			const existingFile = this.fileUtils.getFileByFileNameV2(filePath);
 			console.log(`检查文件 ${filePath}:`, existingFile ? "已存在" : "不存在");
 
 			// 如果文件不存在，则创建
@@ -97,12 +97,12 @@ export class FileOperations {
 
 				for (const link of linkedFiles) {
 					const filePath = link.trim();
-					const resolvedPath = resolveFilePath(filePath, folder.path);
+					console.log("filePath--->" + filePath)
 
-					const existingFile = this.fileUtils.getFileByFileName(filePath);
+					const existingFile = this.fileUtils.getFileByFileNameV2(filePath);
 					if (!existingFile) {
-						console.log("Resolved File Path---" + resolvedPath);
-						await this.createFile(resolvedPath);
+						console.log("Resolved File Path---" + filePath);
+						await this.createFile(filePath);
 					}
 				}
 			} catch (error) {

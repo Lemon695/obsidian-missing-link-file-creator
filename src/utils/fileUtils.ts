@@ -31,15 +31,35 @@ export class FileUtils {
 	}
 
 	/**
-	 * 检查 Markdown 文件
+	 * 检查文件
 	 *
 	 * 只检查文件名（basename），不考虑路径
 	 * @param fileName 文件名
 	 */
 	getFileByFileName(fileName: string): TFile | null {
-		const markdownFiles = this.app.vault.getMarkdownFiles();
+		const markdownFiles = this.app.vault.getFiles();
 
 		return markdownFiles.find(file => file.basename === fileName) || null;
+	}
+
+	getFileByFileNameV2(fileName: string): TFile | null {
+		const markdownFiles = this.app.vault.getFiles();
+		const baseFileName = fileName.replace(/\.[^/.]+$/, '');  // 去掉扩展名
+
+		let file = markdownFiles.find(file => file.basename === baseFileName);
+		if (file) return file;
+
+		// 动态获取所有文件的扩展名
+		const extensions = markdownFiles.map(file => file.basename.split('.').pop()).filter(Boolean);
+		// 去除重复的扩展名
+		const uniqueExtensions = [...new Set(extensions)];
+
+		for (const ext of uniqueExtensions) {
+			file = markdownFiles.find(file => file.basename === baseFileName + '.' + ext);
+			if (file) return file;
+		}
+
+		return null;
 	}
 
 	/**
