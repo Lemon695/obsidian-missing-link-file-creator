@@ -1,18 +1,7 @@
 import {App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, Vault} from 'obsidian';
-import {FileOperations} from './utils/fileOperations';
-
-interface CreateFileSettings {
-	createFileSetting: string;
-	// 新增设置项：是否显示"新增文件"通知
-	showCreateFileNotification: boolean;
-	defaultFolderPath: string;
-}
-
-const DEFAULT_SETTINGS: CreateFileSettings = {
-	createFileSetting: 'default',
-	showCreateFileNotification: true,
-	defaultFolderPath: '', // 默认为空，表示根目录
-}
+import {FileOperations, FileOperationsOptions} from './utils/file-operations';
+import {CreateFileSettings, CreateFileSettingTab, DEFAULT_SETTINGS} from "./settings";
+import {LogUtils} from './utils/log-utils';
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
@@ -24,7 +13,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		await this.loadSettings();
 
 		// 初始化 FileOperations
-		this.fileOperations = new FileOperations({
+		this.fileOperations = new FileOperations(<FileOperationsOptions>{
 			app: this.app,
 			settings: {
 				defaultFolderPath: this.settings.defaultFolderPath,
@@ -43,7 +32,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 					}
 
 					// 在控制台记录添加操作
-					console.log(`File create: ${file.path} at ${new Date().toLocaleString()}`);
+					LogUtils.showDebugLog(() => `File create: ${file.path} at ${new Date().toLocaleString()}`, this.settings);
 				}
 			})
 		);
@@ -76,7 +65,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 	}
 
 	onunload() {
-		console.log('CheckAndCreateMDFilePlugin unloaded');
+		LogUtils.showDebugLog(() => 'CheckAndCreateMDFilePlugin unloaded', this.settings);
 	}
 
 	async loadSettings() {
@@ -89,41 +78,4 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 }
 
-class CreateFileSettingTab extends PluginSettingTab {
-	plugin: CheckAndCreateMDFilePlugin;
 
-	constructor(app: App, plugin: CheckAndCreateMDFilePlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-		containerEl.empty();
-
-		// 添加新增文件通知设置
-		new Setting(containerEl)
-			.setName('Show Create File Notifications')
-			.setDesc('Show a notification when a file is create')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.showCreateFileNotification)
-				.onChange(async (value) => {
-					this.plugin.settings.showCreateFileNotification = value;
-					await this.plugin.saveSettings();
-				}));
-
-		// 添加设置说明
-		containerEl.createEl('h2', {text: 'Plugin Settings'});
-
-		new Setting(containerEl)
-			.setName('Default Folder Path')
-			.setDesc('Set the default folder where new MD files will be created.')
-			.addText(text =>
-				text.setValue(this.plugin.settings.defaultFolderPath)
-					.onChange(async (value) => {
-						this.plugin.settings.defaultFolderPath = value;
-						await this.plugin.saveSettings();
-					})
-			);
-	}
-}

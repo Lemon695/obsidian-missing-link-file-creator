@@ -1,18 +1,16 @@
 import {App, Notice, TAbstractFile, TFile, Vault} from 'obsidian';
-import {resolveFilePath} from './pathUtils';
-import {FileUtils} from './fileUtils';
+import {FileUtils} from './file-utils';
+import {LogUtils} from "./log-utils";
+import {CreateFileSettings} from "../settings";
 
-interface FileOperationsOptions {
+export interface FileOperationsOptions {
 	app: App;
-	settings: {
-		defaultFolderPath: string;
-		showCreateFileNotification: boolean;
-	};
+	settings: CreateFileSettings;
 }
 
 export class FileOperations {
 	private app: App;
-	private settings: FileOperationsOptions['settings'];
+	private readonly settings: FileOperationsOptions['settings'];
 	private fileUtils: FileUtils;
 
 	constructor(options: FileOperationsOptions) {
@@ -35,7 +33,7 @@ export class FileOperations {
 			fileLinks.push(match[1]);
 		}
 
-		console.log(`fileLinks--->${fileLinks.length}`);
+		LogUtils.showDebugLog(() => `fileLinks--->${fileLinks.length}`, this.settings);
 		return fileLinks;
 	}
 
