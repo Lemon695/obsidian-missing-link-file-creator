@@ -13,7 +13,6 @@ export class FileUtils {
 	 * @returns 是否存在
 	 */
 	isFileExistsInVault(fileName: string): boolean {
-		// 获取所有 MD 文件
 		const allMDFiles = this.app.vault.getFiles()
 			.filter(file => file.extension === 'md');
 
@@ -22,10 +21,7 @@ export class FileUtils {
 			// 提取文件名（不包含路径和扩展名）
 			const existingFileName = file.basename;
 
-			console.log(`对比文件: 
-                目标文件名: ${fileName}, 
-                现有文件名: ${existingFileName}`);
-
+			//console.log(`对比文件: 目标文件名: ${fileName}, 现有文件名: ${existingFileName}`);
 			return existingFileName === fileName;
 		});
 	}

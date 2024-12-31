@@ -43,7 +43,7 @@ export class FileOperations {
 	async checkAndCreateMDFiles(): Promise<void> {
 		const currentFile = this.app.workspace.getActiveFile();
 		if (!currentFile) {
-			console.log("No active file found.");
+			LogUtils.showDebugLog(() => 'No active file found.', this.settings);
 			return;
 		}
 
@@ -53,10 +53,10 @@ export class FileOperations {
 		for (const link of linkedFiles) {
 			const filePath = link.trim();
 
-			console.log("filePath--->" + filePath)
 			// 检查文件是否已存在于库中的任何位置
 			const existingFile = this.fileUtils.getFileByFileNameV2(filePath);
-			console.log(`检查文件 ${filePath}:`, existingFile ? "已存在" : "不存在");
+			const msg = `Check file ${filePath}: ${existingFile ? 'exists' : 'does not exist'}`;
+			LogUtils.showDebugLog(() => msg, this.settings);
 
 			// 如果文件不存在，则创建
 			if (!existingFile) {
@@ -95,11 +95,9 @@ export class FileOperations {
 
 				for (const link of linkedFiles) {
 					const filePath = link.trim();
-					console.log("filePath--->" + filePath)
 
 					const existingFile = this.fileUtils.getFileByFileNameV2(filePath);
 					if (!existingFile) {
-						console.log("Resolved File Path---" + filePath);
 						await this.createFile(filePath);
 					}
 				}
@@ -124,12 +122,11 @@ export class FileOperations {
 
 		const fullFilePath = folderPath ? `${folderPath}/${filePath}.md` : `${filePath}.md`;
 
-		console.log(`fullFilePath--->${fullFilePath},filePath--->${folderPath}`)
 		if (folderPath.length > 0) {
 			const folder = this.app.vault.getAbstractFileByPath(folderPath);
 			// 使用 Obsidian API 创建文件夹（如果文件夹不存在）
 			if (!folder) {
-				console.log(`Folder does not exist. Creating folder: ${folderPath}`);
+				LogUtils.showDebugLog(() => `Folder does not exist. Creating folder: ${folderPath}`, this.settings);
 				await this.app.vault.createFolder(folderPath);
 			}
 		}
@@ -145,7 +142,7 @@ export class FileOperations {
 				new Notice(`File created: ${fullFilePath}`);
 			}
 
-			console.log(`Created new file: ${fullFilePath}`);
+			LogUtils.showDebugLog(() => `Created new file: ${fullFilePath}`, this.settings);
 		} catch (error) {
 			console.error(`Failed to create file: ${fullFilePath}`, error);
 		}

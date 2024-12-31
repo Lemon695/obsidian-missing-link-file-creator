@@ -12,7 +12,6 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// 初始化 FileOperations
 		this.fileOperations = new FileOperations(<FileOperationsOptions>{
 			app: this.app,
 			settings: {
@@ -21,7 +20,6 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			}
 		});
 
-		// 注册文件删除事件监听器
 		this.registerEvent(
 			this.app.vault.on('create', (file: TAbstractFile) => {
 				// 只在命令执行期间响应文件创建事件
