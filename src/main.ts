@@ -14,26 +14,8 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 		this.fileOperations = new FileOperations(<FileOperationsOptions>{
 			app: this.app,
-			settings: {
-				defaultFolderPath: this.settings.defaultFolderPath,
-				showCreateFileNotification: this.settings.showCreateFileNotification
-			}
+			settings: this.settings,
 		});
-
-		this.registerEvent(
-			this.app.vault.on('create', (file: TAbstractFile) => {
-				// 只在命令执行期间响应文件创建事件
-				if (this.isCommandExecuting) {
-					if (this.settings.showCreateFileNotification) {
-						// 当文件被添加时显示自定义通知
-						new Notice(`File create: ${file.path}`);
-					}
-
-					// 在控制台记录添加操作
-					LogUtils.showDebugLog(() => `File create: ${file.path} at ${new Date().toLocaleString()}`, this.settings);
-				}
-			})
-		);
 
 		// 校验当前文件关联的文件链接新增文件的命令
 		this.addCommand({

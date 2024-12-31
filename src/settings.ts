@@ -3,7 +3,6 @@ import CheckAndCreateMDFilePlugin from "./main";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
-	// 新增设置项：是否显示"新增文件"通知
 	showCreateFileNotification: boolean;
 	defaultFolderPath: string;
 
@@ -42,9 +41,6 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					this.plugin.settings.showCreateFileNotification = value;
 					await this.plugin.saveSettings();
 				}));
-
-		// 添加设置说明
-		containerEl.createEl('h2', {text: 'Plugin Settings'});
 
 		new Setting(containerEl)
 			.setName('Default Folder Path')

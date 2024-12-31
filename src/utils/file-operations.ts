@@ -10,7 +10,7 @@ export interface FileOperationsOptions {
 
 export class FileOperations {
 	private app: App;
-	private readonly settings: FileOperationsOptions['settings'];
+	private settings: FileOperationsOptions['settings'];
 	private fileUtils: FileUtils;
 
 	constructor(options: FileOperationsOptions) {
@@ -115,7 +115,6 @@ export class FileOperations {
 	 * @param filePath 文件路径
 	 */
 	async createFile(filePath: string): Promise<void> {
-		const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
 
 		// 使用配置的默认文件夹路径
 		const folderPath = this.settings.defaultFolderPath || '';
@@ -134,7 +133,6 @@ export class FileOperations {
 		// 创建新的 Markdown 文件
 		const fileContent = ``;
 		try {
-			// 使用 Vault.create 来创建文件
 			await this.app.vault.create(fullFilePath, fileContent);
 
 			// 使用配置的通知设置
