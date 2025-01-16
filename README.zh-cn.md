@@ -12,8 +12,8 @@
 
 | 命令                                       | 含义                                                         |
 | ------------------------------------------ | ------------------------------------------------------------ |
-| Check and Create Linked MD Files           | 检查当前打开的 Markdown 文档中的链接，自动创建尚未存在的关联文件。 |
-| Check and Create Linked MD Files in Folder | 扫描当前打开文档所在文件夹内的所有 Markdown 文件，检测其关联链接，并自动创建尚未存在的文件。 |
+| Create Missing Links: Current File           | 检查当前打开的 Markdown 文档中的链接，自动创建尚未存在的关联文件。 |
+| Create Missing Links: Folder Scan | 扫描当前打开文档所在文件夹内的所有 Markdown 文件，检测其关联链接，并自动创建尚未存在的文件。 |
 
 
 

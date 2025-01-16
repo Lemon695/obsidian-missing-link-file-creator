@@ -19,8 +19,8 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 		// 校验当前文件关联的文件链接新增文件的命令
 		this.addCommand({
-			id: 'check-and-create-md-files',
-			name: 'Check and Create Linked MD Files',
+			id: 'create-missing-links-current-file',
+			name: 'Create Missing Links: Current File',
 			callback: async () => {
 				// 设置命令执行标志
 				this.isCommandExecuting = true;
@@ -31,8 +31,8 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'check-and-create-linked-md-files-in-folder',
-			name: 'Check and Create Linked MD Files in Folder',
+			id: 'create-missing-links-folder-scan',
+			name: 'Create Missing Links: Folder Scan',
 			callback: async () => {
 				this.isCommandExecuting = true;
 				await this.fileOperations.checkAndCreateMDFilesInFolder();

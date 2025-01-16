@@ -12,8 +12,8 @@ The plugin creates both missing links and the corresponding files.
 
 | Command                                    | Meaning                                                      |
 | ------------------------------------------ | ------------------------------------------------------------ |
-| Check and Create Linked MD Files           | Check the links in the currently open Markdown document and automatically create any missing linked files. |
-| Check and Create Linked MD Files in Folder | Scan all Markdown files in the folder of the currently open document, detect their linked references, and automatically create any missing files. |
+| Create Missing Links: Current File           | Check the links in the currently open Markdown document and automatically create any missing linked files. |
+| Create Missing Links: Folder Scan | Scan all Markdown files in the folder of the currently open document, detect their linked references, and automatically create any missing files. |
 
 
 

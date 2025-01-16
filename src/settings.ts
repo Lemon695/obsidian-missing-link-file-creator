@@ -33,7 +33,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 		// 添加新增文件通知设置
 		new Setting(containerEl)
-			.setName('Show Create File Notifications')
+			.setName('Notification Settings')
 			.setDesc('Show a notification when a file is create')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.showCreateFileNotification)
@@ -43,7 +43,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Default Folder Path')
+			.setName('Default Path')
 			.setDesc('Set the default folder where new MD files will be created.')
 			.addText(text =>
 				text.setValue(this.plugin.settings.defaultFolderPath)
