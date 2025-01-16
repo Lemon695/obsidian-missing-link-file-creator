@@ -13,17 +13,8 @@ export class FileUtils {
 	 * @returns 是否存在
 	 */
 	isFileExistsInVault(fileName: string): boolean {
-		const allMDFiles = this.app.vault.getFiles()
-			.filter(file => file.extension === 'md');
-
-		// 检查是否存在匹配的文件
-		return allMDFiles.some(file => {
-			// 提取文件名（不包含路径和扩展名）
-			const existingFileName = file.basename;
-
-			//console.log(`对比文件: 目标文件名: ${fileName}, 现有文件名: ${existingFileName}`);
-			return existingFileName === fileName;
-		});
+		const matchedFile = this.app.metadataCache.getFirstLinkpathDest(fileName, '');
+		return matchedFile !== null;
 	}
 
 	/**
@@ -33,29 +24,17 @@ export class FileUtils {
 	 * @param fileName 文件名
 	 */
 	getFileByFileName(fileName: string): TFile | null {
-		const markdownFiles = this.app.vault.getFiles();
-
-		return markdownFiles.find(file => file.basename === fileName) || null;
+		return this.app.metadataCache.getFirstLinkpathDest(fileName, '');
 	}
 
 	getFileByFileNameV2(fileName: string): TFile | null {
-		const markdownFiles = this.app.vault.getFiles();
-		const baseFileName = fileName.replace(/\.[^/.]+$/, '');  // 去掉扩展名
+		// 先尝试直接查找
+		const directMatch = this.app.metadataCache.getFirstLinkpathDest(fileName, '');
+		if (directMatch) return directMatch;
 
-		let file = markdownFiles.find(file => file.basename === baseFileName);
-		if (file) return file;
-
-		// 动态获取所有文件的扩展名
-		const extensions = markdownFiles.map(file => file.basename.split('.').pop()).filter(Boolean);
-		// 去除重复的扩展名
-		const uniqueExtensions = [...new Set(extensions)];
-
-		for (const ext of uniqueExtensions) {
-			file = markdownFiles.find(file => file.basename === baseFileName + '.' + ext);
-			if (file) return file;
-		}
-
-		return null;
+		// 如果没找到，去掉扩展名再试一次
+		const baseFileName = fileName.replace(/\.[^/.]+$/, '');
+		return this.app.metadataCache.getFirstLinkpathDest(baseFileName, '');
 	}
 
 	/**
@@ -64,11 +43,7 @@ export class FileUtils {
 	 * @returns 文件的完整路径，如果未找到返回 null
 	 */
 	getFilePathByName(fileName: string): string | null {
-		const matchedFile = this.app.vault.getFiles()
-			.find(file =>
-				file.extension === 'md' && file.basename === fileName
-			);
-
+		const matchedFile = this.app.metadataCache.getFirstLinkpathDest(fileName, '');
 		return matchedFile ? matchedFile.path : null;
 	}
 }

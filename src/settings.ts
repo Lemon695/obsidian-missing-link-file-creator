@@ -43,8 +43,8 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Default Folder Path')
-			.setDesc('Set the default folder where new MD files will be created.')
+			.setName('Notification Settings')
+			.setDesc('Default Path')
 			.addText(text =>
 				text.setValue(this.plugin.settings.defaultFolderPath)
 					.onChange(async (value) => {
