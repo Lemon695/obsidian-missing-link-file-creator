@@ -17,7 +17,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			settings: this.settings,
 		});
 
-		// 校验当前文件关联的文件链接新增文件的命令
+		// 校验当前文件关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-current-file',
 			name: 'Create Missing Links: Current File',
@@ -30,6 +30,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			},
 		});
 
+		//监测当前文件所在文件夹内的所有文件-关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-folder-scan',
 			name: 'Create Missing Links: Folder Scan',
