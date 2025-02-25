@@ -664,3 +664,117 @@
 .theme-dark .stat-item {
 	background-color: var(--background-secondary) !important;
 }
+
+/* 文件夹选择器样式 */
+.ccmd-folder-select-container {
+	position: relative;
+	width: 100%;
+	max-width: 300px;
+	margin-top: 8px;
+}
+
+.ccmd-folder-select-input-wrapper {
+	display: flex;
+	align-items: center;
+	border: 1px solid #d1d5db; /* 更细腻的边框颜色 */
+	border-radius: 6px; /* 更方正的边角 */
+	background-color: var(--background-primary);
+	overflow: hidden;
+	padding: 5px 10px; /* 适中的内边距 */
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 更微妙的阴影 */
+	transition: all 0.2s ease; /* 平滑过渡效果 */
+}
+
+.ccmd-folder-select-icon {
+	color: #6b7280; /* 更柔和的图标颜色 */
+	margin-right: 8px;
+	font-size: 15px; /* 稍微小一点的图标 */
+	opacity: 0.8; /* 轻微透明度 */
+}
+
+.ccmd-folder-select-input {
+	flex: 1;
+	padding: 4px 0; /* 减少垂直内边距 */
+	border: none;
+	outline: none;
+	background-color: transparent;
+	color: #374151; /* 更鲜明的文字颜色 */
+	font-size: 14px;
+}
+
+.ccmd-folder-select-input-wrapper:focus-within {
+	border-color: #3b82f6; /* 蓝色聚焦边框 */
+	box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2); /* 更细腻的焦点阴影 */
+	background-color: white;
+}
+
+/* 悬浮状态效果 */
+.ccmd-folder-select-input-wrapper:hover:not(:focus-within) {
+	border-color: #9ca3af; /* 悬浮时边框稍微深一点 */
+}
+
+/* 添加清除按钮样式 */
+.ccmd-folder-select-container .clear-button {
+	cursor: pointer;
+	color: var(--text-muted);
+	margin-left: 4px;
+	opacity: 0.7;
+}
+
+.ccmd-folder-select-container .clear-button:hover {
+	opacity: 1;
+}
+
+.ccmd-folder-select-input:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+.ccmd-folder-select-dropdown {
+	border-radius: 6px; /* 匹配输入框的圆角 */
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	border: 1px solid #e5e7eb;
+	margin-top: 2px;
+	max-height: 200px !important; /* 固定最大高度 */
+	overflow-y: auto !important; /* 添加垂直滚动 */
+	background-color: var(--background-primary) !important; /* 保持与主题一致 */
+	position: absolute !important; /* 确保正确定位 */
+	width: 100% !important; /* 宽度与输入框一致 */
+	z-index: 1000 !important; /* 确保在其他元素之上 */
+}
+
+.ccmd-folder-select-option {
+	padding: 8px 10px;
+	transition: background-color 0.15s ease;
+}
+
+.ccmd-folder-select-option:hover {
+	background-color: #f3f4f6;
+}
+
+.ccmd-folder-select-option-selected {
+	background-color: #eff6ff; /* 浅蓝色选中背景 */
+	color: #2563eb; /* 蓝色文字 */
+}
+
+.ccmd-folder-select-option:hover:not(.ccmd-folder-select-option-selected) {
+	background-color: var(--background-secondary-alt) !important;
+}
+
+.ccmd-folder-select-no-result {
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+@media (pointer: coarse) {
+	.ccmd-folder-select-option {
+		padding: 12px !important; /* 增大触摸区域 */
+		min-height: 44px !important; /* 确保足够高度方便触摸 */
+	}
+
+	.ccmd-folder-select-dropdown {
+		max-height: 250px !important; /* 移动设备上稍大一些 */
+	}
+}
+

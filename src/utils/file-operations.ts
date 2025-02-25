@@ -222,7 +222,10 @@ export class FileOperations {
 				}
 			} else {
 				// 没有路径的情况，使用默认文件夹
-				const folderPath = this.settings.defaultFolderPath || '';
+				let folderPath = this.settings.defaultFolderPath || '';
+
+				// 删除开头和结尾多余的斜杠
+				folderPath = folderPath.replace(/^\/+|\/+$/g, '');
 				targetPath = folderPath
 					? `${folderPath}/${resolvedFilename}.md`
 					: `${resolvedFilename}.md`;
@@ -494,7 +497,9 @@ export class FileOperations {
 
 			// 确保目录存在
 			if (directory) {
+				LogUtils.showDebugLog(() => `Attempting to ensure directory exists: ${directory}`, this.settings);
 				await this.ensureDirectoryExists(directory);
+				LogUtils.showDebugLog(() => `Directory check completed for: ${directory}`, this.settings);
 			}
 
 			// 创建文件内容，如果有别名则添加到 frontmatter
