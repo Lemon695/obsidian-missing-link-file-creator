@@ -609,7 +609,7 @@ export class FileOperations {
 							if (processedContent) {
 								// 如果成功处理，不需要额外的操作，因为文件已经在处理过程中被创建和填充
 								console.log(`文件已使用Templater处理: ${filePath}`);
-								return { success: true };
+								return {success: true};
 							} else {
 								console.log("Templater处理返回空内容，将尝试基本处理");
 								// 继续执行下面的基本模板处理
@@ -646,7 +646,7 @@ export class FileOperations {
 						console.error(`Template file not found: ${templatePath}`);
 					}
 
-					return { success: true };
+					return {success: true};
 				} catch (templateError) {
 					console.error(`应用模板失败: ${templateError.message}`, templateError);
 					// 模板失败但文件已创建，返回部分成功
@@ -659,7 +659,7 @@ export class FileOperations {
 				// 没有使用模板，直接创建文件
 				await this.app.vault.create(filePath, fileContent);
 				console.log(`创建文件(No Template): ${filePath}`);
-				return { success: true };
+				return {success: true};
 			}
 		} catch (error) {
 			console.error(`Failed to Create File: ${filePath}`, error);
@@ -688,6 +688,54 @@ export class FileOperations {
 		}
 
 		return path;
+	}
+
+	/**
+	 * 从选中文本中创建未解析的链接
+	 * @param selectedText 用户选中的文本
+	 */
+	async createLinksFromSelectedText(selectedText: string): Promise<void> {
+		// 从选中文本中提取所有链接
+		const linkInfos = this.extractMDLinks(selectedText);
+
+		// 如果没有找到链接，显示提示并返回
+		if (linkInfos.length === 0) {
+			new Notice('No links found in selected text');
+			return;
+		}
+
+		// 合并同一文件的多个别名
+		const fileMap = this.consolidateFileAliases(linkInfos);
+
+		// 获取当前文件的frontmatter信息
+		const currentFile = this.app.workspace.getActiveFile();
+		let context = {};
+
+		if (currentFile) {
+			const frontmatter = this.app.metadataCache.getFileCache(currentFile)?.frontmatter;
+			context = {
+				frontmatter: frontmatter,
+				sourcePath: currentFile.path
+			};
+		}
+
+		const filesToCreate = this.prepareFilesToCreate(fileMap, context);
+		if (filesToCreate.length === 0) {
+			new Notice('No linkable files to create');
+			return;
+		}
+
+		// 显示确认对话框并创建文件
+		const result = await this.uiManager.showCreationConfirmDialog(
+			filesToCreate,
+			async (filePath, aliases, templatePath) => {
+				return await this.createFileWithMultipleAliases(filePath, aliases, templatePath);
+			}
+		);
+
+		if (result) {
+			this.uiManager.showResultSummary(result);
+		}
 	}
 
 

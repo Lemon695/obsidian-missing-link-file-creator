@@ -54,6 +54,24 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			}
 		});
 
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu, editor, view) => {
+				// 获取选中的文本
+				const selectedText = editor.getSelection();
+				if (selectedText && selectedText.includes("[[")) {
+					menu.addItem((item) => {
+						item
+							.setTitle("Create Files for Selected Unresolved Links") //创建选中的未解析链接
+							.setIcon("document-plus")
+							.onClick(async () => {
+								// 调用新方法处理选中文本中的链接
+								await this.fileOperations.createLinksFromSelectedText(selectedText);
+							});
+					});
+				}
+			})
+		);
+
 		this.addSettingTab(new CreateFileSettingTab(this.app, this));
 	}
 
