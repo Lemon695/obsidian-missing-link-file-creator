@@ -9,6 +9,8 @@ export interface CreateFileSettings {
 	showCreateFileNotification: boolean;
 	defaultFolderPath: string;
 
+	addAliasesToFrontmatter: boolean;
+
 	// 模板设置
 	useTemplates: boolean;            // 是否使用模板
 	defaultTemplatePath: string;      // 默认模板路径
@@ -27,6 +29,8 @@ export const DEFAULT_SETTINGS: CreateFileSettings = {
 	createFileSetting: 'default',
 	showCreateFileNotification: true,
 	defaultFolderPath: '', // 默认为目录
+
+	addAliasesToFrontmatter: true,
 
 	// 模板默认设置
 	useTemplates: false,
@@ -107,6 +111,17 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					this.plugin.settings.useTemplates = value;
 					await this.plugin.saveSettings();
 					console.log(`Template feature ${value ? 'enabled' : 'disabled'}`);
+				}));
+
+		// 别名控制
+		new Setting(containerEl)
+			.setName('Add aliases to frontmatter')
+			.setDesc('When enabled, aliases from links will be added to frontmatter. Disable this if it conflicts with Templater.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.addAliasesToFrontmatter)
+				.onChange(async (value) => {
+					this.plugin.settings.addAliasesToFrontmatter = value;
+					await this.plugin.saveSettings();
 				}));
 
 		containerEl.createEl('h3', {text: 'Rules Management'});

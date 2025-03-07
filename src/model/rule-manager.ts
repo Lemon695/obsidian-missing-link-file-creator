@@ -47,7 +47,8 @@ export class RuleManager {
 					matched: true,
 					rule: rule,
 					targetFolder: rule.targetFolder,
-					templatePath: rule.templatePath
+					templatePath: rule.templatePath,
+					templateAliasHandling: rule.templateAliasHandling
 				};
 			}
 		}

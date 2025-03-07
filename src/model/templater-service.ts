@@ -1,13 +1,16 @@
 import {App, TFile, TFolder} from "obsidian";
 import {CreateFileSettings} from "../settings";
+import {FileOperations} from "../utils/file-operations";
 
 export class TemplaterService {
 	private app: App;
 	private settings: CreateFileSettings;
+	private fileOperations: FileOperations;
 
-	constructor(app: App, settings: CreateFileSettings) {
+	constructor(app: App, settings: CreateFileSettings, fileOperations: FileOperations) {
 		this.app = app;
 		this.settings = settings;
+		this.fileOperations = fileOperations;
 	}
 
 	/**
@@ -30,7 +33,8 @@ export class TemplaterService {
 	async processTemplateWithTemplater(
 		templatePath: string,
 		targetPath: string,
-		variables?: Record<string, string>
+		variables?: Record<string, string>,
+		templaterMode: 'merge' | 'skip' = 'skip'
 	): Promise<string | null> {
 		try {
 			if (!this.hasTemplaterPlugin()) {
@@ -38,7 +42,7 @@ export class TemplaterService {
 				return null;
 			}
 
-			console.log(`使用Templater处理模板: ${templatePath} 目标: ${targetPath}`);
+			console.log(`使用Templater处理模板: ${templatePath} 目标: ${targetPath},templaterMode: ${templaterMode}`);
 
 			// 检查模板文件是否存在
 			const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
@@ -56,68 +60,120 @@ export class TemplaterService {
 				// @ts-ignore - 访问Templater API
 				const templaterPlugin = this.app.plugins.plugins["templater-obsidian"];
 
-				// 使用Templater的内部函数处理模板
-				// 不同版本的Templater可能有不同的API，这里我们尝试几种常见的方法
+				// 使用Templater的overwrite_file_commands方法
+				if (templaterPlugin.templater.overwrite_file_commands) {
+					console.log("使用Templater的overwrite_file_commands方法");
 
-				// 方法1: 通过直接执行模板命令
-				try {
-					// 创建临时文件用于处理
-					const tempFilePath = targetPath; // 直接用目标文件路径
-
-					// 1. 先创建目标文件
-					let targetFile = this.app.vault.getAbstractFileByPath(tempFilePath);
+					// 创建或获取目标文件
+					let targetFile = this.app.vault.getAbstractFileByPath(targetPath);
 					if (!targetFile) {
-						await this.app.vault.create(tempFilePath, templateContent);
-						targetFile = this.app.vault.getAbstractFileByPath(tempFilePath);
+						await this.app.vault.create(targetPath, templateContent);
+						targetFile = this.app.vault.getAbstractFileByPath(targetPath);
 					} else if (targetFile instanceof TFile) {
 						await this.app.vault.modify(targetFile as TFile, templateContent);
 					}
 
 					if (!(targetFile instanceof TFile)) {
-						throw new Error(`无法创建或访问目标文件: ${tempFilePath}`);
+						throw new Error(`无法创建或访问目标文件: ${targetPath}`);
 					}
 
-					// 2. 使用Templater的命令API执行模板
-					// @ts-ignore
-					await templaterPlugin.templater.execute_commands_on_file(targetFile);
+					// 使用overwrite_file_commands方法
+					await templaterPlugin.templater.overwrite_file_commands(targetFile);
 
-					// 3. 读取处理后的文件内容
+					// 读取处理后的文件内容
 					const processedContent = await this.app.vault.read(targetFile as TFile);
 					console.log(`Templater处理完成，处理后内容长度: ${processedContent.length}字符`);
 
-					return processedContent;
-				} catch (methodError) {
-					console.error(`Templater方法1失败: ${methodError.message}`, methodError);
+					let finalContent = processedContent;
 
-					// 尝试方法2
-					// @ts-ignore
-					if (templaterPlugin.templater.overwrite_file_commands) {
-						console.log("尝试Templater方法2");
+					// 如果设置为合并模式且有待处理的别名，将别名合并到处理后的内容中
 
-						// 创建或获取目标文件
-						let targetFile = this.app.vault.getAbstractFileByPath(targetPath);
-						if (!targetFile) {
-							await this.app.vault.create(targetPath, templateContent);
-							targetFile = this.app.vault.getAbstractFileByPath(targetPath);
+					if (templaterMode === 'merge') {
+						const aliases = this.fileOperations?.pendingAliases.get(targetPath);
+						if (aliases && aliases.length > 0) {
+							console.log(`合并别名到文件 ${targetPath}，别名: ${aliases.join(', ')}`);
+
+							// 检查是否包含frontmatter
+							const hasFrontmatter = finalContent.trim().startsWith('---');
+
+							if (hasFrontmatter) {
+								// 从处理后的内容中提取frontmatter
+								const fmRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
+								const fmMatch = finalContent.match(fmRegex);
+
+								if (fmMatch) {
+									const frontmatter = fmMatch[1];
+									const restContent = finalContent.slice(fmMatch[0].length);
+
+									// 检查是否已有aliases字段
+									const hasAliases = /^aliases:/m.test(frontmatter);
+
+									if (hasAliases) {
+										// 将新别名添加到现有别名列表中
+										// 支持多种格式: 数组格式和列表格式
+										const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
+
+										if (/aliases:\s*\[.*\]/m.test(frontmatter)) {
+											// 数组格式: aliases: ["别名1", "别名2"]
+											const updatedFrontmatter = frontmatter.replace(
+												/aliases:\s*\[(.*)\]/m,
+												(match, existingAliases) => {
+													const existingList = existingAliases.trim();
+													const prefix = existingList ? existingList + ', ' : '';
+													return `aliases: [${prefix}${aliases.map(a => `"${a}"`).join(', ')}]`;
+												}
+											);
+											finalContent = `---\n${updatedFrontmatter}\n---${restContent}`;
+										} else {
+											// 列表格式: aliases:\n  - "别名1"\n  - "别名2"
+											const indentMatch = frontmatter.match(/aliases:\s*\n(\s+)- /);
+											const indent = indentMatch ? indentMatch[1] : '  ';
+
+											// 根据现有缩进格式化新别名
+											const formattedAliases = aliases.map(a => `${indent}- "${a}"`).join('\n');
+
+											// 查找aliases块的结尾位置
+											const updatedFrontmatter = frontmatter.replace(
+												/aliases:\s*(\n\s+- .*)*$/m,
+												(match) => {
+													return `${match}\n${formattedAliases}`;
+												}
+											);
+											finalContent = `---\n${updatedFrontmatter}\n---${restContent}`;
+										}
+									} else {
+										// 没有aliases字段，添加新字段
+										const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
+										const updatedFrontmatter = `${frontmatter}\naliases:\n${aliasesYaml}`;
+										finalContent = `---\n${updatedFrontmatter}\n---${restContent}`;
+									}
+
+									// 更新文件内容
+									await this.app.vault.modify(targetFile as TFile, finalContent);
+									console.log(`别名合并完成，文件已更新`);
+								}
+							} else {
+								// 没有frontmatter，创建新的
+								const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
+								finalContent = `---\naliases:\n${aliasesYaml}\n---\n\n${finalContent}`;
+								await this.app.vault.modify(targetFile as TFile, finalContent);
+								console.log(`添加了frontmatter和别名`);
+							}
+
+							// 处理完成后清除pending别名
+							this.fileOperations.pendingAliases.delete(targetPath);
 						}
-
-						if (!(targetFile instanceof TFile)) {
-							throw new Error(`无法创建或访问目标文件: ${targetPath}`);
-						}
-
-						// 使用overwrite_file_commands方法
-						// @ts-ignore
-						await templaterPlugin.templater.overwrite_file_commands(targetFile);
-
-						// 读取处理后的内容
-						return await this.app.vault.read(targetFile as TFile);
 					}
 
-					throw methodError;
+					return finalContent;
+				} else {
+					// 如果找不到overwrite_file_commands方法
+					console.log("未找到Templater的overwrite_file_commands方法，退回到基本模板处理");
+					// 继续执行下面的基本模板处理
+					return this.processBasicTemplate(templateContent, variables || {});
 				}
 			} catch (error) {
 				console.error("Templater处理失败: ", error);
-
 				// 如果所有Templater方法都失败，退回到基本模板处理
 				return this.processBasicTemplate(templateContent, variables || {});
 			}

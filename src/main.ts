@@ -15,12 +15,12 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.templaterService = new TemplaterService(this.app, this.settings);
-
 		this.fileOperations = new FileOperations(<FileOperationsOptions>{
 			app: this.app,
 			settings: this.settings,
 		});
+
+		this.templaterService = new TemplaterService(this.app, this.settings, this.fileOperations);
 
 		// 校验当前文件关联的文件链接
 		this.addCommand({

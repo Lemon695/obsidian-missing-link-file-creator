@@ -2,6 +2,7 @@ import {App, Notice} from "obsidian";
 import {CreateFileSettings} from "../settings";
 import {CreationConfirmModal} from "./creation-confirm-modal";
 import {CreationResult, FileToCreate} from "../model/file-types";
+import {TemplateAliasHandling} from "../model/rule-types";
 
 export class UIManager {
 	private app: App;
@@ -23,9 +24,10 @@ export class UIManager {
 			filename: string,
 			path: string,
 			aliases: Set<string>,
-			templatePath?: string
+			templatePath?: string,
+			templateAliasHandling?: TemplateAliasHandling
 		}[],
-		createFileFn: (filePath: string, aliases: string[], templatePath?: string) => Promise<{
+		createFileFn: (filePath: string, aliases: string[], templatePath?: string, templateAliasHandling?: TemplateAliasHandling) => Promise<{
 			success: boolean,
 			message?: string
 		}>
@@ -37,7 +39,8 @@ export class UIManager {
 				path: file.path,
 				selected: true,
 				aliases: Array.from(file.aliases),
-				templatePath: file.templatePath
+				templatePath: file.templatePath,
+				templateAliasHandling: file.templateAliasHandling
 			}));
 
 			// 如果没有文件需要创建——>返回
@@ -59,7 +62,7 @@ export class UIManager {
 					if (selectedFiles.length === 1) {
 						const file = selectedFiles[0];
 						try {
-							return await createFileFn(file.path, file.aliases, file.templatePath);
+							return await createFileFn(file.path, file.aliases, file.templatePath, file.templateAliasHandling);
 						} catch (error) {
 							console.error(`Failed to create file: ${file.path}`, error);
 							return false;

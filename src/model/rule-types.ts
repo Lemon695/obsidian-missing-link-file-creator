@@ -6,8 +6,13 @@ export enum RuleMatchType {
 	ENDS_WITH = "endsWith",      // 以指定文本结束
 	REGEX = "regex",             // 正则表达式匹配
 	EXACT = "exact",             // 精确匹配
-	TAG = "tag",                 // 标签匹配（新增）
-	TEMPLATE = "template"        // 模板类型匹配（新增）
+	TAG = "tag",                 // 标签匹配
+	TEMPLATE = "template"        // 模板类型匹配
+}
+
+export enum TemplateAliasHandling {
+	SKIP = "skip",        // 跳过别名处理
+	MERGE = "merge"       // 将别名与模板frontmatter合并
 }
 
 // 创建文件规则
@@ -20,6 +25,7 @@ export interface FileCreationRule {
 	templatePath: string;       // 使用的模板路径
 	priority: number;           // 规则优先级（数字越小优先级越高）
 	description?: string;       // 规则描述(可选)
+	templateAliasHandling?: TemplateAliasHandling; // 模板别名处理方式
 }
 
 // 规则匹配结果
@@ -28,6 +34,7 @@ export interface RuleMatchResult {
 	rule?: FileCreationRule;    // 匹配的规则
 	targetFolder?: string;      // 计算后的目标文件夹
 	templatePath?: string;      // 使用的模板路径
+	templateAliasHandling?: TemplateAliasHandling; // 模板别名处理方式
 }
 
 export function convertLegacyRule(rule: any): FileCreationRule {

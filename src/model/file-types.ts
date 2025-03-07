@@ -1,5 +1,6 @@
 import {App} from "obsidian";
 import {CreateFileSettings} from "../settings";
+import {TemplateAliasHandling} from "./rule-types";
 
 // 待创建文件
 export interface FileToCreate {
@@ -9,6 +10,7 @@ export interface FileToCreate {
 	selected: boolean;  // 是否选中
 	aliases: string[];  // 别名列表
 	templatePath?: string;
+	templateAliasHandling?: TemplateAliasHandling; // 专门用于模板的别名处理
 }
 
 export interface CreationModalParams {

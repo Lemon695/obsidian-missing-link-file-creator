@@ -6,6 +6,7 @@ import {resolveFilePath} from "./path-utils";
 import {UIManager} from "../ui-manager/ui-manager";
 import {TemplaterService} from "../model/templater-service";
 import {RuleManager} from "../model/rule-manager";
+import {TemplateAliasHandling} from "../model/rule-types";
 
 export interface FileOperationsOptions {
 	app: App;
@@ -36,13 +37,14 @@ export class FileOperations {
 	private uiManager: UIManager;
 	private templaterService: TemplaterService;
 	private ruleManager: RuleManager;
+	public pendingAliases: Map<string, string[]> = new Map();
 
 	constructor(options: FileOperationsOptions) {
 		this.app = options.app;
 		this.settings = options.settings;
 		this.fileUtils = new FileUtils(options.app);
 		this.uiManager = new UIManager(options.app, options.settings);
-		this.templaterService = new TemplaterService(options.app, options.settings);
+		this.templaterService = new TemplaterService(options.app, options.settings, this);
 		this.ruleManager = new RuleManager(options.app, options.settings);
 	}
 
@@ -198,8 +200,9 @@ export class FileOperations {
 		path: string,
 		aliases: Set<string>,
 		conflictResolution?: string,
-		templatePath?: string,  // 新增：用于存储规则匹配的模板路径
-		matchedRule?: string,    // 新增：用于记录匹配的规则名称
+		templatePath?: string,  // 用于存储规则匹配的模板路径
+		matchedRule?: string,    // 用于记录匹配的规则名称
+		templateAliasHandling?: TemplateAliasHandling
 	}[] {
 		const filesToCreate: {
 			filename: string,
@@ -207,7 +210,8 @@ export class FileOperations {
 			aliases: Set<string>,
 			conflictResolution?: string,
 			templatePath?: string,
-			matchedRule?: string
+			matchedRule?: string,
+			templateAliasHandling?: TemplateAliasHandling
 		}[] = [];
 
 		const pathTracker = new Map<string, boolean>(); // 跟踪路径是否已存在
@@ -225,11 +229,13 @@ export class FileOperations {
 			let targetPath = '';
 			let templatePath = undefined;
 			let matchedRule = undefined;
+			let templateAliasHandling = undefined;
 
 			if (this.settings.useRules && ruleMatch.matched) {
 				// 如果启用了规则并有匹配结果
 				templatePath = ruleMatch.templatePath;
 				matchedRule = ruleMatch.rule?.name;
+				templateAliasHandling = ruleMatch.templateAliasHandling;
 
 				if (ruleMatch.targetFolder) {
 					// 使用规则指定的目标文件夹
@@ -328,7 +334,8 @@ export class FileOperations {
 				aliases: fileInfo.aliases,
 				conflictResolution: conflictResolution,
 				templatePath: templatePath,
-				matchedRule: matchedRule
+				matchedRule: matchedRule,
+				templateAliasHandling: templateAliasHandling
 			});
 		}
 
@@ -401,8 +408,8 @@ export class FileOperations {
 			// 显示确认对话框
 			const result = await this.uiManager.showCreationConfirmDialog(
 				filesToCreate,
-				async (filePath, aliases, templatePath) => {
-					return await this.createFileWithMultipleAliases(filePath, aliases, templatePath);
+				async (filePath, aliases, templatePath, templateAliasHandling) => {
+					return await this.createFileWithMultipleAliases(filePath, aliases, templatePath, templateAliasHandling);
 				}
 			);
 
@@ -496,8 +503,8 @@ export class FileOperations {
 			// 显示确认对话框
 			const result = await this.uiManager.showCreationConfirmDialog(
 				filesToCreate,
-				async (filePath, aliases, templatePath) => {
-					return await this.createFileWithMultipleAliases(filePath, aliases, templatePath);
+				async (filePath, aliases, templatePath, templateAliasHandling) => {
+					return await this.createFileWithMultipleAliases(filePath, aliases, templatePath, templateAliasHandling);
 				}
 			);
 
@@ -548,11 +555,12 @@ export class FileOperations {
 	async createFileWithMultipleAliases(
 		filePath: string,
 		aliases: string[],
-		templatePath?: string
+		templatePath?: string,
+		templateAliasHandling?: TemplateAliasHandling
 	): Promise<{ success: boolean, message?: string }> {
 		try {
 			// 添加调试日志
-			console.log(`Creating Files: ${filePath}, 使用模板: ${templatePath || 'No Template'}`);
+			console.log(`Creating Files: ${filePath}, 使用模板: ${templatePath || 'No Template'}, 别名处理: ${templateAliasHandling || 'default'}`);
 
 			// 提取文件路径的目录部分
 			const lastSlashIndex = filePath.lastIndexOf('/');
@@ -576,10 +584,20 @@ export class FileOperations {
 
 			// 创建基本文件内容，如果有别名则添加到 frontmatter
 			let fileContent = '';
-			if (aliases && aliases.length > 0) {
-				// 格式化别名为YAML数组
+
+			const shouldAddAliasesToFrontmatter = this.settings.addAliasesToFrontmatter &&
+				(!templatePath || !templateAliasHandling);
+
+			if (templateAliasHandling) {
+				console.log(`使用规则指定的别名处理方式: ${templateAliasHandling}`);
+				if (templateAliasHandling === TemplateAliasHandling.MERGE && aliases && aliases.length > 0) {
+					this.pendingAliases.set(filePath, aliases);
+					console.log(`已将别名添加到待处理队列: ${aliases.join(', ')}`);
+				}
+			} else if (shouldAddAliasesToFrontmatter && aliases && aliases.length > 0) {
 				const aliasesString = aliases.map(alias => `  - "${alias}"`).join('\n');
 				fileContent = `---\naliases:\n${aliasesString}\n---\n\n`;
+				console.log("已根据全局设置将别名添加到frontmatter");
 			}
 
 			// 准备变量
@@ -588,6 +606,11 @@ export class FileOperations {
 				path: filePath,
 				aliases: aliases.join(', ')
 			};
+
+			// 如果使用模板且设置为合并别名，保存别名到待处理队列
+			if (templatePath && templateAliasHandling === TemplateAliasHandling.MERGE && aliases && aliases.length > 0) {
+				this.pendingAliases.set(filePath, aliases);
+			}
 
 			// 如果启用了模板并且指定了模板路径
 			if (this.settings.useTemplates && templatePath) {
@@ -599,11 +622,12 @@ export class FileOperations {
 						console.log('使用Templater处理模板');
 
 						try {
-							// 使用修改后的processTemplateWithTemplater方法
+							const templaterMode = templateAliasHandling === TemplateAliasHandling.MERGE ? 'merge' : 'skip';
 							const processedContent = await this.templaterService.processTemplateWithTemplater(
 								templatePath,
 								filePath,
-								variables
+								variables,
+								templaterMode
 							);
 
 							if (processedContent) {
@@ -612,11 +636,9 @@ export class FileOperations {
 								return {success: true};
 							} else {
 								console.log("Templater处理返回空内容，将尝试基本处理");
-								// 继续执行下面的基本模板处理
 							}
 						} catch (templaterError) {
 							console.error(`Templater处理失败: ${templaterError.message}`, templaterError);
-							// 继续执行下面的基本模板处理
 						}
 					}
 
@@ -728,8 +750,8 @@ export class FileOperations {
 		// 显示确认对话框并创建文件
 		const result = await this.uiManager.showCreationConfirmDialog(
 			filesToCreate,
-			async (filePath, aliases, templatePath) => {
-				return await this.createFileWithMultipleAliases(filePath, aliases, templatePath);
+			async (filePath, aliases, templatePath, templateAliasHandling) => {
+				return await this.createFileWithMultipleAliases(filePath, aliases, templatePath, templateAliasHandling);
 			}
 		);
 
