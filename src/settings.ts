@@ -3,6 +3,7 @@ import CheckAndCreateMDFilePlugin from "./main";
 import {FileCreationRule, RuleMatchType} from "./model/rule-types";
 import {RuleManagementModal} from "./ui-manager/rule-management-modal";
 import {FolderSuggest} from "./settings/suggesters/folder-suggester";
+import {log} from "./utils/log-utils";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
@@ -98,7 +99,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.templateFolder = value;
 						await this.plugin.saveSettings();
-						console.log(`Template folder set to: ${value}`);
+						log.debug(`Template folder set to: ${value}`);
 					});
 			});
 
@@ -110,7 +111,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.useTemplates = value;
 					await this.plugin.saveSettings();
-					console.log(`Template feature ${value ? 'enabled' : 'disabled'}`);
+					log.debug(`Template feature ${value ? 'enabled' : 'disabled'}`);
 				}));
 
 		// 别名控制

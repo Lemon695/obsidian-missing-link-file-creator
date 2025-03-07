@@ -1,19 +1,20 @@
 import {App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, Vault} from 'obsidian';
 import {FileOperations, FileOperationsOptions} from './utils/file-operations';
 import {CreateFileSettings, CreateFileSettingTab, DEFAULT_SETTINGS} from "./settings";
-import {LogUtils} from './utils/log-utils';
 import {RuleManagementModal} from "./ui-manager/rule-management-modal";
 import {TemplaterService} from "./model/templater-service";
+import {log} from "./utils/log-utils";
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
 	private fileOperations: FileOperations;
 	public templaterService: TemplaterService;
-	// 添加命令执行状态标志
-	private isCommandExecuting: boolean = false;
+	private isCommandExecuting: boolean = false; // 添加命令执行状态标志
 
 	async onload() {
 		await this.loadSettings();
+
+		log.setDebugMode(this.settings.debugMode);
 
 		this.fileOperations = new FileOperations(<FileOperationsOptions>{
 			app: this.app,
@@ -76,7 +77,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 	}
 
 	onunload() {
-		LogUtils.showDebugLog(() => 'CheckAndCreateMDFilePlugin unloaded', this.settings);
+		log.debug("CheckAndCreateMDFilePlugin unloaded");
 	}
 
 	async loadSettings() {
@@ -85,6 +86,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		log.setDebugMode(this.settings.debugMode);
 	}
 
 }

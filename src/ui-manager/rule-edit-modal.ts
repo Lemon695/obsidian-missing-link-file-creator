@@ -8,6 +8,7 @@ import GenericInputPrompt from "./generic-input-prompt";
 import {ConditionEditor} from "./condition-editor";
 import {TemplateSelectionModal} from "./template-selection-modal";
 import {CustomModal} from "./custom-modal";
+import {log} from "../utils/log-utils";
 
 export class RuleEditModal extends CustomModal {
     private rule: FileCreationRule;
@@ -71,7 +72,7 @@ export class RuleEditModal extends CustomModal {
                     titleEl.setText(newName);
                 }
             } catch (e) {
-                console.log(`未提供新名称`);
+                log.debug(`No new name provided`);
             }
         });
 
@@ -303,7 +304,7 @@ export class RuleEditModal extends CustomModal {
         contentEl.empty();
 
         if (!this.didSubmit) {
-            console.log("Rule editing cancelled");
+            log.debug("Rule editing cancelled");
         }
     }
 }

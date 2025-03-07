@@ -1,7 +1,7 @@
 import {App} from "obsidian";
 import {convertLegacyRule, FileCreationRule, RuleMatchResult, RuleMatchType} from "./rule-types";
 import {CreateFileSettings} from "../settings";
-import {LogUtils} from "../utils/log-utils";
+import {log} from "../utils/log-utils";
 import {ConditionMatchType, ConditionOperator, MatchCondition} from "./condition-types";
 
 /**
@@ -41,7 +41,7 @@ export class RuleManager {
 
 		for (const rule of activeRules) {
 			if (this.checkRuleMatch(filename, rule, context)) {
-				LogUtils.showDebugLog(() => `Applied rule ${rule.name} to filename: ${filename}`, this.settings);
+				log.debug(() => `Applied rule ${rule.name} to filename: ${filename}`);
 
 				return {
 					matched: true,
@@ -131,20 +131,20 @@ export class RuleManager {
 		if (condition.type === ConditionMatchType.FRONTMATTER) {
 			if (!context || !context.frontmatter) {
 				//无法进行frontmatter匹配：没有提供frontmatter上下文
-				console.log(`No frontmatter context available for matching`);
+				log.debug(`No frontmatter context available for matching`);
 				return false;
 			}
 
 			// 检查属性是否存在
 			if (!condition.property) {
-				console.log(`Frontmatter match failed: no property specified`);
+				log.debug(`Frontmatter match failed: no property specified`);
 				return false;
 			}
 
 			// 获取属性值
 			const propertyValue = context.frontmatter[condition.property];
 			if (propertyValue === undefined) {
-				console.log(`Frontmatter match failed: property "${condition.property}" does not exist`);
+				log.debug(`Frontmatter match failed: property "${condition.property}" does not exist`);
 				return false;
 			}
 

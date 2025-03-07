@@ -1,6 +1,7 @@
 import {App, TFile, TFolder} from "obsidian";
 import {CreateFileSettings} from "../settings";
 import {FileOperations} from "../utils/file-operations";
+import {log} from "../utils/log-utils";
 
 export class TemplaterService {
 	private app: App;
@@ -19,7 +20,7 @@ export class TemplaterService {
 	hasTemplaterPlugin(): boolean {
 		// @ts-ignore - 使用插件API检查Templater
 		const hasTemplater = this.app.plugins.plugins["templater-obsidian"] !== undefined;
-		console.log(`Templater插件${hasTemplater ? '已安装' : '未安装'}`);
+		log.debug(`Templater plugin ${hasTemplater ? 'is installed' : 'is not installed'}`);
 		return hasTemplater;
 	}
 
@@ -38,11 +39,11 @@ export class TemplaterService {
 	): Promise<string | null> {
 		try {
 			if (!this.hasTemplaterPlugin()) {
-				console.log("Templater插件未找到");
+				log.debug("Templater plugin not found");
 				return null;
 			}
 
-			console.log(`使用Templater处理模板: ${templatePath} 目标: ${targetPath},templaterMode: ${templaterMode}`);
+			log.debug(`Processing template with Templater: ${templatePath} Target: ${targetPath}, templaterMode: ${templaterMode}`);
 
 			// 检查模板文件是否存在
 			const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
@@ -53,18 +54,15 @@ export class TemplaterService {
 
 			// 读取模板内容
 			const templateContent = await this.app.vault.read(templateFile as TFile);
-			console.log(`模板内容已读取，长度: ${templateContent.length}字符`);
+			log.debug(`Template content has been read, length: ${templateContent.length} characters`);
 
 			try {
-				// 获取Templater插件实例
 				// @ts-ignore - 访问Templater API
 				const templaterPlugin = this.app.plugins.plugins["templater-obsidian"];
 
 				// 使用Templater的overwrite_file_commands方法
 				if (templaterPlugin.templater.overwrite_file_commands) {
-					console.log("使用Templater的overwrite_file_commands方法");
 
-					// 创建或获取目标文件
 					let targetFile = this.app.vault.getAbstractFileByPath(targetPath);
 					if (!targetFile) {
 						await this.app.vault.create(targetPath, templateContent);
@@ -74,7 +72,7 @@ export class TemplaterService {
 					}
 
 					if (!(targetFile instanceof TFile)) {
-						throw new Error(`无法创建或访问目标文件: ${targetPath}`);
+						throw new Error(`Unable to create or access target file: ${targetPath}`);
 					}
 
 					// 使用overwrite_file_commands方法
@@ -82,7 +80,7 @@ export class TemplaterService {
 
 					// 读取处理后的文件内容
 					const processedContent = await this.app.vault.read(targetFile as TFile);
-					console.log(`Templater处理完成，处理后内容长度: ${processedContent.length}字符`);
+					log.debug(`Templater processing completed, processed content length: ${processedContent.length} characters`);
 
 					let finalContent = processedContent;
 
@@ -91,7 +89,7 @@ export class TemplaterService {
 					if (templaterMode === 'merge') {
 						const aliases = this.fileOperations?.pendingAliases.get(targetPath);
 						if (aliases && aliases.length > 0) {
-							console.log(`合并别名到文件 ${targetPath}，别名: ${aliases.join(', ')}`);
+							log.debug(`Merging aliases into file ${targetPath}, aliases: ${aliases.join(', ')}`);
 
 							// 检查是否包含frontmatter
 							const hasFrontmatter = finalContent.trim().startsWith('---');
@@ -150,14 +148,13 @@ export class TemplaterService {
 
 									// 更新文件内容
 									await this.app.vault.modify(targetFile as TFile, finalContent);
-									console.log(`别名合并完成，文件已更新`);
+									log.debug(`Alias merging completed, file has been updated`);
 								}
 							} else {
-								// 没有frontmatter，创建新的
 								const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
 								finalContent = `---\naliases:\n${aliasesYaml}\n---\n\n${finalContent}`;
 								await this.app.vault.modify(targetFile as TFile, finalContent);
-								console.log(`添加了frontmatter和别名`);
+								log.debug(`Added frontmatter and aliases`);
 							}
 
 							// 处理完成后清除pending别名
@@ -167,18 +164,15 @@ export class TemplaterService {
 
 					return finalContent;
 				} else {
-					// 如果找不到overwrite_file_commands方法
-					console.log("未找到Templater的overwrite_file_commands方法，退回到基本模板处理");
-					// 继续执行下面的基本模板处理
+					log.debug("Templater's overwrite_file_commands method not found, falling back to basic template processing");
 					return this.processBasicTemplate(templateContent, variables || {});
 				}
 			} catch (error) {
-				console.error("Templater处理失败: ", error);
-				// 如果所有Templater方法都失败，退回到基本模板处理
+				log.error(`Templater processing failed: ${error}`);
 				return this.processBasicTemplate(templateContent, variables || {});
 			}
 		} catch (error) {
-			console.error("处理模板时发生错误:", error);
+			log.error(`Error occurred while processing template: ${error}`);
 			return null;
 		}
 	}
@@ -295,14 +289,13 @@ export class TemplaterService {
 	getAvailableTemplates(): string[] {
 		const templateFolder = this.settings.templateFolder;
 		if (!templateFolder) {
-			console.log("模板文件夹路径为空");
 			return [];
 		}
 
 		// 检查文件夹是否存在
 		const folderObj = this.app.vault.getAbstractFileByPath(templateFolder);
 		if (!folderObj || !(folderObj instanceof TFolder)) {
-			console.log(`Cannot find template file: ${templateFolder}`);
+			log.debug(`Cannot find template file: ${templateFolder}`);
 			return [];
 		}
 
@@ -321,8 +314,7 @@ export class TemplaterService {
 
 		collectTemplates(folderObj as TFolder);
 
-		// 调试输出找到的模板文件
-		console.log(`找到 ${templates.length} 个模板文件`);
+		log.debug(`Found ${templates.length} template files`);
 		return templates;
 	}
 }

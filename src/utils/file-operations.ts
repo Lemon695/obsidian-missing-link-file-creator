@@ -1,6 +1,6 @@
 import {App, Notice, TAbstractFile, TFile, Vault} from 'obsidian';
 import {FileUtils} from './file-utils';
-import {LogUtils} from "./log-utils";
+import {log} from "./log-utils";
 import {CreateFileSettings} from "../settings";
 import {resolveFilePath} from "./path-utils";
 import {UIManager} from "../ui-manager/ui-manager";
@@ -124,7 +124,7 @@ export class FileOperations {
 			linkInfos.push(linkInfo);
 		}
 
-		LogUtils.showDebugLog(() => `Extracted links: ${linkInfos.length}`, this.settings);
+		log.debug(() => `Extracted links: ${linkInfos.length}`);
 		return linkInfos;
 	}
 
@@ -158,10 +158,8 @@ export class FileOperations {
 
 			// 如果文件已存在，跳过
 			if (fileExists) {
-				LogUtils.showDebugLog(
-					() => `Skipping existing file: ${key}`,
-					this.settings
-				);
+				log.debug(
+					() => `Skipping existing file: ${key}`);
 				continue;
 			}
 
@@ -179,10 +177,8 @@ export class FileOperations {
 				const fileEntry = fileMap.get(key);
 				if (fileEntry) {
 					fileEntry.aliases.add(link.alias);
-					LogUtils.showDebugLog(
-						() => `Added alias "${link.alias}" to file "${key}"`,
-						this.settings
-					);
+					log.debug(
+						() => `Added alias "${link.alias}" to file "${key}"`);
 				}
 			}
 		}
@@ -265,7 +261,7 @@ export class FileOperations {
 					targetPath = `${resolvedPath}/${fileName}.md`;
 
 					if (this.app.vault.getAbstractFileByPath(targetPath) instanceof TFile) {
-						LogUtils.showDebugLog(() => `Skipping existing file at specific path: ${targetPath}`, this.settings);
+						log.debug(() => `Skipping existing file at specific path: ${targetPath}`);
 						continue;
 					}
 				} else {
@@ -280,7 +276,7 @@ export class FileOperations {
 
 					// 检查全局是否存在该文件
 					if (this.fileUtils.isFileExistsInVault(resolvedFilename)) {
-						LogUtils.showDebugLog(() => `Skipping existing file in vault: ${resolvedFilename}`, this.settings);
+						log.debug(() => `Skipping existing file in vault: ${resolvedFilename}`);
 						continue;
 					}
 				}
@@ -301,7 +297,7 @@ export class FileOperations {
 						conflictResolution = "update_aliases";
 					} else {
 						// 已存在且无新别名 - 跳过
-						LogUtils.showDebugLog(() => `Skipping existing file with no new aliases: ${targetPath}`, this.settings);
+						log.debug(() => `Skipping existing file with no new aliases: ${targetPath}`);
 						continue;
 					}
 				} else if (pathConflict) {
@@ -321,7 +317,7 @@ export class FileOperations {
 
 					targetPath = uniquePath;
 					conflictResolution = "renamed";
-					LogUtils.showDebugLog(() => `Renamed conflicting path to: ${targetPath}`, this.settings);
+					log.debug(() => `Renamed conflicting path to: ${targetPath}`);
 				}
 			}
 
@@ -372,7 +368,7 @@ export class FileOperations {
 	async checkAndCreateMDFiles(): Promise<void> {
 		const currentFile = this.app.workspace.getActiveFile();
 		if (!currentFile) {
-			LogUtils.showDebugLog(() => 'No active file found.', this.settings);
+			log.debug(() => 'No active file found.');
 			new Notice('No active file found');
 			return;
 		}
@@ -540,7 +536,7 @@ export class FileOperations {
 		// 创建当前目录
 		try {
 			await this.app.vault.createFolder(pathToCreate);
-			LogUtils.showDebugLog(() => `Created directory: ${pathToCreate}`, this.settings);
+			log.debug(() => `Created directory: ${pathToCreate}`);
 		} catch (error) {
 			console.error(`Failed to create directory: ${pathToCreate}`, error);
 		}
@@ -560,7 +556,7 @@ export class FileOperations {
 	): Promise<{ success: boolean, message?: string }> {
 		try {
 			// 添加调试日志
-			console.log(`Creating Files: ${filePath}, 使用模板: ${templatePath || 'No Template'}, 别名处理: ${templateAliasHandling || 'default'}`);
+			log.debug(`Creating Files: ${filePath}, Using template: ${templatePath || 'No Template'}, Alias handling: ${templateAliasHandling || 'default'}`);
 
 			// 提取文件路径的目录部分
 			const lastSlashIndex = filePath.lastIndexOf('/');
@@ -568,7 +564,7 @@ export class FileOperations {
 
 			// 确保目录存在
 			if (directory) {
-				console.log(`Create Directory: ${directory}`);
+				log.debug(`Create Directory: ${directory}`);
 				try {
 					await this.ensureDirectoryExists(directory);
 				} catch (dirError) {
@@ -582,22 +578,21 @@ export class FileOperations {
 			// 提取文件名作为变量
 			const filename = filePath.split('/').pop()?.replace('.md', '') || '';
 
-			// 创建基本文件内容，如果有别名则添加到 frontmatter
 			let fileContent = '';
 
 			const shouldAddAliasesToFrontmatter = this.settings.addAliasesToFrontmatter &&
 				(!templatePath || !templateAliasHandling);
 
 			if (templateAliasHandling) {
-				console.log(`使用规则指定的别名处理方式: ${templateAliasHandling}`);
+				log.debug(`Using the alias handling method specified by the rules: ${templateAliasHandling}`);
 				if (templateAliasHandling === TemplateAliasHandling.MERGE && aliases && aliases.length > 0) {
 					this.pendingAliases.set(filePath, aliases);
-					console.log(`已将别名添加到待处理队列: ${aliases.join(', ')}`);
+					log.debug(`Aliases have been added to the pending queue: ${aliases.join(', ')}`);
 				}
 			} else if (shouldAddAliasesToFrontmatter && aliases && aliases.length > 0) {
 				const aliasesString = aliases.map(alias => `  - "${alias}"`).join('\n');
 				fileContent = `---\naliases:\n${aliasesString}\n---\n\n`;
-				console.log("已根据全局设置将别名添加到frontmatter");
+				log.debug("Aliases have been added to the frontmatter based on global settings");
 			}
 
 			// 准备变量
@@ -612,14 +607,12 @@ export class FileOperations {
 				this.pendingAliases.set(filePath, aliases);
 			}
 
-			// 如果启用了模板并且指定了模板路径
 			if (this.settings.useTemplates && templatePath) {
-				console.log(`应用模板: ${templatePath} 到文件: ${filePath}`);
+				log.debug(`Applying template: ${templatePath} to file: ${filePath}`);
 
 				try {
-					// 如果有Templater插件，使用Templater处理模板
 					if (this.templaterService.hasTemplaterPlugin()) {
-						console.log('使用Templater处理模板');
+						log.debug('Processing template with Templater');
 
 						try {
 							const templaterMode = templateAliasHandling === TemplateAliasHandling.MERGE ? 'merge' : 'skip';
@@ -631,23 +624,20 @@ export class FileOperations {
 							);
 
 							if (processedContent) {
-								// 如果成功处理，不需要额外的操作，因为文件已经在处理过程中被创建和填充
-								console.log(`文件已使用Templater处理: ${filePath}`);
+								log.debug(`File has been processed with Templater: ${filePath}`);
 								return {success: true};
 							} else {
-								console.log("Templater处理返回空内容，将尝试基本处理");
+								log.debug("Templater processing returned empty content, will attempt basic processing");
 							}
 						} catch (templaterError) {
-							console.error(`Templater处理失败: ${templaterError.message}`, templaterError);
+							log.error(`Templater processing failed: ${templaterError.message}`);
 						}
 					}
 
-					// 使用基本模板处理（作为备选方案）
-					console.log('使用基本模板处理');
+					log.debug('Processing with basic template');
 
-					// 先创建带有frontmatter的文件
 					const newFile = await this.app.vault.create(filePath, fileContent);
-					console.log(`初始文件已创建: ${filePath}`);
+					log.debug(`Initial file has been created: ${filePath}`);
 
 					// 获取模板文件
 					const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
@@ -662,25 +652,24 @@ export class FileOperations {
 						if (targetFile && targetFile instanceof TFile) {
 							const mergedContent = this.templaterService.mergeFrontmatter(fileContent, processedContent);
 							await this.app.vault.modify(targetFile, mergedContent);
-							console.log(`文件内容已使用基本处理更新: ${filePath}`);
+							log.debug(`File content has been updated using basic processing: ${filePath}`);
 						}
 					} else {
-						console.error(`Template file not found: ${templatePath}`);
+						log.error(`Template file not found: ${templatePath}`);
 					}
 
 					return {success: true};
 				} catch (templateError) {
-					console.error(`应用模板失败: ${templateError.message}`, templateError);
-					// 模板失败但文件已创建，返回部分成功
+					log.error(`Failed to apply template: ${templateError.message}`);
 					return {
 						success: true,
-						message: `文件已创建，但应用模板失败: ${templateError.message}`
+						message: `File has been created, but applying the template failed: ${templateError.message}`
 					};
 				}
 			} else {
 				// 没有使用模板，直接创建文件
 				await this.app.vault.create(filePath, fileContent);
-				console.log(`创建文件(No Template): ${filePath}`);
+				log.debug(`Creating file (No Template): ${filePath}`);
 				return {success: true};
 			}
 		} catch (error) {
