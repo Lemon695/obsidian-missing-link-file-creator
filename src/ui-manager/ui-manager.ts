@@ -25,6 +25,7 @@ export class UIManager {
 			path: string,
 			aliases: Set<string>,
 			templatePath?: string,
+			matchedRule?: string,
 			templateAliasHandling?: TemplateAliasHandling
 		}[],
 		createFileFn: (filePath: string, aliases: string[], templatePath?: string, templateAliasHandling?: TemplateAliasHandling) => Promise<{
@@ -40,6 +41,7 @@ export class UIManager {
 				selected: true,
 				aliases: Array.from(file.aliases),
 				templatePath: file.templatePath,
+				matchedRule: file.matchedRule,
 				templateAliasHandling: file.templateAliasHandling
 			}));
 

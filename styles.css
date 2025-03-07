@@ -1891,3 +1891,16 @@ body.theme-dark .suggestion-item.is-selected {
 	max-width: 200px !important;
 }
 
+.creation-confirm-modal .file-table .rule-name-column {
+	width: 15%;
+}
+
+.rule-name-cell {
+	color: var(--text-normal);
+	font-size: 0.9em;
+}
+
+.no-rule-match {
+	color: var(--text-muted);
+	font-style: italic;
+}

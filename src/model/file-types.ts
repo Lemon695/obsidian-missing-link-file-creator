@@ -10,6 +10,7 @@ export interface FileToCreate {
 	selected: boolean;  // 是否选中
 	aliases: string[];  // 别名列表
 	templatePath?: string;
+	matchedRule?: string; //匹配的规则名称
 	templateAliasHandling?: TemplateAliasHandling; // 专门用于模板的别名处理
 }
 

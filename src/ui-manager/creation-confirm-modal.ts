@@ -175,10 +175,15 @@ export class CreationConfirmModal extends Modal {
 			const aliasesHeader = document.createElement('th');
 			aliasesHeader.textContent = 'Aliases';
 
+			const ruleNameHeader = document.createElement('th');
+			ruleNameHeader.textContent = 'Matched Rule';
+			ruleNameHeader.addClass('rule-name-column');
+
 			headerRow.appendChild(selectHeader);
 			headerRow.appendChild(filenameHeader);
 			headerRow.appendChild(pathHeader);
 			headerRow.appendChild(aliasesHeader);
+			headerRow.appendChild(ruleNameHeader);
 			thead.appendChild(headerRow);
 			table.appendChild(thead);
 
@@ -221,10 +226,20 @@ export class CreationConfirmModal extends Modal {
 					aliasesCell.addClass('no-aliases');
 				}
 
+				const ruleNameCell = document.createElement('td');
+				ruleNameCell.addClass('rule-name-cell');
+				if (file.matchedRule) {
+					ruleNameCell.textContent = file.matchedRule;
+				} else {
+					ruleNameCell.textContent = '-';
+					ruleNameCell.addClass('no-rule-match');
+				}
+
 				row.appendChild(selectCell);
 				row.appendChild(filenameCell);
 				row.appendChild(pathCell);
 				row.appendChild(aliasesCell);
+				row.appendChild(ruleNameCell);
 				tbody.appendChild(row);
 			});
 
