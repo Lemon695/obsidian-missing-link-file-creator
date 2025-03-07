@@ -1,0 +1,83 @@
+import {App, Modal, TFile} from "obsidian";
+
+export class TemplateSelectionModal extends Modal {
+	private templates: string[];
+	private onChoose: (path: string) => void;
+
+	constructor(app: App, templates: string[], onChoose: (path: string) => void) {
+		super(app);
+		this.templates = templates;
+		this.onChoose = onChoose;
+	}
+
+	onOpen() {
+		const {contentEl} = this;
+		contentEl.empty();
+		contentEl.addClass('template-selection-modal', 'quickAddModal');
+		contentEl.style.width = "600px";
+		contentEl.style.maxWidth = "80vw";
+
+		contentEl.createEl('h2', {text: 'Select Template'}); //选择模板
+
+		const searchContainer = contentEl.createDiv({cls: 'template-search-container'});
+		const searchInput = searchContainer.createEl('input', {
+			type: 'text',
+			placeholder: 'Search templates...', //搜索模板...
+			cls: 'template-search-input'
+		});
+		searchInput.style.width = "100%";
+		searchInput.style.marginBottom = "15px";
+		searchInput.style.padding = "8px";
+		searchInput.style.borderRadius = "4px";
+		searchInput.style.border = "1px solid var(--background-modifier-border)";
+
+		const templateList = contentEl.createDiv({cls: 'template-list'});
+
+		if (this.templates.length === 0) {
+			templateList.createEl('div', {
+				text: 'No template files found', //没有找到模板文件
+				cls: 'no-templates'
+			});
+			return;
+		}
+
+		const renderTemplates = (templates: string[]) => {
+			templateList.empty();
+
+			if (templates.length === 0) {
+				templateList.createEl('div', {
+					text: 'No matching templates', //未找到匹配的模板
+					cls: 'no-templates'
+				});
+				return;
+			}
+
+			templates.forEach(templatePath => {
+				const item = templateList.createEl('div', {
+					cls: 'template-item',
+					text: templatePath
+				});
+
+				item.addEventListener('click', () => {
+					this.onChoose(templatePath);
+					this.close();
+				});
+			});
+		};
+
+		renderTemplates(this.templates);
+
+		searchInput.addEventListener('input', () => {
+			const searchTerm = searchInput.value.toLowerCase();
+			const filteredTemplates = this.templates.filter(
+				template => template.toLowerCase().includes(searchTerm)
+			);
+			renderTemplates(filteredTemplates);
+		});
+	}
+
+	onClose() {
+		const {contentEl} = this;
+		contentEl.empty();
+	}
+}

@@ -22,3 +22,6 @@ data.json
 .DS_Store
 /build.sh
 /dist/code/
+/npminstall-debug.log
+/pnpm-lock.yaml
+/dist/main.css

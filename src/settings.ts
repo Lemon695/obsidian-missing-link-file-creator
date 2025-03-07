@@ -1,10 +1,23 @@
 import {App, PluginSettingTab, Setting, TFolder} from 'obsidian'
 import CheckAndCreateMDFilePlugin from "./main";
+import {FileCreationRule, RuleMatchType} from "./model/rule-types";
+import {RuleManagementModal} from "./ui-manager/rule-management-modal";
+import {FolderSuggest} from "./settings/suggesters/folder-suggester";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
 	showCreateFileNotification: boolean;
 	defaultFolderPath: string;
+
+	// 模板设置
+	useTemplates: boolean;            // 是否使用模板
+	defaultTemplatePath: string;      // 默认模板路径
+	templateFolder: string;           // 模板文件夹路径
+	templaterMethod: 'execute' | 'overwrite' | 'basic';
+
+	// 规则设置
+	useRules: boolean;                // 是否使用规则
+	rules: FileCreationRule[];        // 文件创建规则
 
 	// Developer options
 	debugMode: boolean;
@@ -14,6 +27,16 @@ export const DEFAULT_SETTINGS: CreateFileSettings = {
 	createFileSetting: 'default',
 	showCreateFileNotification: true,
 	defaultFolderPath: '', // 默认为目录
+
+	// 模板默认设置
+	useTemplates: false,
+	defaultTemplatePath: '',
+	templateFolder: '',
+	templaterMethod: 'execute',
+
+	// 规则默认设置
+	useRules: false,
+	rules: [],
 
 	// Developer options
 	debugMode: false,
@@ -42,95 +65,98 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		let selectedIndex = -1;
-
-		const folderSelectionSetting = new Setting(containerEl)
+		// 文件夹选择器
+		new Setting(containerEl)
 			.setName('Default Path')
-			.setDesc('Set the default folder where new MD files will be created.');
+			.setDesc('Set the default folder where new MD files will be created.')
+			.addSearch((cb) => {
+				new FolderSuggest(this.app, cb.inputEl);
+				cb.setPlaceholder("Example: folder1/folder2")
+					.setValue(this.plugin.settings.defaultFolderPath)
+					.onChange((new_folder) => {
+						new_folder = new_folder.trim()
+						new_folder = new_folder.replace(/\/$/, "");
 
-		//自定义文件夹选择器
-		const folderSelectContainer = document.createElement('div');
-		folderSelectContainer.addClass('ccmd-folder-select-container');
+						this.plugin.settings.defaultFolderPath = new_folder;
+						this.plugin.saveSettings();
+					});
+				// @ts-ignore
+				cb.containerEl.addClass("ccmd-folder-search");
+			});
 
-		//输入框包装器
-		const inputWrapper = document.createElement('div');
-		inputWrapper.addClass('ccmd-folder-select-input-wrapper');
-		folderSelectContainer.appendChild(inputWrapper);
+		new Setting(containerEl)
+			.setName('Template folder')
+			.setDesc('Set the folder for template files')
+			.addSearch(cb => {
+				new FolderSuggest(this.app, cb.inputEl);
+				cb.setPlaceholder("Example: Templates")
+					.setValue(this.plugin.settings.templateFolder)
+					.onChange(async (value) => {
+						this.plugin.settings.templateFolder = value;
+						await this.plugin.saveSettings();
+						console.log(`Template folder set to: ${value}`);
+					});
+			});
 
-		const searchIcon = document.createElement('span');
-		searchIcon.addClass('ccmd-folder-select-icon');
-		searchIcon.innerHTML = '🔍';
-		inputWrapper.appendChild(searchIcon);
+		new Setting(containerEl)
+			.setName('Enable Templates')
+			.setDesc('Use template feature when creating files')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.useTemplates)
+				.onChange(async (value) => {
+					this.plugin.settings.useTemplates = value;
+					await this.plugin.saveSettings();
+					console.log(`Template feature ${value ? 'enabled' : 'disabled'}`);
+				}));
 
-		//输入框
-		const inputEl = document.createElement('input');
-		inputEl.addClass('ccmd-folder-select-input');
-		inputEl.type = 'text';
-		inputEl.placeholder = 'Type to search folders...';
-		inputEl.value = this.plugin.settings.defaultFolderPath || '';
-		inputWrapper.appendChild(inputEl);
+		containerEl.createEl('h3', {text: 'Rules Management'});
 
-		//下拉菜单容器
-		const dropdownContainer = document.createElement('div');
-		dropdownContainer.addClass('ccmd-folder-select-dropdown');
-		dropdownContainer.style.display = 'none';
-		folderSelectContainer.appendChild(dropdownContainer);
+		new Setting(containerEl)
+			.setName('Enable Rules')
+			.setDesc('Automatically apply different target folders and templates based on filename patterns')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.useRules)
+				.onChange(async (value) => {
+					this.plugin.settings.useRules = value;
+					await this.plugin.saveSettings();
+				}));
 
-		//添加到设置
-		folderSelectionSetting.settingEl.appendChild(folderSelectContainer);
+		new Setting(containerEl)
+			.setName('Manage Rules')
+			.setDesc('Add, edit and delete file creation rules')
+			.addButton(button => button
+				.setButtonText('Manage Rules')
+				.setCta()
+				.onClick(() => {
+					const modal = new RuleManagementModal(this.app, this.plugin);
+					modal.open();
+				}));
 
-		//获取所有文件夹路径
-		const folders = this.getAllFolders();
+		// 样式提示
+		if (this.plugin.settings.rules && this.plugin.settings.rules.length > 0) {
+			const rulesInfo = containerEl.createDiv({cls: 'rules-info'});
+			rulesInfo.createEl('p', {
+				text: `${this.plugin.settings.rules.length} rules configured`,
+				cls: 'rules-count'
+			});
 
-		inputEl.addEventListener('focus', () => {
-			this.updateFolderDropdown(dropdownContainer, folders, inputEl.value);
-			dropdownContainer.style.display = 'block';
-		});
+			// 显示前3条规则摘要
+			const previewCount = Math.min(this.plugin.settings.rules.length, 3);
+			const rulesList = rulesInfo.createEl('ul', {cls: 'rules-preview'});
 
-		document.addEventListener('click', (event) => {
-			if (!folderSelectContainer.contains(event.target as Node)) {
-				dropdownContainer.style.display = 'none';
+			for (let i = 0; i < previewCount; i++) {
+				const rule = this.plugin.settings.rules[i];
+				const ruleItem = rulesList.createEl('li');
+				ruleItem.innerHTML = `<strong>${rule.name}</strong>: ${this.getRuleMatchDescription(rule)}`;
 			}
-		});
 
-		inputEl.addEventListener('input', () => {
-			this.updateFolderDropdown(dropdownContainer, folders, inputEl.value);
-			dropdownContainer.style.display = 'block';
-		});
-
-		inputEl.addEventListener('change', async () => {
-			this.plugin.settings.defaultFolderPath = inputEl.value;
-			await this.plugin.saveSettings();
-		});
-
-		inputEl.addEventListener('keydown', (event) => {
-			if (dropdownContainer.style.display === 'none') {
-				return;
+			if (this.plugin.settings.rules.length > 3) {
+				rulesInfo.createEl('p', {
+					text: `... and ${this.plugin.settings.rules.length - 3} more rules`,
+					cls: 'rules-more'
+				});
 			}
-
-			const options = dropdownContainer.querySelectorAll('.ccmd-folder-select-option');
-
-			if (event.key === 'ArrowUp') {
-				event.preventDefault();
-				selectedIndex = (selectedIndex > 0) ? selectedIndex - 1 : options.length - 1;
-				this.updateOptionSelection(options, selectedIndex);
-			} else if (event.key === 'ArrowDown') {
-				event.preventDefault();
-				selectedIndex = (selectedIndex < options.length - 1) ? selectedIndex + 1 : 0;
-				this.updateOptionSelection(options, selectedIndex);
-			} else if (event.key === 'Enter') {
-				event.preventDefault();
-				if (selectedIndex >= 0 && selectedIndex < options.length) {
-					(options[selectedIndex] as HTMLElement).click();
-				}
-			} else if (event.key === 'Escape') {
-				event.preventDefault();
-				dropdownContainer.style.display = 'none';
-			}
-		});
-		inputEl.addEventListener('focus', () => {
-			selectedIndex = -1;
-		});
+		}
 
 		new Setting(containerEl)
 			.setName('Developer')
@@ -148,98 +174,67 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				}));
 	}
 
-	private updateFolderDropdown(dropdownContainer: HTMLElement, folders: string[], searchText: string): void {
-		// 清空现有选项
-		dropdownContainer.empty();
-
-		if (this.hasOwnProperty('selectedIndex')) {
-			(this as any).selectedIndex = -1;
+	private getRuleMatchDescription(rule: FileCreationRule): string {
+		if (!rule.conditions || rule.conditions.length === 0) {
+			return "No matching conditions  → Target folder: " + (rule.targetFolder || '(Default)') +
+				", Template: " + (rule.templatePath || '(None)') +
+				(rule.enabled ? '' : ' [Disabled]');
 		}
 
-		// 添加根目录选项
-		if ('' === searchText || 'root'.includes(searchText.toLowerCase())) {
-			const rootOption = document.createElement('div');
-			rootOption.addClass('ccmd-folder-select-option');
-			rootOption.textContent = 'Root Directory';
-			rootOption.addEventListener('click', async () => {
-				const inputEl = dropdownContainer.parentElement?.querySelector('.ccmd-folder-select-input') as HTMLInputElement;
-				if (inputEl) {
-					inputEl.value = '';
-					this.plugin.settings.defaultFolderPath = '';
-					await this.plugin.saveSettings();
-					dropdownContainer.style.display = 'none';
-				}
-			});
-			dropdownContainer.appendChild(rootOption);
-		}
+		// 只展示前两个条件，如果有更多则添加省略号
+		const conditionsToShow = rule.conditions.slice(0, 2);
+		const remainingCount = Math.max(0, rule.conditions.length - 2);
 
-		// 筛选并添加匹配的文件夹
-		const filteredFolders = folders.filter(folder =>
-			folder.toLowerCase().includes(searchText.toLowerCase())
-		);
+		const conditionDescriptions = conditionsToShow.map(cond => {
+			let operatorDesc = "";
+			let typeDesc = "";
 
-		if (filteredFolders.length > 0) {
-			filteredFolders.forEach(folder => {
-				const option = document.createElement('div');
-				option.addClass('ccmd-folder-select-option');
-				option.textContent = folder;
-				option.addEventListener('click', async () => {
-					const inputEl = dropdownContainer.parentElement?.querySelector('.ccmd-folder-select-input') as HTMLInputElement;
-					if (inputEl) {
-						inputEl.value = folder;
-						this.plugin.settings.defaultFolderPath = folder;
-						await this.plugin.saveSettings();
-						dropdownContainer.style.display = 'none';
-					}
-				});
-				dropdownContainer.appendChild(option);
-			});
-		} else if (searchText && filteredFolders.length === 0) {
-			const noResultOption = document.createElement('div');
-			noResultOption.addClass('ccmd-folder-select-option');
-			noResultOption.addClass('ccmd-folder-select-no-result');
-			noResultOption.textContent = 'No matching folders';
-			dropdownContainer.appendChild(noResultOption);
-		}
-	}
-
-	private getAllFolders(): string[] {
-		const folders: string[] = [];
-
-		const getSubfolders = (folder: TFolder, path: string) => {
-			const folderPath = path ? path + '/' + folder.name : folder.name;
-			if (folderPath) {
-				folders.push(folderPath);
+			switch (cond.operator) {
+				case "and":
+					operatorDesc = "and";
+					break;
+				case "or":
+					operatorDesc = "or";
+					break;
+				case "not":
+					operatorDesc = "not";
+					break;
+				case "exclude":
+					operatorDesc = "exclude";
+					break;
 			}
 
-			folder.children
-				.filter(child => child instanceof TFolder)
-				.forEach(subFolder => {
-					getSubfolders(subFolder as TFolder, folderPath);
-				});
-		};
+			switch (cond.type) {
+				case "contains":
+					typeDesc = "contains";
+					break;
+				case "startsWith":
+					typeDesc = "begins with";
+					break;
+				case "endsWith":
+					typeDesc = "ends with";
+					break;
+				case "exact":
+					typeDesc = "matches";
+					break;
+				case "regex":
+					typeDesc = "regex";
+					break;
+			}
 
-		this.app.vault.getRoot().children
-			.filter(child => child instanceof TFolder)
-			.forEach(folder => {
-				getSubfolders(folder as TFolder, '');
-			});
-
-		return folders.sort();
-	}
-
-	private updateOptionSelection(options: NodeListOf<Element>, selectedIndex: number): void {
-		options.forEach(option => {
-			option.removeClass('ccmd-folder-select-option-selected');
+			return `${operatorDesc}${typeDesc}"${cond.pattern}"`;
 		});
 
-		if (selectedIndex >= 0 && selectedIndex < options.length) {
-			options[selectedIndex].addClass('ccmd-folder-select-option-selected');
+		let description = conditionDescriptions.join("; ");
 
-			(options[selectedIndex] as HTMLElement).scrollIntoView({
-				block: 'nearest',
-				inline: 'nearest'
-			});
+		if (remainingCount > 0) {
+			description += `; ...plus ${remainingCount} more conditions`;
 		}
+
+		return description +
+			" → Target folder: " + (rule.targetFolder || '(Default)') +
+			", Template: " + (rule.templatePath || '(None)') +
+			(rule.enabled ? '' : ' [Disabled]');
 	}
+
 }

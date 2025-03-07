@@ -35,8 +35,8 @@ An Obsidian plugin that detects and creates missing markdown files from links in
 
 | Command                                    | Meaning                                                      |
 | ------------------------------------------ | ------------------------------------------------------------ |
-| Create Missing Links: Current File           | Check the links in the currently open Markdown document and automatically create any missing linked files. |
-| Create Missing Links: Folder Scan | Scan all Markdown files in the folder of the currently open document, detect their linked references, and automatically create any missing files. |
+| Create Files for Unresolved Links in Current File           | Check the links in the currently open Markdown document and automatically create any missing linked files. |
+| Scan Folder and Create Missing Files | Scan all Markdown files in the folder of the currently open document, detect their linked references, and automatically create any missing files. |
 
 Access these commands through the Command Palette (Ctrl/Cmd + P).
 
@@ -62,7 +62,7 @@ In the plugin settings, you can:
    ```
 
 2. When ready to create these files:
-	- Run the "Create Missing Links: Current File" command
+	- Run the "Create Files for Unresolved Links in Current File" command
 	- Select which files to create in the confirmation dialog
 	- Files will be created with any aliases preserved in frontmatter
 

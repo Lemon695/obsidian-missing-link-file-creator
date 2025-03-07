@@ -2,15 +2,20 @@ import {App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, Va
 import {FileOperations, FileOperationsOptions} from './utils/file-operations';
 import {CreateFileSettings, CreateFileSettingTab, DEFAULT_SETTINGS} from "./settings";
 import {LogUtils} from './utils/log-utils';
+import {RuleManagementModal} from "./ui-manager/rule-management-modal";
+import {TemplaterService} from "./model/templater-service";
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
 	private fileOperations: FileOperations;
+	public templaterService: TemplaterService;
 	// 添加命令执行状态标志
 	private isCommandExecuting: boolean = false;
 
 	async onload() {
 		await this.loadSettings();
+
+		this.templaterService = new TemplaterService(this.app, this.settings);
 
 		this.fileOperations = new FileOperations(<FileOperationsOptions>{
 			app: this.app,
@@ -20,7 +25,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		// 校验当前文件关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-current-file',
-			name: 'Create Missing Links: Current File',
+			name: 'Create Files for Unresolved Links in Current File',
 			callback: async () => {
 				// 设置命令执行标志
 				this.isCommandExecuting = true;
@@ -33,7 +38,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		//监测当前文件所在文件夹内的所有文件-关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-folder-scan',
-			name: 'Create Missing Links: Folder Scan',
+			name: 'Scan Folder and Create Missing Files',
 			callback: async () => {
 				this.isCommandExecuting = true;
 				await this.fileOperations.checkAndCreateMDFilesInFolder();
@@ -41,7 +46,14 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			},
 		});
 
-		// 添加设置标签
+		this.addCommand({
+			id: 'open-create-missing-links-rule-management',
+			name: 'Manage File Creation Rules',
+			callback: () => {
+				new RuleManagementModal(this.app, this).open();
+			}
+		});
+
 		this.addSettingTab(new CreateFileSettingTab(this.app, this));
 	}
 

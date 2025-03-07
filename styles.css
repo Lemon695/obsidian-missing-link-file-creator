@@ -236,11 +236,6 @@
 	pointer-events: none !important;
 }
 
-/* 整体模态框内边距调整 */
-.creation-confirm-modal {
-	padding: 20px !important;
-}
-
 /* 调整分页按钮位置 */
 .pagination-container {
 	margin-top: 15px !important;
@@ -256,12 +251,6 @@
 	background-color: var(--background-secondary) !important;
 	border-radius: 6px !important;
 	border: 1px solid var(--background-modifier-border) !important;
-}
-
-.progress-text {
-	margin-bottom: 10px !important;
-	font-weight: 500 !important;
-	font-size: 14px !important;
 }
 
 .progress-bar {
@@ -776,5 +765,1129 @@
 	.ccmd-folder-select-dropdown {
 		max-height: 250px !important; /* 移动设备上稍大一些 */
 	}
+}
+
+/* ----- 规则管理相关样式 ----- */
+
+/* 规则管理模态窗口 */
+.rule-management-modal {
+	padding: 24px;
+	width: 100%;
+	max-width: 1200px !important; /* 增加最大宽度 */
+}
+
+.modal-container .rule-management-modal,
+.modal-container .rule-edit-modal {
+	width: 90vw !important; /* 增加宽度 */
+	max-width: 1160px !important; /* 增加最大宽度 */
+	min-width: 600px !important; /* 添加最小宽度 */
+	max-height: 85vh !important; /* 增加最大高度 */
+}
+
+.rule-management-title {
+	margin-bottom: 24px;
+	text-align: center;
+	font-size: 24px;
+	color: var(--text-normal);
+}
+
+.rule-management-description {
+	margin-bottom: 20px;
+	color: var(--text-muted);
+	line-height: 1.5;
+	text-align: center;
+	font-size: 16px;
+}
+
+.rules-list-container {
+	max-height: 65vh;
+	overflow-y: auto;
+	margin-bottom: 24px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background-color: var(--background-primary);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.empty-rules-message {
+	padding: 40px 20px;
+	text-align: center;
+	color: var(--text-muted);
+	font-style: italic;
+	font-size: 16px;
+	background-color: var(--background-secondary-alt);
+	border-radius: 6px;
+	margin: 20px;
+}
+
+/* 规则项目容器 */
+.rule-item-container {
+	background-color: var(--background-secondary-alt);
+	border-radius: 8px;
+	margin: 16px;
+	padding: 16px;
+	transition: all 0.2s ease;
+	border-left: 4px solid var(--interactive-accent);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.rule-item-container:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 规则设置 */
+.rule-setting {
+	padding: 0 !important;
+	border-bottom: 1px solid var(--background-modifier-border);
+	margin-bottom: 15px;
+}
+
+.rule-setting .setting-item-info {
+	flex: 2.5; /* 给名称更多空间 */
+}
+
+.rule-setting .setting-item-control {
+	flex: 1;
+	justify-content: flex-end;
+}
+
+/* 规则详情容器 */
+.rule-details-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 16px;
+	padding-left: 4px;
+}
+
+.rule-detail-item {
+	background-color: var(--background-primary);
+	padding: 8px 12px;
+	border-radius: 6px;
+	font-size: 14px;
+	color: var(--text-normal);
+	word-break: break-word;
+}
+
+/* 规则操作按钮容器 */
+.rule-actions-container {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.rule-action-button {
+	background-color: var(--background-modifier-border);
+	color: var(--text-normal);
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	border: none;
+}
+
+.rule-action-button:hover {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	transform: translateY(-1px);
+}
+
+.rule-delete-button {
+	background-color: rgba(244, 67, 54, 0.1);
+	color: #f44336;
+}
+
+.rule-delete-button:hover {
+	background-color: #f44336;
+	color: white;
+}
+
+/* 规则编辑模态窗口 */
+.rule-edit-modal {
+	padding: 24px;
+	width: 100%;
+	max-width: 900px !important;
+}
+
+.choiceNameHeader {
+	text-align: center;
+	font-size: 24px;
+	margin-bottom: 24px;
+	color: var(--text-normal);
+	cursor: pointer;
+	user-select: none;
+	transition: color 0.2s ease;
+}
+
+.choiceNameHeader:hover {
+	color: var(--interactive-accent);
+}
+
+/* 条件部分 */
+.conditions-section {
+	margin: 24px 0;
+	padding: 20px;
+	border-radius: 8px;
+	background-color: var(--background-secondary-alt);
+	border: 1px solid var(--background-modifier-border);
+}
+
+.conditions-section h3 {
+	margin-top: 0;
+	margin-bottom: 16px;
+	font-size: 18px;
+	color: var(--text-normal);
+}
+
+.condition-and {
+	border-left-color: #4CAF50; /* 绿色 */
+}
+
+.condition-or {
+	border-left-color: #2196F3; /* 蓝色 */
+}
+
+.condition-not {
+	border-left-color: #FFC107; /* 黄色 */
+}
+
+.condition-exclude {
+	border-left-color: #F44336; /* 红色 */
+}
+
+.condition-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+
+.condition-delete-button {
+	color: var(--text-muted);
+	transition: color 0.2s ease;
+	padding: 6px;
+	border-radius: 4px;
+	margin-top: -10px;
+}
+
+.condition-delete-button:hover {
+	color: #F44336;
+	background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* 按钮样式 */
+.rule-management-buttons,
+.rule-edit-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 16px;
+	margin-top: 24px;
+}
+
+.rule-cancel-button,
+.rule-save-button {
+	padding: 8px 20px;
+	border-radius: 6px;
+	font-size: 15px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	border: none;
+}
+
+.rule-cancel-button {
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+}
+
+.rule-cancel-button:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.rule-save-button {
+	background-color: var(--interactive-accent);
+	color: white;
+}
+
+.rule-save-button:hover {
+	background-color: var(--interactive-accent-hover);
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 模板选择模态窗口 */
+.template-selection-modal {
+	padding: 24px;
+	max-width: 800px !important;
+}
+
+.template-search-input {
+	width: 100%;
+	padding: 10px 12px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	font-size: 15px;
+	margin-bottom: 20px;
+	transition: all 0.2s ease;
+}
+
+.template-search-input:focus {
+	border-color: var(--interactive-accent);
+	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+	outline: none;
+}
+
+.template-list {
+	max-height: 400px;
+	overflow-y: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background-color: var(--background-primary);
+}
+
+.template-item {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.template-item:last-child {
+	border-bottom: none;
+}
+
+.template-item:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.no-templates {
+	padding: 40px 20px;
+	text-align: center;
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+/* 确认删除模态窗口 */
+.confirm-delete-modal {
+	padding: 24px;
+	max-width: 500px !important;
+	text-align: center;
+}
+
+.confirm-delete-modal h2 {
+	margin-bottom: 16px;
+	color: #F44336;
+}
+
+.confirm-delete-modal p {
+	margin-bottom: 24px;
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+.confirm-buttons {
+	display: flex;
+	justify-content: center;
+	gap: 16px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+	.rule-management-modal,
+	.rule-edit-modal {
+		padding: 16px;
+	}
+
+	.condition-content {
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+
+	.rule-actions-container {
+		flex-wrap: wrap;
+	}
+
+	.rule-action-button {
+		padding: 8px 12px;
+		font-size: 14px;
+	}
+
+	.rule-management-buttons,
+	.rule-edit-buttons {
+		flex-direction: column-reverse;
+		gap: 10px;
+	}
+
+	.rule-cancel-button,
+	.rule-save-button {
+		width: 100%;
+		padding: 12px;
+	}
+
+	.rule-item-container {
+		margin: 12px;
+		padding: 12px;
+	}
+
+	.rule-detail-item {
+		font-size: 13px;
+	}
+}
+
+/* 文件夹和模板路径选择设置项 */
+.setting-item.rule-folder-setting,
+.setting-item.rule-template-setting {
+	margin-bottom: 20px;
+	padding: 16px;
+	background-color: var(--background-secondary-alt);
+	border-radius: 8px;
+}
+
+.setting-item.rule-folder-setting .setting-item-info,
+.setting-item.rule-template-setting .setting-item-info {
+	margin-bottom: 8px;
+}
+
+.setting-item.rule-folder-setting .setting-item-control,
+.setting-item.rule-template-setting .setting-item-control {
+	flex-direction: column;
+	align-items: flex-start;
+	width: 100%;
+}
+
+.setting-item.rule-folder-setting input,
+.setting-item.rule-template-setting input {
+	width: 100%;
+	padding: 8px 12px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	margin-bottom: 8px;
+}
+
+/* 提升表单元素的可用性 */
+.rule-edit-modal .setting-item input[type="text"],
+.rule-edit-modal .setting-item textarea {
+	width: 100%;
+	padding: 8px 12px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+}
+
+.rule-edit-modal .setting-item select {
+	padding: 8px 12px;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+}
+
+/* 添加规则按钮样式 */
+button.mod-cta {
+	background-color: var(--interactive-accent);
+	color: white;
+	padding: 8px 16px;
+	border-radius: 6px;
+	font-weight: 500;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: all 0.2s ease;
+	border: none;
+}
+
+button.mod-cta:hover {
+	background-color: var(--interactive-accent-hover);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 文件夹选择器样式 */
+.ccmd-folder-search {
+	width: calc(100% - 20px);
+}
+
+/* 建议容器样式 */
+.suggestion-container-1 {
+	position: absolute;
+	z-index: 1000;
+	background-color: var(--background-primary);
+	border-radius: 4px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	border: 1px solid var(--background-modifier-border);
+	max-height: 300px;
+	overflow-y: auto;
+	width: 100%;
+}
+
+/* 控制实际下拉列表的宽度和位置 */
+.suggestion-container {
+	min-width: 120px !important;
+	max-width: 180px !important;
+	width: auto !important; /* 让宽度根据内容自适应，但不超过最大宽度 */
+	z-index: 100; /* 确保在最上层 */
+}
+
+.suggestion {
+	padding: 5px 0;
+}
+
+/* 调整下拉菜单选项的样式 */
+.suggestion-item {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 6px 10px !important;
+}
+
+.suggestion-item:hover {
+	background-color: var(--background-secondary);
+}
+
+.suggestion-item.is-selected {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-accent);
+}
+
+/* 适应不同密度的界面 */
+.suggestion-item.is-selected,
+.suggestion-item:hover {
+	font-weight: 500;
+}
+
+/* 提高悬停时的对比度 */
+body.theme-dark .suggestion-item:hover,
+body.theme-dark .suggestion-item.is-selected {
+	background-color: var(--interactive-hover);
+}
+
+/* 优化移动设备上的交互 */
+@media (pointer: coarse) {
+	.suggestion-item {
+		padding: 12px;
+		min-height: 44px; /* 增大触摸区域 */
+	}
+}
+
+/* 通用模态框样式 */
+.quickAddModal {
+	padding: 12px;
+	border-radius: 5px;
+}
+
+/* ====== 规则编辑器重新设计的样式 ====== */
+
+/* 规则编辑容器 - 两列布局 */
+.rule-edit-container {
+	display: flex;
+	gap: 24px;
+	height: 65vh;
+	max-height: 65vh;
+	overflow: hidden;
+}
+
+.rule-edit-left-panel-scroll {
+	flex: 3;
+	overflow-y: auto;
+	padding-right: 10px;
+	max-height: 65vh;
+	border-radius: 8px;
+}
+
+.rule-edit-left-panel {
+	min-width: 0;
+}
+
+.rule-edit-right-panel {
+	flex: 2;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	padding-left: 10px;
+	border-left: 1px solid var(--background-modifier-border);
+	max-height: 65vh;
+	overflow-y: auto;
+}
+
+/* 标题部分 */
+.rule-header-section {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.rule-edit-title {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--text-normal);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
+.rule-edit-title:hover {
+	color: var(--interactive-accent);
+}
+
+.rule-edit-title:hover::after {
+	content: "✏️";
+	font-size: 14px;
+	margin-left: 8px;
+	opacity: 0.7;
+}
+
+/* 启用/禁用开关 */
+.rule-enable-toggle {
+	margin: 0 !important;
+}
+
+.rule-enable-toggle .setting-item-info {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	margin-bottom: 0 !important;
+}
+
+.rule-enable-toggle .setting-item-name {
+	margin-right: 8px !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+}
+
+.rule-enable-toggle .setting-item-description {
+	display: none !important;
+}
+
+.rule-enable-toggle .setting-item-control {
+	margin-top: 0 !important;
+}
+
+/* 规则部分 */
+.rule-section {
+	background-color: var(--background-secondary-alt);
+	border-radius: 8px;
+	padding: 16px;
+	margin-bottom: 20px;
+}
+
+.rule-section-title {
+	margin-top: 0;
+	margin-bottom: 16px;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--text-normal);
+	display: flex;
+	align-items: center;
+}
+
+/* 条件样式改进 */
+.conditions-container {
+	margin-bottom: 16px;
+}
+
+.condition-item {
+	background-color: var(--background-primary);
+	border-radius: 8px;
+	margin-bottom: 12px;
+	padding: 16px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	border-left: 3px solid transparent;
+	transition: all 0.2s ease;
+}
+
+.condition-item:hover {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	transform: translateY(-1px);
+}
+
+/* 条件内部布局优化 */
+.condition-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.condition-operator-setting {
+	margin: 0 !important;
+}
+
+.condition-operator-setting .setting-item-info {
+	display: none !important;
+}
+
+/* 添加条件按钮 */
+.rule-add-condition-button {
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	padding: 8px 12px;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	transition: all 0.2s ease;
+}
+
+.rule-add-condition-button:hover {
+	background-color: var(--background-modifier-form-field-highlighted);
+	color: var(--interactive-accent);
+}
+
+.rule-add-condition-button svg {
+	width: 14px;
+	height: 14px;
+	margin-right: 6px;
+}
+
+/* 空条件提示改进 */
+.empty-conditions-message {
+	background-color: var(--background-primary);
+	border-radius: 6px;
+	padding: 16px;
+	text-align: center;
+	color: var(--text-muted);
+	font-size: 14px;
+	font-style: italic;
+	border: 1px dashed var(--background-modifier-border);
+}
+
+/* 文件夹和模板设置 */
+.rule-folder-setting,
+.rule-template-setting {
+	margin: 0 0 16px 0 !important;
+	padding: 0 !important;
+}
+
+.rule-folder-setting .setting-item-info,
+.rule-template-setting .setting-item-info {
+	margin-bottom: 8px !important;
+}
+
+.rule-folder-setting .setting-item-control,
+.rule-template-setting .setting-item-control {
+	width: 100% !important;
+}
+
+.rule-folder-setting input,
+.rule-template-setting input {
+	width: 100% !important;
+	padding: 8px 10px !important;
+	border-radius: 4px !important;
+	border: 1px solid var(--background-modifier-border) !important;
+	background-color: var(--background-primary) !important;
+}
+
+/* ====== 规则管理重新设计的样式 ====== */
+
+/* 规则表格样式 */
+.rules-table {
+	width: 100%;
+	border-collapse: collapse;
+	border-radius: 8px;
+	overflow: hidden;
+	font-size: 14px;
+}
+
+.rules-table thead {
+	background-color: var(--background-secondary-alt);
+}
+
+.rules-table th {
+	text-align: left;
+	padding: 12px 16px;
+	font-weight: 600;
+	color: var(--text-muted);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.rules-table td {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	vertical-align: middle;
+}
+
+.rules-table tbody tr {
+	background-color: var(--background-primary);
+	transition: background-color 0.2s ease;
+}
+
+.rules-table tbody tr:hover {
+	background-color: var(--background-secondary);
+}
+
+.rules-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* 规则表格列宽 */
+.rule-status-column {
+	width: 60px;
+}
+
+.rule-name-column {
+	width: 180px;
+}
+
+.rule-conditions-column {
+	width: auto;
+}
+
+.rule-target-column {
+	width: 140px;
+}
+
+.rule-template-column {
+	width: 140px;
+}
+
+.rule-actions-column {
+	width: 120px;
+}
+
+/* 表格内容样式 */
+.rule-name {
+	font-weight: 500;
+}
+
+.rule-conditions-text {
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 300px;
+}
+
+.rule-target-text,
+.rule-template-text {
+	font-family: var(--font-monospace);
+	font-size: 0.9em;
+	padding: 2px 6px;
+	background-color: var(--background-secondary-alt);
+	border-radius: 4px;
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* 规则状态开关 */
+.rule-toggle-setting {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.rule-toggle-setting .setting-item-info {
+	display: none !important;
+}
+
+.rule-toggle-setting .setting-item-control {
+	margin: 0 !important;
+}
+
+/* 禁用的规则样式 */
+.rule-disabled {
+	opacity: 0.6;
+}
+
+.rule-disabled .rule-name {
+	text-decoration: line-through;
+	color: var(--text-muted);
+}
+
+/* 空状态样式 */
+.rules-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 20px;
+	text-align: center;
+	background-color: var(--background-secondary-alt);
+	border-radius: 8px;
+	margin: 20px 0;
+}
+
+.rules-empty-icon {
+	color: var(--text-muted);
+	margin-bottom: 16px;
+}
+
+.rules-empty-text h3 {
+	margin: 0 0 8px 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.rules-empty-text p {
+	margin: 0 0 20px 0;
+	color: var(--text-muted);
+	max-width: 400px;
+}
+
+.create-first-rule-button {
+	background-color: var(--interactive-accent) !important;
+	color: var(--text-on-accent) !important;
+	padding: 8px 16px !important;
+	border-radius: 4px !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+	border: none !important;
+}
+
+.create-first-rule-button:hover {
+	background-color: var(--interactive-accent-hover) !important;
+	transform: translateY(-1px) !important;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+	.rule-edit-container {
+		flex-direction: column;
+	}
+
+	.condition-content {
+		grid-template-columns: 1fr;
+	}
+
+	.rules-table {
+		display: block;
+		overflow-x: auto;
+	}
+
+	.rule-conditions-text {
+		max-width: 100px;
+	}
+}
+
+/* 匹配-下拉框宽度增强 */
+.wider-dropdown {
+	max-width: 100% !important;
+	width: 100% !important;
+	min-width: 0 !important;
+	font-size: 0.9em !important; /* 略微缩小字体 */
+}
+
+/* 调整输入框样式 */
+.condition-pattern input {
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+/* 文件夹和模板输入容器样式 */
+.folder-input-container,
+.template-input-container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	margin-top: 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background-color: var(--background-primary);
+	padding: 4px 8px;
+	transition: all 0.2s ease;
+}
+
+.folder-input-container:focus-within,
+.template-input-container:focus-within {
+	border-color: var(--interactive-accent);
+	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+.folder-search-input,
+.template-search-input {
+	flex: 1;
+	border: none !important;
+	outline: none !important;
+	background: transparent !important;
+	width: 100% !important;
+	padding: 6px 4px !important;
+	font-size: 14px;
+}
+
+.template-browse-button-container {
+	margin-left: 8px;
+	display: flex;
+	align-items: center;
+}
+
+.template-browse-button {
+	padding: 4px !important;
+	margin: 0 !important;
+	background-color: transparent !important;
+	color: var(--text-muted) !important;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+}
+
+.template-browse-button:hover {
+	color: var(--text-normal) !important;
+	background-color: var(--background-modifier-hover) !important;
+}
+
+.setting-container {
+	margin-bottom: 16px;
+	padding: 0;
+	width: 100%;
+}
+
+/* 匹配类型,匹配模式 */
+.condition-match-type, .condition-pattern {
+	margin: 0 !important;
+}
+
+/* 调整条件操作符和匹配类型的下拉框 */
+.condition-operator-setting,
+.condition-match-type {
+	width: 100%;
+	min-height: 40px;
+	display: flex;
+	align-items: center;
+}
+
+.condition-operator-setting .dropdown,
+.condition-match-type .dropdown {
+	width: 100%;
+}
+
+/* 调整匹配类型下拉框的垂直位置 */
+.condition-match-type .setting-item-control {
+	margin-top: 10px !important;
+}
+
+/* 按钮固定到底部 */
+.rule-edit-buttons {
+	position: sticky;
+	bottom: 0;
+	background-color: var(--background-primary);
+	padding: 16px 0;
+	margin-top: auto;
+	border-top: 1px solid var(--background-modifier-border);
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+	z-index: 10;
+}
+
+.wider-dropdown,
+.condition-content .dropdown {
+	height: 36px;
+	padding: 6px 10px;
+	line-height: 1.5;
+	box-sizing: border-box;
+}
+
+/* 改进三段式条件编辑器样式 */
+.condition-content {
+	display: flex;
+	align-items: center;
+	gap: 0; /* 移除gap，我们使用margin来控制间距 */
+	padding: 5px 0;
+	position: relative; /* 为定位下拉菜单做准备 */
+	width: 100%;
+}
+
+/* 确保设置项内部布局正确 */
+.property-type-setting,
+.condition-match-type,
+.condition-pattern {
+	width: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.property-type-setting .setting-item-info,
+.condition-match-type .setting-item-info,
+.condition-pattern .setting-item-info {
+	display: none !important;
+}
+
+.property-type-setting .setting-item-control,
+.condition-match-type .setting-item-control,
+.condition-pattern .setting-item-control {
+	width: 100% !important;
+	margin: 0 !important;
+	justify-content: flex-start !important;
+}
+
+.frontmatter-container {
+	display: flex !important;
+	width: 100% !important;
+	gap: 8px !important;
+}
+
+.condition-property-input,
+.condition-value-input {
+	flex: 1 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.condition-property-input .setting-item-info,
+.condition-value-input .setting-item-info {
+	display: none !important;
+}
+
+
+.condition-property-input .setting-item-control,
+.condition-value-input .setting-item-control {
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 100% !important;
+}
+
+/* 确保下拉菜单元素本身宽度适中 */
+.property-type-container .dropdown,
+.match-type-container .dropdown {
+	width: 100% !important; /* 宽度与容器一致 */
+}
+
+/* 控制下拉框容器样式 */
+.property-type-container,
+.match-type-container,
+.pattern-container {
+	position: relative;
+	overflow: visible; /* 允许下拉菜单溢出 */
+}
+
+.condition-property-input input,
+.condition-value-input input {
+	width: 100% !important;
+	font-size: 0.9em !important;
+	padding: 4px 8px !important;
+	border-radius: 4px !important;
+}
+
+/* 调整操作符下拉框宽度 */
+.condition-operator-setting .dropdown {
+	min-width: 120px !important;
+	width: auto !important;
+}
+
+.condition-operator-setting .setting-item-control {
+	width: auto !important;
+	min-width: 120px !important;
+}
+
+.operator-setting-container {
+	min-width: 120px !important;
+	width: auto !important;
+}
+
+/* 确保下拉菜单显示完整 */
+.condition-operator-setting .suggestion-container {
+	min-width: 150px !important;
+	max-width: 200px !important;
 }
 

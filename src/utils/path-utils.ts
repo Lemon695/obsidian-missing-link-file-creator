@@ -1,4 +1,5 @@
 import {LogUtils} from "./log-utils";
+import {CreateFileSettings} from "../settings";
 
 /**
  * 将相对路径解析为绝对路径
@@ -6,12 +7,16 @@ import {LogUtils} from "./log-utils";
  * @param basePath 基准路径
  * @returns 解析后的完整路径
  */
-export function resolveFilePath(filePath: string, basePath: string): string {
-	LogUtils.showDebugLog(() => `Resolving file path. Input: ${filePath}, Base: ${basePath}`, this.settings);
+export function resolveFilePath(filePath: string, basePath: string, settings?: CreateFileSettings): string {
+	if (settings?.debugMode) {
+		LogUtils.showDebugLog(() => `Resolving file path. Input: ${filePath}, Base: ${basePath}`, { debugMode: settings.debugMode });
+	}
 
 	// 如果文件路径已经是绝对路径，直接返回
 	if (filePath.startsWith('/')) {
-		LogUtils.showDebugLog(() => `Absolute path detected, returning: ${filePath}`, this.settings);
+		if (settings?.debugMode) {
+			LogUtils.showDebugLog(() => `Absolute path detected, returning: ${filePath}`, { debugMode: settings.debugMode });
+		}
 		return filePath;
 	}
 
@@ -31,7 +36,9 @@ export function resolveFilePath(filePath: string, basePath: string): string {
 
 	// 返回解析后的完整路径
 	const result = baseSegments.join('/');
-	LogUtils.showDebugLog(() => `Resolved path: ${result}`, this.settings);
+	if (settings?.debugMode) {
+		LogUtils.showDebugLog(() => `Resolved path: ${result}`, { debugMode: settings.debugMode });
+	}
 	return result;
 }
 
