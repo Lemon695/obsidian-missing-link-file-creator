@@ -130,7 +130,6 @@ export class RuleManager {
 		// 如果是frontmatter匹配类型，但没有传入frontmatter上下文，则无法匹配
 		if (condition.type === ConditionMatchType.FRONTMATTER) {
 			if (!context || !context.frontmatter) {
-				//无法进行frontmatter匹配：没有提供frontmatter上下文
 				log.debug(`No frontmatter context available for matching`);
 				return false;
 			}
@@ -146,6 +145,13 @@ export class RuleManager {
 			if (propertyValue === undefined) {
 				log.debug(`Frontmatter match failed: property "${condition.property}" does not exist`);
 				return false;
+			}
+
+			// 处理数组值
+			if (Array.isArray(propertyValue)) {
+				// 如果属性值是数组，检查数组中是否包含匹配值
+				log.debug(`Checking array value for "${condition.property}": ${JSON.stringify(propertyValue)}`);
+				return propertyValue.some(value => String(value) === condition.pattern);
 			}
 
 			// 将属性值转换为字符串进行匹配

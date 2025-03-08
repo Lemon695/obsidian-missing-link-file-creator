@@ -303,22 +303,12 @@ export class ConditionEditor {
 		}
 	}
 
-	// 添加辅助方法来处理类型映射
 	private getDropdownValueFromConditionType(type: ConditionMatchType): string {
 		if (type === ConditionMatchType.FRONTMATTER) {
 			return 'frontmatter';
 		}
 
-		switch (type) {
-			case ConditionMatchType.CONTAINS:
-			case ConditionMatchType.STARTS_WITH:
-			case ConditionMatchType.ENDS_WITH:
-			case ConditionMatchType.EXACT:
-			case ConditionMatchType.REGEX:
-				return 'filename';
-			default:
-				return 'filename';
-		}
+		return 'filename';
 	}
 
 	private getConditionTypeFromDropdownValue(value: string): ConditionMatchType {
