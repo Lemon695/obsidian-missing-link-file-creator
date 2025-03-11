@@ -1,16 +1,19 @@
-import {App, Notice} from "obsidian";
-import {CreateFileSettings} from "../settings";
+import {App, Modal, Notice} from "obsidian";
 import {CreationConfirmModal} from "./creation-confirm-modal";
 import {CreationResult, FileToCreate} from "../model/file-types";
 import {TemplateAliasHandling} from "../model/rule-types";
+import {FileOperations} from "../utils/file-operations";
+import {CreateFileSettings} from "../settings/settings";
 
 export class UIManager {
 	private app: App;
 	private settings: CreateFileSettings;
+	private fileOperations: FileOperations;
 
-	constructor(app: App, settings: CreateFileSettings) {
+	constructor(app: App, settings: CreateFileSettings, fileOperations: FileOperations) {
 		this.app = app;
 		this.settings = settings;
+		this.fileOperations = fileOperations;
 	}
 
 	/**
@@ -79,6 +82,11 @@ export class UIManager {
 						failed: 0,
 						aliasesAdded: 0,
 					});
+				},
+				// 添加预览功能的回调
+				onPreview: async (filePath, aliases, templatePath) => {
+					const template = templatePath || '';
+					return await this.fileOperations.previewFileContent(template, filePath, aliases);
 				}
 			});
 
@@ -185,4 +193,151 @@ export class UIManager {
 			notice.noticeEl.style.maxWidth = '300px';
 		}
 	}
+
+	// 显示批量重命名对话框
+	showBulkRenameDialog(files: { path: string, newName?: string }[]): Promise<{
+		success: number,
+		failed: number,
+		updated: number
+	}> {
+		return new Promise((resolve) => {
+			const modal = new Modal(this.app);
+			modal.titleEl.setText('Bulk Rename Files');
+
+			const contentEl = modal.contentEl;
+			contentEl.addClass('bulk-rename-modal');
+
+			const form = contentEl.createEl('form');
+			form.addClass('bulk-rename-form');
+
+			// 创建表格
+			const table = form.createEl('table');
+			table.addClass('rename-table');
+
+			// 表头
+			const thead = table.createEl('thead');
+			const headerRow = thead.createEl('tr');
+			headerRow.createEl('th', {text: 'Current Path'});
+			headerRow.createEl('th', {text: 'New Path'});
+
+			// 表体
+			const tbody = table.createEl('tbody');
+			const rows: { element: HTMLElement, oldPath: string, newPathInput: HTMLInputElement }[] = [];
+
+			files.forEach(file => {
+				const row = tbody.createEl('tr');
+
+				const oldPathCell = row.createEl('td');
+				oldPathCell.setText(file.path);
+
+				const newPathCell = row.createEl('td');
+				const newPathInput = newPathCell.createEl('input', {
+					attr: {
+						type: 'text',
+						value: file.newName || file.path,
+						placeholder: 'New path...'
+					}
+				});
+
+				rows.push({
+					element: row,
+					oldPath: file.path,
+					newPathInput
+				});
+			});
+
+			// 批量操作
+			const batchContainer = form.createDiv({cls: 'batch-operations'});
+
+			// 批量替换
+			const batchReplaceContainer = batchContainer.createDiv({cls: 'batch-replace'});
+			batchReplaceContainer.createEl('label', {text: 'Batch Replace: '});
+
+			const findInput = batchReplaceContainer.createEl('input', {
+				attr: {
+					type: 'text',
+					placeholder: 'Find...'
+				}
+			});
+
+			const replaceInput = batchReplaceContainer.createEl('input', {
+				attr: {
+					type: 'text',
+					placeholder: 'Replace with...'
+				}
+			});
+
+			const replaceButton = batchReplaceContainer.createEl('button', {
+				text: 'Apply',
+				attr: {
+					type: 'button'
+				}
+			});
+
+			// 批量替换按钮点击处理
+			replaceButton.addEventListener('click', () => {
+				const findText = findInput.value;
+				const replaceText = replaceInput.value;
+
+				if (findText) {
+					for (const row of rows) {
+						const oldValue = row.newPathInput.value;
+						const newValue = oldValue.replace(new RegExp(findText, 'g'), replaceText);
+						row.newPathInput.value = newValue;
+					}
+				}
+			});
+
+			// 按钮区域
+			const buttonContainer = form.createDiv({cls: 'button-container'});
+
+			const cancelButton = buttonContainer.createEl('button', {
+				text: 'Cancel',
+				attr: {
+					type: 'button'
+				}
+			});
+
+			const confirmButton = buttonContainer.createEl('button', {
+				text: 'Confirm Rename',
+				attr: {
+					type: 'button',
+					class: 'mod-cta'
+				}
+			});
+
+			// 取消按钮点击处理
+			cancelButton.addEventListener('click', () => {
+				modal.close();
+				resolve({success: 0, failed: 0, updated: 0});
+			});
+
+			// 确认按钮点击处理
+			confirmButton.addEventListener('click', async () => {
+				const renamePairs = rows
+					.filter(row => row.oldPath !== row.newPathInput.value)
+					.map(row => ({
+						oldPath: row.oldPath,
+						newPath: row.newPathInput.value
+					}));
+
+				modal.close();
+
+				if (renamePairs.length > 0) {
+					const fileOps = new FileOperations({
+						app: this.app,
+						settings: this.settings
+					});
+
+					const result = await fileOps.bulkRenameFiles(renamePairs);
+					resolve(result);
+				} else {
+					resolve({success: 0, failed: 0, updated: 0});
+				}
+			});
+
+			modal.open();
+		});
+	}
+
 }

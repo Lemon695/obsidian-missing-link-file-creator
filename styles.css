@@ -800,7 +800,7 @@
 }
 
 .rules-list-container {
-	max-height: 65vh;
+	max-height: 50vh;
 	overflow-y: auto;
 	margin-bottom: 24px;
 	border: 1px solid var(--background-modifier-border);

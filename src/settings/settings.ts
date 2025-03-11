@@ -1,9 +1,9 @@
 import {App, PluginSettingTab, Setting, TFolder} from 'obsidian'
-import CheckAndCreateMDFilePlugin from "./main";
-import {FileCreationRule, RuleMatchType} from "./model/rule-types";
-import {RuleManagementModal} from "./ui-manager/rule-management-modal";
-import {FolderSuggest} from "./settings/suggesters/folder-suggester";
-import {log} from "./utils/log-utils";
+import {FileCreationRule} from "../model/rule-types";
+import CheckAndCreateMDFilePlugin from "../main";
+import {FolderSuggest} from './suggesters/folder-suggester';
+import {log} from 'src/utils/log-utils';
+import {RuleManagementModal} from "../ui-manager/rule-management-modal";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
@@ -21,6 +21,10 @@ export interface CreateFileSettings {
 	// 规则设置
 	useRules: boolean;                // 是否使用规则
 	rules: FileCreationRule[];        // 文件创建规则
+
+	// 自动标签设置
+	autoTagging: boolean;
+	autoTaggingMinConfidence: number;
 
 	// Developer options
 	debugMode: boolean;
@@ -42,6 +46,10 @@ export const DEFAULT_SETTINGS: CreateFileSettings = {
 	// 规则默认设置
 	useRules: false,
 	rules: [],
+
+	// 自动标签默认设置
+	autoTagging: false,
+	autoTaggingMinConfidence: 0.7,
 
 	// Developer options
 	debugMode: false,
@@ -173,6 +181,30 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				});
 			}
 		}
+
+		// containerEl.createEl('h3', {text: 'Auto Tagging'});
+		//
+		// new Setting(containerEl)
+		// 	.setName('Enable Auto Tagging')
+		// 	.setDesc('Automatically suggest and apply tags to newly created files based on content and relationships')
+		// 	.addToggle(toggle => toggle
+		// 		.setValue(this.plugin.settings.autoTagging)
+		// 		.onChange(async (value) => {
+		// 			this.plugin.settings.autoTagging = value;
+		// 			await this.plugin.saveSettings();
+		// 		}));
+		//
+		// new Setting(containerEl)
+		// 	.setName('Tag Confidence Threshold')
+		// 	.setDesc('Only apply tags with confidence above this threshold (0.5-0.95)')
+		// 	.addSlider(slider => slider
+		// 		.setLimits(0.5, 0.95, 0.05)
+		// 		.setValue(this.plugin.settings.autoTaggingMinConfidence)
+		// 		.setDynamicTooltip()
+		// 		.onChange(async (value) => {
+		// 			this.plugin.settings.autoTaggingMinConfidence = value;
+		// 			await this.plugin.saveSettings();
+		// 		}));
 
 		new Setting(containerEl)
 			.setName('Developer')

@@ -1,8 +1,8 @@
 import {App} from "obsidian";
 import {convertLegacyRule, FileCreationRule, RuleMatchResult, RuleMatchType} from "./rule-types";
-import {CreateFileSettings} from "../settings";
 import {log} from "../utils/log-utils";
 import {ConditionMatchType, ConditionOperator, MatchCondition} from "./condition-types";
+import {CreateFileSettings} from "../settings/settings";
 
 /**
  * 规则管理器 - 负责管理和应用文件创建规则
@@ -225,7 +225,7 @@ export class RuleManager {
 		if (!this.settings.rules) return false;
 
 		const initialLength = this.settings.rules.length;
-		this.settings.rules = this.settings.rules.filter(rule => rule.id !== ruleId);
+		this.settings.rules = this.settings.rules.filter((rule: { id: string; }) => rule.id !== ruleId);
 
 		return this.settings.rules.length < initialLength;
 	}
@@ -243,7 +243,7 @@ export class RuleManager {
 		const newRulesOrder: FileCreationRule[] = [];
 
 		for (const ruleId of ruleIds) {
-			const rule = this.settings.rules.find(r => r.id === ruleId);
+			const rule = this.settings.rules.find((r: { id: string; }) => r.id === ruleId);
 			if (!rule) return false;
 			newRulesOrder.push(rule);
 		}

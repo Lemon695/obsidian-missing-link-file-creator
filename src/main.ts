@@ -1,13 +1,13 @@
 import {App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, Vault} from 'obsidian';
 import {FileOperations, FileOperationsOptions} from './utils/file-operations';
-import {CreateFileSettings, CreateFileSettingTab, DEFAULT_SETTINGS} from "./settings";
 import {RuleManagementModal} from "./ui-manager/rule-management-modal";
-import {TemplaterService} from "./model/templater-service";
 import {log} from "./utils/log-utils";
+import {TemplaterService} from "./service/templater-service";
+import {CreateFileSettings, CreateFileSettingTab, DEFAULT_SETTINGS} from "./settings/settings";
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
-	private fileOperations: FileOperations;
+	public fileOperations: FileOperations;
 	public templaterService: TemplaterService;
 	private isCommandExecuting: boolean = false; // 添加命令执行状态标志
 

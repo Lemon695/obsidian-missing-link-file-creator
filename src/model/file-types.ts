@@ -1,5 +1,5 @@
 import {App} from "obsidian";
-import {CreateFileSettings} from "../settings";
+import {CreateFileSettings} from "src/settings/settings";
 import {TemplateAliasHandling} from "./rule-types";
 
 // 待创建文件
@@ -20,6 +20,7 @@ export interface CreationModalParams {
 	files: FileToCreate[];
 	onConfirm: (selectedFiles: FileToCreate[]) => Promise<boolean | { success: boolean; message?: string }>;
 	onCancel: () => void;
+	onPreview?: (filePath: string, aliases: string[], templatePath?: string) => Promise<string>;
 }
 
 // 文件创建-结果

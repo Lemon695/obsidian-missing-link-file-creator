@@ -1,12 +1,13 @@
 import {App, Notice, TAbstractFile, TFile, Vault} from 'obsidian';
 import {FileUtils} from './file-utils';
 import {log} from "./log-utils";
-import {CreateFileSettings} from "../settings";
 import {resolveFilePath} from "./path-utils";
 import {UIManager} from "../ui-manager/ui-manager";
-import {TemplaterService} from "../model/templater-service";
 import {RuleManager} from "../model/rule-manager";
 import {TemplateAliasHandling} from "../model/rule-types";
+import {TemplaterService} from "../service/templater-service";
+import {TagHelper} from "../service/tag-helper";
+import {CreateFileSettings} from "../settings/settings";
 
 export interface FileOperationsOptions {
 	app: App;
@@ -38,14 +39,16 @@ export class FileOperations {
 	private templaterService: TemplaterService;
 	private ruleManager: RuleManager;
 	public pendingAliases: Map<string, string[]> = new Map();
+	private tagHelper: TagHelper;
 
 	constructor(options: FileOperationsOptions) {
 		this.app = options.app;
 		this.settings = options.settings;
 		this.fileUtils = new FileUtils(options.app);
-		this.uiManager = new UIManager(options.app, options.settings);
+		this.uiManager = new UIManager(options.app, options.settings, this);
 		this.templaterService = new TemplaterService(options.app, options.settings, this);
 		this.ruleManager = new RuleManager(options.app, options.settings);
+		this.tagHelper = new TagHelper(options.app);
 	}
 
 	/**
@@ -54,7 +57,7 @@ export class FileOperations {
 	 * @returns 提取的链接信息数组
 	 */
 	extractMDLinks(content: string): LinkInfo[] {
-		const regex = /!?\[\[((?:[^\[\]]|\\.)+?(?:\|(?:[^\[\]]|\\.)+?)?)]]/g;
+		const regex = /!?\[\[((?:\\.|[^\[\]\|])+(?:\|(?:\\.|[^\[\]])+?)?)(?<!\\)]]/g;
 		const linkInfos: LinkInfo[] = [];
 		let match;
 
@@ -313,6 +316,11 @@ export class FileOperations {
 					while (pathTracker.has(uniquePath) || this.app.vault.getAbstractFileByPath(uniquePath)) {
 						uniquePath = `${basePath}-${counter}${extension}`;
 						counter++;
+						// 防止无限循环
+						if (counter > 1000) {
+							log.error(() => `无法为 ${targetPath} 创建唯一路径，尝试次数过多`);
+							break;
+						}
 					}
 
 					targetPath = uniquePath;
@@ -546,13 +554,17 @@ export class FileOperations {
 	 * 创建文件，支持多个别名
 	 * @param filePath 文件路径
 	 * @param aliases 别名数组
+	 * @param templatePath 模板路径（可选）
+	 * @param templateAliasHandling 模板别名处理方式（可选）
+	 * @param autoTagging 是否自动添加标签（可选，默认为true）
 	 * @returns 是否成功创建
 	 */
 	async createFileWithMultipleAliases(
 		filePath: string,
 		aliases: string[],
 		templatePath?: string,
-		templateAliasHandling?: TemplateAliasHandling
+		templateAliasHandling?: TemplateAliasHandling,
+		autoTagging: boolean = true
 	): Promise<{ success: boolean, message?: string }> {
 		try {
 			// 添加调试日志
@@ -607,6 +619,9 @@ export class FileOperations {
 				this.pendingAliases.set(filePath, aliases);
 			}
 
+			let success = false;
+			let matchedRule;
+
 			if (this.settings.useTemplates && templatePath) {
 				log.debug(`Applying template: ${templatePath} to file: ${filePath}`);
 
@@ -625,7 +640,7 @@ export class FileOperations {
 
 							if (processedContent) {
 								log.debug(`File has been processed with Templater: ${filePath}`);
-								return {success: true};
+								success = true;
 							} else {
 								log.debug("Templater processing returned empty content, will attempt basic processing");
 							}
@@ -634,31 +649,32 @@ export class FileOperations {
 						}
 					}
 
-					log.debug('Processing with basic template');
+					if (!success) {
+						log.debug('Processing with basic template');
 
-					const newFile = await this.app.vault.create(filePath, fileContent);
-					log.debug(`Initial file has been created: ${filePath}`);
+						const newFile = await this.app.vault.create(filePath, fileContent);
+						log.debug(`Initial file has been created: ${filePath}`);
 
-					// 获取模板文件
-					const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
-					if (templateFile && templateFile instanceof TFile) {
-						// 读取模板内容
-						const templateContent = await this.app.vault.read(templateFile);
-						// 处理模板内容
-						const processedContent = this.templaterService.processBasicTemplate(templateContent, variables);
+						// 获取模板文件
+						const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
+						if (templateFile && templateFile instanceof TFile) {
+							// 读取模板内容
+							const templateContent = await this.app.vault.read(templateFile);
+							// 处理模板内容
+							const processedContent = this.templaterService.processBasicTemplate(templateContent, variables, filePath);
 
-						// 合并frontmatter并更新文件内容
-						const targetFile = this.app.vault.getAbstractFileByPath(filePath);
-						if (targetFile && targetFile instanceof TFile) {
-							const mergedContent = this.templaterService.mergeFrontmatter(fileContent, processedContent);
-							await this.app.vault.modify(targetFile, mergedContent);
-							log.debug(`File content has been updated using basic processing: ${filePath}`);
+							// 合并frontmatter并更新文件内容
+							const targetFile = this.app.vault.getAbstractFileByPath(filePath);
+							if (targetFile && targetFile instanceof TFile) {
+								const mergedContent = this.templaterService.mergeFrontmatter(fileContent, processedContent);
+								await this.app.vault.modify(targetFile, mergedContent);
+								log.debug(`File content has been updated using basic processing: ${filePath}`);
+								success = true;
+							}
+						} else {
+							log.error(`Template file not found: ${templatePath}`);
 						}
-					} else {
-						log.error(`Template file not found: ${templatePath}`);
 					}
-
-					return {success: true};
 				} catch (templateError) {
 					log.error(`Failed to apply template: ${templateError.message}`);
 					return {
@@ -670,8 +686,50 @@ export class FileOperations {
 				// 没有使用模板，直接创建文件
 				await this.app.vault.create(filePath, fileContent);
 				log.debug(`Creating file (No Template): ${filePath}`);
-				return {success: true};
+				success = true;
 			}
+
+			// 如果启用了自动标签功能
+			if (success && autoTagging && this.settings.autoTagging) {
+				// 在应用模板后，添加自动标签逻辑
+				const targetFile = this.app.vault.getAbstractFileByPath(filePath);
+				if (targetFile && targetFile instanceof TFile) {
+					try {
+						// 读取当前文件内容
+						const currentContent = await this.app.vault.read(targetFile);
+
+						// 生成标签建议
+						const tagSuggestions = await this.tagHelper.suggestTags(
+							currentContent,
+							targetFile.basename,
+							{sourcePath: this.app.workspace.getActiveFile()?.path}
+						);
+
+						// 过滤高置信度的标签
+						const suggestedTags = tagSuggestions
+							.filter(suggestion => suggestion.confidence > this.settings.autoTaggingMinConfidence)
+							.map(suggestion => suggestion.tag);
+
+						if (suggestedTags.length > 0) {
+							// 应用标签到内容
+							const updatedContent = this.tagHelper.applyTagsToContent(
+								currentContent,
+								suggestedTags
+							);
+
+							// 更新文件
+							if (updatedContent !== currentContent) {
+								await this.app.vault.modify(targetFile, updatedContent);
+								log.debug(`Auto-added tags to ${filePath}: ${suggestedTags.join(', ')}`);
+							}
+						}
+					} catch (error) {
+						log.error(`Error adding auto-tags: ${error}`);
+					}
+				}
+			}
+
+			return {success: true};
 		} catch (error) {
 			console.error(`Failed to Create File: ${filePath}`, error);
 			return {
@@ -749,6 +807,116 @@ export class FileOperations {
 		}
 	}
 
+	// 预览方法
+	async previewFileContent(templatePath: string, filename: string, aliases: string[]): Promise<string> {
+		let previewContent = '';
+
+		const variables = {
+			filename: filename,
+			path: filename,
+			aliases: aliases.join(', ')
+		};
+
+		if (this.settings.useTemplates && templatePath) {
+			// 读取模板内容
+			const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
+			if (templateFile && templateFile instanceof TFile) {
+				// 读取模板内容
+				const templateContent = await this.app.vault.read(templateFile);
+				// 处理模板内容
+				previewContent = this.templaterService.processBasicTemplate(templateContent, variables);
+
+				// 如果有别名，在frontmatter中添加
+				if (this.settings.addAliasesToFrontmatter && aliases && aliases.length > 0) {
+					const aliasesString = aliases.map(alias => `  - "${alias}"`).join('\n');
+					const frontmatter = `---\naliases:\n${aliasesString}\n---\n\n`;
+
+					// 合并frontmatter和处理后的内容
+					previewContent = this.templaterService.mergeFrontmatter(frontmatter, previewContent);
+				}
+			}
+		} else {
+			// 没有使用模板，创建基本内容
+			if (this.settings.addAliasesToFrontmatter && aliases && aliases.length > 0) {
+				const aliasesString = aliases.map(alias => `  - "${alias}"`).join('\n');
+				previewContent = `---\naliases:\n${aliasesString}\n---\n\n`;
+			}
+		}
+
+		return previewContent;
+	}
+
+	// 重命名
+	async bulkRenameFiles(renamePairs: { oldPath: string, newPath: string }[]): Promise<{
+		success: number,
+		failed: number,
+		updated: number
+	}> {
+		const result = {
+			success: 0,
+			failed: 0,
+			updated: 0
+		};
+
+		// 收集所有可能受影响的文件
+		const allFiles = this.app.vault.getMarkdownFiles();
+		const filesToUpdate = new Map<TFile, string>();
+
+		// 处理每个重命名对
+		for (const {oldPath, newPath} of renamePairs) {
+			try {
+				// 获取要重命名的文件
+				const file = this.app.vault.getAbstractFileByPath(oldPath);
+				if (!file || !(file instanceof TFile)) {
+					log.error(`File not found: ${oldPath}`);
+					result.failed++;
+					continue;
+				}
+
+				// 查找引用该文件的所有文件
+				for (const potentialRefFile of allFiles) {
+					const content = await this.app.vault.read(potentialRefFile);
+
+					// 检查是否包含对此文件的引用
+					const oldBasename = file.basename;
+					const newBasename = newPath.split('/').pop()?.replace(/\.[^/.]+$/, '');
+
+					if (!newBasename) continue;
+
+					// 查找并替换Wiki链接 [[oldName]] -> [[newName]]
+					const linkRegex = new RegExp(`\\[\\[(${oldBasename})(#[^\\]|]*)?(?:\\|([^\\]]*?))?\\]\\]`, 'g');
+					let updatedContent = content.replace(linkRegex, (match, name, heading, alias) => {
+						result.updated++;
+						return `[[${newBasename}${heading || ''}${alias ? `|${alias}` : ''}]]`;
+					});
+
+					// 如果内容已更改，添加到更新列表
+					if (updatedContent !== content) {
+						filesToUpdate.set(potentialRefFile, updatedContent);
+					}
+				}
+
+				// 执行重命名操作
+				await this.app.fileManager.renameFile(file, newPath);
+				result.success++;
+
+			} catch (error) {
+				log.error(`Error renaming file ${oldPath} to ${newPath}: ${error}`);
+				result.failed++;
+			}
+		}
+
+		// 更新所有引用
+		for (const [file, newContent] of filesToUpdate.entries()) {
+			try {
+				await this.app.vault.modify(file, newContent);
+			} catch (error) {
+				log.error(`Error updating references in ${file.path}: ${error}`);
+			}
+		}
+
+		return result;
+	}
 
 }
 
