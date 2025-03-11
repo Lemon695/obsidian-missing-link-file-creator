@@ -1188,21 +1188,29 @@
 }
 
 /* 添加规则按钮样式 */
-button.mod-cta {
-	background-color: var(--interactive-accent);
-	color: white;
-	padding: 8px 16px;
-	border-radius: 6px;
-	font-weight: 500;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	transition: all 0.2s ease;
-	border: none;
+.missing-link-file-creator button.mod-cta,
+.creation-confirm-modal button.mod-cta,
+.rule-management-modal button.mod-cta,
+.rule-edit-modal button.mod-cta,
+.confirm-delete-modal button.mod-cta {
+	background-color: var(--interactive-accent) !important;
+	color: white !important;
+	padding: 8px 16px !important;
+	border-radius: 6px !important;
+	font-weight: 500 !important;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+	transition: all 0.2s ease !important;
+	border: none !important;
 }
 
-button.mod-cta:hover {
-	background-color: var(--interactive-accent-hover);
-	transform: translateY(-1px);
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.missing-link-file-creator button.mod-cta:hover,
+.creation-confirm-modal button.mod-cta:hover,
+.rule-management-modal button.mod-cta:hover,
+.rule-edit-modal button.mod-cta:hover,
+.confirm-delete-modal button.mod-cta:hover {
+	background-color: var(--interactive-accent-hover) !important;
+	transform: translateY(-1px) !important;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* 文件夹选择器样式 */
