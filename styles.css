@@ -1246,24 +1246,17 @@
 	width: 100%;
 }
 
-/* 控制实际下拉列表的宽度和位置 */
-.suggestion-container {
-	min-width: 120px !important;
-	max-width: 180px !important;
-	width: auto !important; /* 让宽度根据内容自适应，但不超过最大宽度 */
-	z-index: 100; /* 确保在最上层 */
-}
-
 .suggestion {
 	padding: 5px 0;
 }
 
 /* 调整下拉菜单选项的样式 */
 .suggestion-item {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	padding: 6px 10px !important;
+	text-overflow: ellipsis !important;
+	overflow: hidden !important;
+	white-space: nowrap !important;
+	padding: 8px 10px !important;
+	position: relative !important;
 }
 
 .suggestion-item:hover {
@@ -1618,13 +1611,36 @@ body.theme-dark .suggestion-item.is-selected {
 .rule-template-text {
 	font-family: var(--font-monospace);
 	font-size: 0.9em;
-	padding: 2px 6px;
-	background-color: var(--background-secondary-alt);
+	padding: 4px 8px;
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
 	border-radius: 4px;
-	color: var(--text-muted);
+	color: var(--text-normal);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+/* 添加左侧边框来区分类型 */
+.rule-target-text {
+	border-left: 3px solid #4CAF50; /* 绿色边框表示目标文件夹 */
+}
+
+.rule-template-text {
+	border-left: 3px solid #2196F3; /* 蓝色边框表示模板 */
+}
+
+/* 改善空状态的显示 */
+.rule-target-text:empty::after {
+	content: "(Default)";
+	font-style: italic;
+	color: var(--text-faint);
+}
+
+.rule-template-text:empty::after {
+	content: "(None)";
+	font-style: italic;
+	color: var(--text-faint);
 }
 
 /* 禁用的规则样式 */
@@ -1956,7 +1972,86 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 
+/* ----- 文件夹筛选 -----*/
+
+/* 增强型可滚动输入框 - 通用样式 */
+.suggestion-item input[type="text"],
+.setting-item-control input[type="text"],
+.folder-input-container input,
+.template-input-container input {
+	white-space: nowrap !important;
+	overflow-x: auto !important;
+	text-overflow: clip !important; /* 不使用省略号，允许完整内容滚动 */
+	scrollbar-width: thin !important;
+	scrollbar-color: var(--scrollbar-thumb-color) transparent !important;
+}
+
+/* 滚动条样式调整 */
+.suggestion-item input[type="text"]::-webkit-scrollbar,
+.setting-item-control input[type="text"]::-webkit-scrollbar,
+.folder-input-container input::-webkit-scrollbar,
+.template-input-container input::-webkit-scrollbar {
+	height: 4px !important;
+	background: transparent !important;
+}
+
+.suggestion-item input[type="text"]::-webkit-scrollbar-thumb,
+.setting-item-control input[type="text"]::-webkit-scrollbar-thumb,
+.folder-input-container input::-webkit-scrollbar-thumb,
+.template-input-container input::-webkit-scrollbar-thumb {
+	background-color: var(--interactive-accent) !important;
+	border-radius: 2px !important;
+	opacity: 0.5 !important;
+}
+
+/* 悬停提示样式 */
+.path-tooltip {
+	position: absolute !important;
+	z-index: 1000 !important;
+	background-color: var(--background-secondary) !important;
+	border: 1px solid var(--background-modifier-border) !important;
+	border-radius: 4px !important;
+	padding: 6px 10px !important;
+	font-size: 12px !important;
+	max-width: 300px !important;
+	word-break: break-all !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+	pointer-events: none !important;
+	opacity: 0 !important;
+	transition: opacity 0.2s ease !important;
+}
+
+.path-tooltip.show {
+	opacity: 1 !important;
+}
 
 
+/*----- 优化建议文件夹/文件-全路径显示 ----*/
 
+/* 下拉菜单的提示样式 */
+.suggestion-container .path-tooltip {
+	max-width: 400px !important; /* 更宽的提示框，适合长路径 */
+	word-break: normal !important;
+	white-space: nowrap !important;
+	z-index: 1001 !important; /* 确保提示在最上层 */
+}
 
+/* 控制实际下拉列表的宽度和位置 */
+.suggestion-container {
+	min-width: 120px !important;
+	max-width: 180px !important;
+	max-height: 300px !important;
+	width: auto !important; /* 让宽度根据内容自适应，但不超过最大宽度 */
+	z-index: 100; /* 确保在最上层 */
+	overflow-y: auto !important;
+	scrollbar-width: thin !important;
+}
+
+.suggestion-container::-webkit-scrollbar {
+	width: 6px !important;
+}
+
+.suggestion-container::-webkit-scrollbar-thumb {
+	background-color: var(--scrollbar-thumb-color) !important;
+	border-radius: 3px !important;
+}

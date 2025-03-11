@@ -13,6 +13,7 @@ class Suggest<T> {
 	private suggestions: HTMLDivElement[];
 	private selectedItem: number;
 	private containerEl: HTMLElement;
+	private activeTooltip: HTMLElement | null = null;
 
 	constructor(
 		owner: ISuggestOwner<T>,
@@ -76,6 +77,9 @@ class Suggest<T> {
 			const suggestionEl = this.containerEl.createDiv("suggestion-item");
 			this.owner.renderSuggestion(value, suggestionEl);
 			suggestionEls.push(suggestionEl);
+
+			// 添加鼠标悬停显示完整路径的功能
+			this.addPathTooltip(suggestionEl);
 		});
 
 		this.values = values;
@@ -86,6 +90,8 @@ class Suggest<T> {
 	useSelectedItem(event: MouseEvent | KeyboardEvent) {
 		const currentValue = this.values[this.selectedItem];
 		if (currentValue) {
+			this.clearActiveTooltip();
+
 			this.owner.selectSuggestion(currentValue, event);
 		}
 	}
@@ -106,6 +112,56 @@ class Suggest<T> {
 		if (scrollIntoView) {
 			selectedSuggestion.scrollIntoView(false);
 		}
+	}
+
+	// 清除活跃的工具提示
+	clearActiveTooltip() {
+		const tooltips = document.querySelectorAll('.path-tooltip');
+		tooltips.forEach(tooltip => {
+			tooltip.remove();
+		});
+	}
+
+	private addPathTooltip(suggestionEl: HTMLElement) {
+		let tooltip: HTMLElement | null = null;
+
+		suggestionEl.addEventListener('mouseenter', () => {
+			// 检查内容是否被截断
+			if (suggestionEl.scrollWidth > suggestionEl.clientWidth ||
+				suggestionEl.offsetWidth < suggestionEl.scrollWidth) {
+
+				// 清除任何现有的工具提示
+				this.clearActiveTooltip();
+
+				tooltip = document.createElement('div');
+				tooltip.addClass('path-tooltip');
+				tooltip.setText(suggestionEl.textContent || '');
+				document.body.appendChild(tooltip);
+				this.activeTooltip = tooltip;  // 跟踪活跃的工具提示
+
+				const rect = suggestionEl.getBoundingClientRect();
+				tooltip.style.top = `${rect.bottom + 8}px`;
+				tooltip.style.left = `${rect.left}px`;
+
+				// 延迟显示避免闪烁
+				setTimeout(() => {
+					if (tooltip) tooltip.addClass('show');
+				}, 300);
+			}
+		});
+
+		suggestionEl.addEventListener('mouseleave', () => {
+			if (tooltip) {
+				tooltip.removeClass('show');
+				setTimeout(() => {
+					if (tooltip) {
+						tooltip.remove();
+						tooltip = null;
+						this.activeTooltip = null;  // 清除活跃的工具提示引用
+					}
+				}, 200);
+			}
+		});
 	}
 }
 
@@ -198,6 +254,12 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 
 	close(): void {
 		this.app.keymap.popScope(this.scope);
+
+		// 确保清除任何可能存在的工具提示
+		const tooltips = document.querySelectorAll('.path-tooltip');
+		tooltips.forEach(tooltip => {
+			tooltip.remove();
+		});
 
 		this.suggest.setSuggestions([]);
 		if (this.popper) this.popper.destroy();

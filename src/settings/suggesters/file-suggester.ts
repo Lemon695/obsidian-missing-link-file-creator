@@ -18,6 +18,8 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 		private mode: FileSuggestMode
 	) {
 		super(plugin.app, inputEl);
+
+		this.enhanceInputElement();
 	}
 
 	get_folder(mode: FileSuggestMode): string {
@@ -72,11 +74,78 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 
 	renderSuggestion(file: TFile, el: HTMLElement): void {
 		el.setText(file.path);
+
+		// 确保提示项显示完整路径
+		el.title = file.path; // 添加HTML title属性
+
+		// 添加溢出样式
+		el.style.overflow = "hidden";
+		el.style.textOverflow = "ellipsis";
+		el.style.whiteSpace = "nowrap";
 	}
 
 	selectSuggestion(file: TFile): void {
 		this.inputEl.value = file.path;
 		this.inputEl.trigger("input");
 		this.close();
+	}
+
+	private enhanceInputElement() {
+		const inputEl = this.inputEl;
+
+		let tooltip: HTMLElement | null = null;
+
+		inputEl.addEventListener('mouseenter', () => {
+			if (inputEl.value && inputEl.scrollWidth > inputEl.clientWidth) {
+				if (!tooltip) {
+					tooltip = document.createElement('div');
+					tooltip.addClass('path-tooltip');
+					tooltip.setText(inputEl.value);
+					document.body.appendChild(tooltip);
+				}
+
+				const rect = inputEl.getBoundingClientRect();
+				tooltip.style.top = `${rect.bottom + 8}px`;
+				tooltip.style.left = `${rect.left}px`;
+
+				setTimeout(() => {
+					if (tooltip) tooltip.addClass('show');
+				}, 300);
+			}
+		});
+
+		inputEl.addEventListener('mouseleave', () => {
+			if (tooltip) {
+				tooltip.removeClass('show');
+				setTimeout(() => {
+					if (tooltip) {
+						tooltip.remove();
+						tooltip = null;
+					}
+				}, 200);
+			}
+		});
+
+		inputEl.addEventListener('focus', () => {
+			setTimeout(() => {
+				const cursorPos = inputEl.selectionStart || 0;
+				const textWidthBeforeCursor = this.getTextWidth(inputEl.value.substring(0, cursorPos), getComputedStyle(inputEl));
+
+				if (textWidthBeforeCursor > inputEl.clientWidth) {
+					inputEl.scrollLeft = textWidthBeforeCursor - inputEl.clientWidth / 2;
+				}
+			}, 0);
+		});
+	}
+
+	// 辅助方法：计算文本宽度
+	private getTextWidth(text: string, style: CSSStyleDeclaration): number {
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		if (context) {
+			context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+			return context.measureText(text).width;
+		}
+		return 0;
 	}
 }
