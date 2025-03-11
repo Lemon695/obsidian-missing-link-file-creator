@@ -745,12 +745,15 @@ export class FileOperations {
 	 * @returns 解析后的绝对路径
 	 */
 	private resolveRelativePath(path: string): string {
+		// 如果已经是绝对路径，直接返回
+		if (path.startsWith('/')) return path;
+
 		const activeFile = this.app.workspace.getActiveFile();
 		if (!activeFile) return path;
 
 		// 获取当前文件所在目录
 		const currentFilePath = activeFile.path;
-		const currentDir = currentFilePath.substring(0, currentFilePath.lastIndexOf('/'));
+		const currentDir = currentFilePath.substring(0, currentFilePath.lastIndexOf('/') || 0);
 
 		if (path.startsWith('./') || path.startsWith('../')) {
 			return resolveFilePath(path, currentDir, this.settings);

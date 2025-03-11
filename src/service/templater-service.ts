@@ -33,6 +33,7 @@ export class TemplaterService {
 	 * @param templatePath 模板路径
 	 * @param targetPath 目标文件路径
 	 * @param variables 可选的变量
+	 * @param templaterMode
 	 * @returns 处理后的内容，如果失败则返回null
 	 */
 	async processTemplateWithTemplater(
@@ -177,6 +178,15 @@ export class TemplaterService {
 			}
 		} catch (error) {
 			log.error(`Error occurred while processing template: ${error}`);
+			try {
+				const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
+				if (templateFile && templateFile instanceof TFile) {
+					const templateContent = await this.app.vault.read(templateFile);
+					return this.processBasicTemplate(templateContent, variables || {}, targetPath);
+				}
+			} catch (fallbackError) {
+				log.error(`Fallback template processing failed: ${fallbackError.message}`);
+			}
 			return null;
 		}
 	}
