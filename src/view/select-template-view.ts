@@ -1,6 +1,6 @@
 import {App, Modal} from 'obsidian';
 
-export class CustomModal extends Modal {
+export class SelectTemplateView extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
@@ -11,8 +11,8 @@ export class CustomModal extends Modal {
 		setTimeout(() => {
 			const modalEl = this.contentEl.closest('.modal');
 			if (modalEl instanceof HTMLElement) {
-				modalEl.style.width = '90vw';
-				modalEl.style.maxWidth = '1200px';
+				modalEl.style.width = '700px';
+				modalEl.style.maxWidth = '90vw';
 				modalEl.style.minWidth = '600px';
 
 				modalEl.style.left = '50%';
@@ -21,7 +21,7 @@ export class CustomModal extends Modal {
 				modalEl.style.position = 'fixed';
 			}
 
-			const modalContainer = this.contentEl.closest('.ccmd-modal-container');
+			const modalContainer = this.contentEl.closest('.modal-container');
 			if (modalContainer instanceof HTMLElement) {
 				modalContainer.style.width = 'auto';
 				modalContainer.style.maxWidth = 'none';

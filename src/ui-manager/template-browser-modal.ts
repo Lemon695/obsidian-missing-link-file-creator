@@ -13,7 +13,7 @@ export class TemplateBrowserModal extends Modal {
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.empty();
-		contentEl.addClass('template-browser-modal');
+		contentEl.addClass('ccmd-template-browser-modal');
 
 		contentEl.createEl('h2', {text: 'Select Template'});
 
@@ -21,10 +21,10 @@ export class TemplateBrowserModal extends Modal {
 		const searchInput = searchContainer.createEl('input', {
 			type: 'text',
 			placeholder: 'Search templates...',
-			cls: 'template-search-input'
+			cls: 'ccmd-template-search-input'
 		});
 
-		const templateList = contentEl.createDiv({cls: 'template-list'});
+		const templateList = contentEl.createDiv({cls: 'ccmd-template-list'});
 
 		const renderTemplates = (templates: string[]) => {
 			templateList.empty();
@@ -32,14 +32,14 @@ export class TemplateBrowserModal extends Modal {
 			if (templates.length === 0) {
 				templateList.createEl('div', {
 					text: 'No templates found',
-					cls: 'no-templates'
+					cls: 'ccmd-no-templates'
 				});
 				return;
 			}
 
 			templates.forEach(templatePath => {
 				const item = templateList.createEl('div', {
-					cls: 'template-item',
+					cls: 'ccmd-template-item',
 					text: templatePath
 				});
 

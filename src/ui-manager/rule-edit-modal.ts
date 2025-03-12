@@ -37,26 +37,26 @@ export class RuleEditModal extends CustomModal {
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.empty();
-		contentEl.addClass('rule-edit-modal', 'quickAddModal');
+		contentEl.addClass('ccmd-rule-edit-modal', 'ccmd-quickAddModal');
 
 		// 两列布局
-		const mainContainer = contentEl.createDiv({cls: 'rule-edit-container'});
+		const mainContainer = contentEl.createDiv({cls: 'ccmd-rule-edit-container '});
 
 		// 左侧面板：基本信息和条件
-		const leftPanelScroll = mainContainer.createDiv({cls: 'rule-edit-left-panel-scroll'});
-		const leftPanel = leftPanelScroll.createDiv({cls: 'rule-edit-left-panel'});
+		const leftPanelScroll = mainContainer.createDiv({cls: 'ccmd-rule-edit-left-panel-scroll'});
+		const leftPanel = leftPanelScroll.createDiv({cls: 'ccmd-rule-edit-left-panel'});
 
 		// 右侧面板：目标设置
-		const rightPanel = mainContainer.createDiv({cls: 'rule-edit-right-panel'});
+		const rightPanel = mainContainer.createDiv({cls: 'ccmd-rule-edit-right-panel'});
 
 		// === 左侧面板内容 ===
 		// 标题和开关部分
-		const headerSection = leftPanel.createDiv({cls: 'rule-header-section'});
+		const headerSection = leftPanel.createDiv({cls: 'ccmd-rule-header-section'});
 
 		// 标题（可点击编辑）
 		const titleEl = headerSection.createEl('h2', {
 			text: this.rule.id ? this.rule.name : 'Create Rule',
-			cls: 'rule-edit-title'
+			cls: 'ccmd-rule-edit-title'
 		});
 
 		titleEl.addEventListener("click", async () => {
@@ -79,7 +79,7 @@ export class RuleEditModal extends CustomModal {
 		const enableToggle = new Setting(headerSection)
 			.setName('Enable')
 			.setDesc('Enable or disable this rule')
-			.setClass('rule-enable-toggle')
+			.setClass('ccmd-rule-enable-toggle')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.rule.enabled)
@@ -88,24 +88,24 @@ export class RuleEditModal extends CustomModal {
 					});
 			});
 
-		const conditionsSection = leftPanel.createDiv({cls: 'rule-section'});
-		conditionsSection.createEl('h3', {text: 'Matching', cls: 'rule-section-title'});
+		const conditionsSection = leftPanel.createDiv({cls: 'ccmd-rule-section'});
+		conditionsSection.createEl('h3', {text: 'Matching', cls: 'ccmd-rule-section-title'});
 
-		this.conditionsContainer = conditionsSection.createDiv({cls: 'conditions-container'});
+		this.conditionsContainer = conditionsSection.createDiv({cls: 'ccmd-conditions-container'});
 		this.renderConditions();
 
 		const addConditionBtn = new ButtonComponent(conditionsSection);
 		addConditionBtn
 			.setButtonText("Add Condition")
-			.setClass('rule-add-condition-button')
+			.setClass('ccmd-rule-add-condition-button')
 			.setIcon("plus-circle")
 			.onClick(() => {
 				this.addNewCondition();
 			});
 
 		// === 右侧面板内容 ===
-		const targetSection = rightPanel.createDiv({cls: 'rule-section'});
-		targetSection.createEl('h3', {text: 'Target Settings', cls: 'rule-section-title'});
+		const targetSection = rightPanel.createDiv({cls: 'ccmd-rule-section'});
+		targetSection.createEl('h3', {text: 'Target Settings', cls: 'ccmd-rule-section-title'});
 
 		// 目标文件夹，使用文件夹建议器
 		new Setting(targetSection)
@@ -134,11 +134,12 @@ export class RuleEditModal extends CustomModal {
 				cb.setPlaceholder("Select Template")
 					.setValue(this.rule.templatePath)
 					.onChange(value => {
+						const oldValue = this.rule.templatePath;
 						this.rule.templatePath = value;
 
 						// 只有当值变化显著时才重新加载 (比如从无到有，或者完全变成空)
-						if ((this.rule.templatePath === "" && value !== "") ||
-							(this.rule.templatePath !== "" && value === "")) {
+						if ((oldValue === "" && value !== "") ||
+							(oldValue !== "" && value === "")) {
 							this.reload();
 						}
 					});
@@ -158,7 +159,7 @@ export class RuleEditModal extends CustomModal {
 				.setName('Template Alias Handling')
 				.setDesc('Control how aliases are handled when using Templater')
 				.addDropdown(dropdown => {
-					dropdown.selectEl.addClass('wider-dropdown');
+					dropdown.selectEl.addClass('ccmd-wider-dropdown');
 					dropdown
 						.addOption(TemplateAliasHandling.SKIP, "Skip (Templater handles aliases)")
 						.addOption(TemplateAliasHandling.MERGE, "Merge with template")
@@ -169,12 +170,12 @@ export class RuleEditModal extends CustomModal {
 				});
 		}
 
-		const buttonContainer = contentEl.createDiv({cls: 'rule-edit-buttons'});
+		const buttonContainer = contentEl.createDiv({cls: 'ccmd-rule-edit-buttons'});
 
 		const cancelButton = new ButtonComponent(buttonContainer);
 		cancelButton
 			.setButtonText('Cancel')
-			.setClass('rule-cancel-button')
+			.setClass('ccmd-rule-cancel-button')
 			.onClick(() => {
 				this.close();
 			});
@@ -182,7 +183,7 @@ export class RuleEditModal extends CustomModal {
 		const saveButton = new ButtonComponent(buttonContainer);
 		saveButton
 			.setButtonText('Save')
-			.setClass('rule-save-button')
+			.setClass('ccmd-rule-save-button')
 			.setCta()
 			.onClick(() => {
 				this.saveRule();
@@ -200,7 +201,7 @@ export class RuleEditModal extends CustomModal {
 		if (this.rule.conditions.length === 0) {
 			const emptyMessage = this.conditionsContainer.createEl('div', {
 				text: 'Click "Add Condition" to create your first matching rule', //点击"添加条件"创建第一个匹配条件
-				cls: 'empty-conditions-message'
+				cls: 'ccmd-empty-conditions-message'
 			});
 			return;
 		}

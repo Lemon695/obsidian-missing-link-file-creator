@@ -30,12 +30,12 @@ export class ConditionEditor {
 	}
 
 	render() {
-		this.conditionEl = this.container.createDiv({cls: 'condition-item'});
+		this.conditionEl = this.container.createDiv({cls: 'ccmd-condition-item'});
 		this.conditionEl.style.marginBottom = "20px";
 		this.conditionEl.style.padding = "15px";
 		this.conditionEl.style.borderRadius = "6px";
 
-		const conditionHeader = this.conditionEl.createDiv({cls: 'condition-header'});
+		const conditionHeader = this.conditionEl.createDiv({cls: 'ccmd-condition-header'});
 		conditionHeader.style.display = "flex";
 		conditionHeader.style.justifyContent = "space-between";
 		conditionHeader.style.alignItems = "center";
@@ -43,7 +43,7 @@ export class ConditionEditor {
 
 		const headerTitle = conditionHeader.createEl('h4', {
 			text: "Condition Settings",
-			cls: 'condition-title'
+			cls: 'ccmd-condition-title'
 		});
 		headerTitle.style.margin = "0";
 
@@ -52,12 +52,12 @@ export class ConditionEditor {
 		controlsContainer.style.alignItems = "center";
 		controlsContainer.style.gap = "10px";
 
-		const operatorSettingContainer = controlsContainer.createDiv({cls: 'operator-setting-container'});
+		const operatorSettingContainer = controlsContainer.createDiv({cls: 'ccmd-operator-setting-container'});
 		const operatorSetting = new Setting(operatorSettingContainer)
 			.setName("Condition Type")
-			.setClass('condition-operator-setting')
+			.setClass('ccmd-condition-operator-setting')
 			.addDropdown(dropdown => {
-				dropdown.selectEl.addClass('wider-dropdown');
+				dropdown.selectEl.addClass('ccmd-wider-dropdown');
 				dropdown
 					.addOption(ConditionOperator.AND, "AND")
 					.addOption(ConditionOperator.OR, "OR")
@@ -75,25 +75,25 @@ export class ConditionEditor {
 		deleteBtn
 			.setIcon("trash")
 			.setTooltip("Delete This Condition")
-			.setClass('condition-delete-button')
+			.setClass('ccmd-condition-delete-button')
 			.onClick(() => {
 				this.onDelete();
 			});
 
-		const conditionContent = this.conditionEl.createDiv({cls: 'condition-content'});
+		const conditionContent = this.conditionEl.createDiv({cls: 'ccmd-condition-content'});
 		conditionContent.style.display = "flex";
 		conditionContent.style.gap = "10px";
 		conditionContent.style.alignItems = "center";
 
 		// 选择匹配属性类型的下拉框（第一列）
-		const propertyTypeContainer = conditionContent.createDiv({cls: 'property-type-container'});
+		const propertyTypeContainer = conditionContent.createDiv({cls: 'ccmd-property-type-container'});
 		propertyTypeContainer.style.width = "18%";
 		propertyTypeContainer.style.marginRight = "10px";
 
 		const propertyTypeDropdown = new Setting(propertyTypeContainer)
-			.setClass('property-type-setting')
+			.setClass('ccmd-property-type-setting')
 			.addDropdown(dropdown => {
-				dropdown.selectEl.addClass('wider-dropdown');
+				dropdown.selectEl.addClass('ccmd-wider-dropdown');
 				dropdown
 					.addOption('filename', "Filename")
 					// .addOption('alias', "Alias") //TODO
@@ -131,20 +131,20 @@ export class ConditionEditor {
 	}
 
 	updateStyles() {
-		this.conditionEl.removeClass('condition-and', 'condition-or', 'condition-not', 'condition-exclude');
+		this.conditionEl.removeClass('ccmd-condition-and', 'ccmd-condition-or', 'ccmd-condition-not', 'ccmd-condition-exclude');
 
 		switch (this.condition.operator) {
 			case ConditionOperator.AND:
-				this.conditionEl.addClass('condition-and');
+				this.conditionEl.addClass('ccmd-condition-and');
 				break;
 			case ConditionOperator.OR:
-				this.conditionEl.addClass('condition-or');
+				this.conditionEl.addClass('ccmd-condition-or');
 				break;
 			case ConditionOperator.NOT:
-				this.conditionEl.addClass('condition-not');
+				this.conditionEl.addClass('ccmd-condition-not');
 				break;
 			case ConditionOperator.EXCLUDE:
-				this.conditionEl.addClass('condition-exclude');
+				this.conditionEl.addClass('ccmd-condition-exclude');
 				break;
 		}
 	}
@@ -166,7 +166,7 @@ export class ConditionEditor {
 			propertyNameContainer.style.marginRight = "10px";
 
 			// 匹配类型容器（第三列）
-			const matchTypeContainer = restLayoutContainer.createDiv({cls: 'match-type-container'});
+			const matchTypeContainer = restLayoutContainer.createDiv({cls: 'ccmd-match-type-container'});
 			matchTypeContainer.style.flex = "25%";
 			matchTypeContainer.style.marginRight = "10px";
 
@@ -176,7 +176,7 @@ export class ConditionEditor {
 
 			// 添加属性名输入框
 			const propertyInput = new Setting(propertyNameContainer)
-				.setClass('condition-property-input')
+				.setClass('ccmd-condition-property-input')
 				.addText(text => {
 					text
 						.setPlaceholder("Property Name")
@@ -206,9 +206,9 @@ export class ConditionEditor {
 			propertyInput.settingEl.style.height = "40px";
 
 			new Setting(matchTypeContainer)
-				.setClass('condition-match-type')
+				.setClass('ccmd-condition-match-type')
 				.addDropdown(dropdown => {
-					dropdown.selectEl.addClass('wider-dropdown');
+					dropdown.selectEl.addClass('ccmd-wider-dropdown');
 					dropdown
 						.addOption(ConditionMatchType.CONTAINS, "contains")
 						.addOption(ConditionMatchType.STARTS_WITH, "begins with")
@@ -224,7 +224,7 @@ export class ConditionEditor {
 
 			// 属性值输入框
 			const valueInput = new Setting(valueContainer)
-				.setClass('condition-value-input')
+				.setClass('ccmd-condition-value-input')
 				.addText(text => {
 					text
 						.setPlaceholder("Property Value")
@@ -254,19 +254,19 @@ export class ConditionEditor {
 			// 第一列已存在：属性类型选择器;第二列：匹配类型下拉;第三列：匹配值输入
 
 			// 创建匹配类型容器（第二列）
-			const matchTypeContainer = restLayoutContainer.createDiv({cls: 'match-type-container'});
+			const matchTypeContainer = restLayoutContainer.createDiv({cls: 'ccmd-match-type-container'});
 			matchTypeContainer.style.flex = "30%";
 			matchTypeContainer.style.marginRight = "10px";
 
 			// 创建模式匹配容器（第三列）
-			const patternContainer = restLayoutContainer.createDiv({cls: 'pattern-container'});
+			const patternContainer = restLayoutContainer.createDiv({cls: 'ccmd-pattern-container'});
 			patternContainer.style.flex = "70%";
 
 			// 添加匹配类型下拉
 			new Setting(matchTypeContainer)
-				.setClass('condition-match-type')
+				.setClass('ccmd-condition-match-type')
 				.addDropdown(dropdown => {
-					dropdown.selectEl.addClass('wider-dropdown');
+					dropdown.selectEl.addClass('ccmd-wider-dropdown');
 					dropdown
 						.addOption(ConditionMatchType.CONTAINS, "contains")
 						.addOption(ConditionMatchType.STARTS_WITH, "begins with")
@@ -282,7 +282,7 @@ export class ConditionEditor {
 
 			// 模式输入
 			const patternInput = new Setting(patternContainer)
-				.setClass('condition-pattern')
+				.setClass('ccmd-condition-pattern')
 				.addText(text => {
 					text
 						.setPlaceholder("Text to Match")

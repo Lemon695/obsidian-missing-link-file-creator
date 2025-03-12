@@ -56,7 +56,7 @@ export class FolderSuggest extends TextInputSuggest<TFolder> {
 			if (inputEl.value && inputEl.scrollWidth > inputEl.clientWidth) {
 				if (!tooltip) {
 					tooltip = document.createElement('div');
-					tooltip.addClass('path-tooltip');
+					tooltip.addClass('ccmd-path-tooltip');
 					tooltip.setText(inputEl.value);
 					document.body.appendChild(tooltip);
 				}

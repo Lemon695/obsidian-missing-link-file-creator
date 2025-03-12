@@ -1,12 +1,12 @@
 /* 模态框容器样式 */
-.creation-confirm-modal {
+.ccmd-creation-confirm-modal {
 	width: 100% !important;
 	box-sizing: border-box !important;
 	padding: 20px !important;
 	overflow: visible !important;
 }
 
-.file-creation-modal-container {
+.ccmd-file-creation-modal-container {
 	position: fixed !important;
 	left: 50% !important;
 	transform: translateX(-50%) !important;
@@ -18,90 +18,90 @@
 }
 
 /* 设置表格列宽 */
-.creation-confirm-modal .file-table .select-column {
+.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-select-column {
 	width: 40px;
 }
 
-.creation-confirm-modal .file-table .filename-cell {
+.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-filename-cell {
 	width: 25%;
 }
 
-.creation-confirm-modal .file-table .path-cell {
+.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-path-cell {
 	width: 45%;
 }
 
 /* 改进复选框样式 */
-.creation-confirm-modal input[type="checkbox"] {
+.ccmd-creation-confirm-modal input[type="checkbox"] {
 	transition: all 0.2s ease-in-out !important;
 }
 
 /* 确保全选复选框样式一致 */
-.creation-confirm-modal thead th.select-column input[type="checkbox"]:checked::after {
+.ccmd-creation-confirm-modal thead th.ccmd-select-column input[type="checkbox"]:checked::after {
 	left: 50% !important;
 	top: 40% !important;
 	transform: translate(-50%, -50%) rotate(45deg) !important;
 }
 
 /* 复选框悬停状态 */
-.creation-confirm-modal input[type="checkbox"]:hover {
+.ccmd-creation-confirm-modal input[type="checkbox"]:hover {
 	border-color: #4a8eff !important;
 	box-shadow: 0 0 0 2px rgba(74, 142, 255, 0.2) !important;
 }
 
 /* 选中+悬停状态 */
-.creation-confirm-modal input[type="checkbox"]:checked:hover {
+.ccmd-creation-confirm-modal input[type="checkbox"]:checked:hover {
 	background-color: #3a7eef !important; /* 稍微深一点的蓝色 */
 	box-shadow: 0 0 0 2px rgba(74, 142, 255, 0.3) !important;
 }
 
 /* 复选框选中状态 */
-.creation-confirm-modal input[type="checkbox"]:checked {
+.ccmd-creation-confirm-modal input[type="checkbox"]:checked {
 	background-color: #4a8eff !important;
 	border-color: #4a8eff !important;
 	box-shadow: none !important;
 	border-radius: 50% !important; /* 使复选框呈现为圆形 */
 }
 
-.creation-confirm-modal input[type="checkbox"]:checked::after,
-.creation-confirm-modal input[type="checkbox"]:checked::before {
+.ccmd-creation-confirm-modal input[type="checkbox"]:checked::after,
+.ccmd-creation-confirm-modal input[type="checkbox"]:checked::before {
 	content: none !important;
 	display: none !important;
 }
 
 /* 禁用状态的复选框 */
-.creation-confirm-modal input[type="checkbox"]:disabled {
+.ccmd-creation-confirm-modal input[type="checkbox"]:disabled {
 	opacity: 0.6 !important;
 	cursor: not-allowed !important;
 }
 
 /* 全选复选框样式特殊处理 */
-.creation-confirm-modal thead th.select-column input[type="checkbox"] {
+.ccmd-creation-confirm-modal thead th.ccmd-select-column input[type="checkbox"] {
 	background-color: var(--background-secondary-alt) !important;
 }
 
-.creation-confirm-modal thead th.select-column input[type="checkbox"]:checked {
+.ccmd-creation-confirm-modal thead th.ccmd-select-column input[type="checkbox"]:checked {
 	background-color: #4a8eff !important;
 	border-radius: 50% !important;
 }
 
 /* 添加表格hover效果和边框 */
-.creation-confirm-modal .file-table tr:hover {
+.ccmd-creation-confirm-modal .ccmd-file-table tr:hover {
 	background-color: var(--background-secondary);
 }
 
-.creation-confirm-modal .file-table {
+.ccmd-creation-confirm-modal .ccmd-file-table {
 	border-collapse: collapse;
 	width: 100%;
 }
 
-.creation-confirm-modal .file-table th,
-.creation-confirm-modal .file-table td {
+.ccmd-creation-confirm-modal .ccmd-file-table th,
+.ccmd-creation-confirm-modal .ccmd-file-table td {
 	border: 1px solid var(--background-modifier-border);
 	padding: 8px;
 }
 
 /* 改进表格样式 */
-.file-list-container {
+.ccmd-file-list-container {
 	height: 430px !important;
 	min-height: 430px !important;
 	max-height: 430px !important;
@@ -112,13 +112,13 @@
 }
 
 /* 防止内部表格溢出 */
-.file-table {
+.ccmd-file-table {
 	table-layout: fixed !important;
 	width: 100% !important;
 }
 
 /* 确保单元格内容不溢出 */
-.file-table td {
+.ccmd-file-table td {
 	overflow-x: auto !important; /* 改为自动水平滚动 */
 	overflow-y: hidden !important;
 	text-overflow: clip !important; /* 不使用省略号 */
@@ -127,7 +127,7 @@
 	padding: 8px !important;
 }
 
-.file-table th {
+.ccmd-file-table th {
 	position: sticky;
 	top: 0;
 	background-color: var(--background-secondary);
@@ -136,60 +136,60 @@
 }
 
 /* 确保鼠标悬停时显示滚动条 */
-.file-table td:hover {
+.ccmd-file-table td:hover {
 	overflow-x: auto !important;
 }
 
 /* 美化滚动条样式 */
-.file-table td::-webkit-scrollbar {
+.ccmd-file-table td::-webkit-scrollbar {
 	height: 4px !important;
 }
 
-.file-table td::-webkit-scrollbar-thumb {
+.ccmd-file-table td::-webkit-scrollbar-thumb {
 	background-color: rgba(74, 142, 255, 0.5) !important;
 	border-radius: 2px !important;
 }
 
-.file-table td::-webkit-scrollbar-track {
+.ccmd-file-table td::-webkit-scrollbar-track {
 	background-color: var(--background-secondary) !important;
 }
 
 /* 让路径单元格也保持水平滚动 */
-.path-cell {
+.ccmd-path-cell {
 	word-break: normal !important; /* 覆盖之前的 break-all 设置 */
 	white-space: nowrap !important; /* 覆盖之前的 normal 设置 */
 	overflow-x: auto !important;
 }
 
-.aliases-cell-container::-webkit-scrollbar {
+.ccmd-aliases-cell-container::-webkit-scrollbar {
 	height: 4px !important;
 }
 
-.aliases-cell-container::-webkit-scrollbar-thumb {
+.ccmd-aliases-cell-container::-webkit-scrollbar-thumb {
 	background-color: rgba(74, 142, 255, 0.5) !important;
 	border-radius: 2px !important;
 }
 
-.aliases-cell-container::-webkit-scrollbar-track {
+.ccmd-aliases-cell-container::-webkit-scrollbar-track {
 	background-color: var(--background-secondary) !important;
 }
 
 /* 确保别名容器宽度和对齐方式与其他单元格一致 */
-.aliases-cell-container {
+.ccmd-aliases-cell-container {
 	width: 100% !important;
 	box-sizing: border-box !important;
 	display: block !important;
 }
 
 /* 按钮样式增强 */
-.creation-confirm-modal .button-container {
+.ccmd-creation-confirm-modal .ccmd-button-container {
 	display: flex !important;
 	justify-content: flex-end !important;
 	gap: 12px !important;
 	margin-top: 20px !important;
 }
 
-.creation-confirm-modal .button-container button {
+.ccmd-creation-confirm-modal .ccmd-button-container button {
 	padding: 8px 16px !important;
 	border-radius: 4px !important;
 	font-size: 14px !important;
@@ -199,45 +199,45 @@
 }
 
 /* 取消按钮样式 */
-.creation-confirm-modal .button-container button:not(.mod-cta) {
+.ccmd-creation-confirm-modal .ccmd-button-container button:not(.mod-cta) {
 	background-color: transparent !important;
 	border: 1px solid var(--background-modifier-border) !important;
 	color: var(--text-normal) !important;
 }
 
-.creation-confirm-modal .button-container button:not(.mod-cta):hover {
+.ccmd-creation-confirm-modal .ccmd-button-container button:not(.mod-cta):hover {
 	background-color: var(--background-secondary) !important;
 	border-color: var(--background-modifier-border-hover) !important;
 }
 
 /* 确认按钮样式 */
-.creation-confirm-modal .button-container button.mod-cta {
+.ccmd-creation-confirm-modal .ccmd-button-container button.mod-cta {
 	background-color: #4a8eff !important;
 	color: white !important;
 	border: none !important;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
 }
 
-.creation-confirm-modal .button-container button.mod-cta:hover {
+.ccmd-creation-confirm-modal .ccmd-button-container button.mod-cta:hover {
 	background-color: #3a7eef !important;
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
 	transform: translateY(-1px) !important;
 }
 
-.creation-confirm-modal .button-container button.mod-cta:active {
+.ccmd-creation-confirm-modal .ccmd-button-container button.mod-cta:active {
 	transform: translateY(0) !important;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* 禁用状态的按钮 */
-.creation-confirm-modal .button-container button:disabled {
+.ccmd-creation-confirm-modal .ccmd-button-container button:disabled {
 	opacity: 0.5 !important;
 	cursor: not-allowed !important;
 	pointer-events: none !important;
 }
 
 /* 调整分页按钮位置 */
-.pagination-container {
+.ccmd-pagination-container {
 	margin-top: 15px !important;
 	margin-bottom: 15px !important;
 	padding-top: 10px !important;
@@ -245,7 +245,7 @@
 }
 
 /* 改进进度指示器样式 */
-.progress-container {
+.ccmd-progress-container {
 	margin: 20px 0 !important;
 	padding: 15px !important;
 	background-color: var(--background-secondary) !important;
@@ -253,7 +253,7 @@
 	border: 1px solid var(--background-modifier-border) !important;
 }
 
-.progress-bar {
+.ccmd-progress-bar {
 	position: absolute !important;
 	left: 0 !important;
 	top: 0 !important;
@@ -267,7 +267,7 @@
 }
 
 /* 结果容器样式优化 */
-.result-container {
+.ccmd-result-container {
 	background-color: var(--background-secondary) !important;
 	border-radius: 8px !important;
 	padding: 20px !important;
@@ -275,22 +275,22 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-.result-summary {
+.ccmd-result-summary {
 	margin: 15px 0 !important;
 	line-height: 1.6 !important;
 }
 
-.result-summary > div {
+.ccmd-result-summary > div {
 	margin-bottom: 8px !important;
 	padding-left: 28px !important;
 	position: relative !important;
 }
 
-.result-summary > div:last-child {
+.ccmd-result-summary > div:last-child {
 	margin-bottom: 0 !important;
 }
 
-.result-close-button {
+.ccmd-result-close-button {
 	background-color: #4a8eff !important;
 	color: white !important;
 	padding: 8px 16px !important;
@@ -301,14 +301,14 @@
 	transition: all 0.2s ease !important;
 }
 
-.result-close-button:hover {
+.ccmd-result-close-button:hover {
 	background-color: #3a7eef !important;
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
 	transform: translateY(-1px) !important;
 }
 
 /* 进度页面容器 */
-.progress-page-container {
+.ccmd-progress-page-container {
 	background-color: var(--background-secondary) !important;
 	border-radius: 8px !important;
 	padding: 25px !important;
@@ -320,7 +320,7 @@
 }
 
 /* 百分比显示 */
-.percentage-display {
+.ccmd-percentage-display {
 	font-size: 48px !important;
 	font-weight: bold !important;
 	margin-bottom: 15px !important;
@@ -328,7 +328,7 @@
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
-.progress-bar-container {
+.ccmd-progress-bar-container {
 	position: relative !important;
 	width: 100% !important;
 	height: 12px !important;
@@ -338,7 +338,7 @@
 	border-radius: 6px !important;
 }
 
-.progress-bar-background {
+.ccmd-progress-bar-background {
 	position: absolute !important;
 	left: 0 !important;
 	top: 0 !important;
@@ -350,7 +350,7 @@
 }
 
 /* 进度文本 */
-.progress-text {
+.ccmd-progress-text {
 	font-size: 16px !important;
 	margin-top: 10px !important;
 	color: var(--text-normal) !important;
@@ -358,7 +358,7 @@
 }
 
 /* 统计容器 */
-.stats-container {
+.ccmd-stats-container {
 	display: grid !important;
 	grid-template-columns: 1fr 1fr !important;
 	gap: 20px !important;
@@ -367,7 +367,7 @@
 }
 
 /* 统计项 */
-.stat-item {
+.ccmd-stat-item {
 	background-color: var(--background-primary) !important;
 	border-radius: 6px !important;
 	padding: 15px !important;
@@ -378,30 +378,30 @@
 	border-left: 4px solid transparent !important;
 }
 
-.stat-item:hover {
+.ccmd-stat-item:hover {
 	transform: translateY(-2px) !important;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* 各类统计项的边框颜色 */
-.created-stat {
+.ccmd-created-stat {
 	border-left-color: #4caf50 !important; /* 绿色 */
 }
 
-.skipped-stat {
+.ccmd-skipped-stat {
 	border-left-color: #ff9800 !important; /* 橙色 */
 }
 
-.failed-stat {
+.ccmd-failed-stat {
 	border-left-color: #f44336 !important; /* 红色 */
 }
 
-.aliases-stat {
+.ccmd-aliases-stat {
 	border-left-color: #2196f3 !important; /* 蓝色 */
 }
 
 /* 统计图标 */
-.stat-icon {
+.ccmd-stat-icon {
 	font-size: 20px !important;
 	margin-right: 10px !important;
 	width: 30px !important;
@@ -410,7 +410,7 @@
 }
 
 /* 统计值 */
-.stat-value {
+.ccmd-stat-value {
 	font-weight: bold !important;
 	font-size: 18px !important;
 	margin-left: 5px !important;
@@ -418,11 +418,11 @@
 
 /* 响应式布局调整 */
 @media (max-width: 600px) {
-	.stats-container {
+	.ccmd-stats-container {
 		grid-template-columns: 1fr !important;
 	}
 
-	.percentage-display {
+	.ccmd-percentage-display {
 		font-size: 36px !important;
 	}
 }
@@ -430,7 +430,7 @@
 /* 移动设备适配 - iPhone 12 Pro Max及其他手机设备 */
 @media (max-width: 428px) {
 	/* 模态框容器调整 */
-	.file-creation-modal-container {
+	.ccmd-file-creation-modal-container {
 		width: 95vw !important;
 		max-width: 100vw !important;
 		left: 50% !important;
@@ -440,12 +440,12 @@
 		max-height: 90vh !important;
 	}
 
-	.creation-confirm-modal {
+	.ccmd-creation-confirm-modal {
 		padding: 12px !important;
 	}
 
 	/* 表格布局优化 */
-	.file-list-container {
+	.ccmd-file-list-container {
 		height: 320px !important;
 		min-height: 320px !important;
 		max-height: 320px !important;
@@ -453,45 +453,45 @@
 		-webkit-overflow-scrolling: touch !important;
 	}
 
-	.file-table {
+	.ccmd-file-table {
 		min-width: 600px !important; /* 确保表格有最小宽度，强制出现横向滚动 */
 	}
 
-	.file-table th {
+	.ccmd-file-table th {
 		padding: 6px 4px !important;
 		font-size: 13px !important;
 	}
 
-	.file-table td {
+	.ccmd-file-table td {
 		padding: 6px 4px !important;
 		font-size: 13px !important;
 	}
 
 	/* 调整移动设备上的列宽比例 */
-	.creation-confirm-modal .file-table .select-column {
+	.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-select-column {
 		width: 40px !important;
 		min-width: 40px !important;
 		max-width: 40px !important;
 	}
 
-	.creation-confirm-modal .file-table .filename-cell {
+	.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-filename-cell {
 		width: 30% !important;
 		min-width: 150px !important;
 	}
 
-	.creation-confirm-modal .file-table .path-cell {
+	.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-path-cell {
 		width: 40% !important;
 		min-width: 200px !important;
 	}
 
 	/* 优化表格在移动设备上的显示 */
-	.file-table th,
-	.file-table td {
+	.ccmd-file-table th,
+	.ccmd-file-table td {
 		white-space: nowrap !important;
 	}
 
 	/* 添加横向滚动指示 */
-	.file-list-container::after {
+	.ccmd-file-list-container::after {
 		content: "← 左右滑动查看更多 →";
 		display: block;
 		text-align: center;
@@ -506,7 +506,7 @@
 	}
 
 	/* 优化别名显示 */
-	.aliases-cell-container {
+	.ccmd-aliases-cell-container {
 		max-width: 100% !important;
 		overflow-x: auto !important;
 		white-space: nowrap !important;
@@ -514,98 +514,98 @@
 	}
 
 	/* 处理没有别名的显示 */
-	.no-aliases {
+	.ccmd-no-aliases {
 		text-align: center !important;
 	}
 
 	/* 按钮调整 */
-	.creation-confirm-modal .button-container {
+	.ccmd-creation-confirm-modal .ccmd-button-container {
 		gap: 8px !important;
 	}
 
-	.creation-confirm-modal .button-container button {
+	.ccmd-creation-confirm-modal .ccmd-button-container button {
 		padding: 10px 14px !important;
 		font-size: 15px !important; /* 增大字体便于触摸 */
 		width: 100% !important; /* 按钮占满容器宽度 */
 	}
 
 	/* 分页控件调整 */
-	.pagination-container {
+	.ccmd-pagination-container {
 		flex-direction: column !important;
 		align-items: center !important;
 		gap: 10px !important;
 	}
 
-	.pagination-controls {
+	.ccmd-pagination-controls {
 		width: 100% !important;
 		display: flex !important;
 		justify-content: space-between !important;
 	}
 
-	.pagination-controls button {
+	.ccmd-pagination-controls button {
 		flex: 1 !important;
 		margin: 0 4px !important;
 		padding: 10px 0 !important;
 	}
 
 	/* 进度页面适配 */
-	.percentage-display {
+	.ccmd-percentage-display {
 		font-size: 36px !important;
 	}
 
-	.progress-text {
+	.ccmd-progress-text {
 		font-size: 14px !important;
 		text-align: center !important;
 	}
 
 	/* 统计容器始终单列显示 */
-	.stats-container {
+	.ccmd-stats-container {
 		grid-template-columns: 1fr !important;
 		gap: 12px !important;
 	}
 
-	.stat-item {
+	.ccmd-stat-item {
 		padding: 12px !important;
 	}
 
-	.stat-icon {
+	.ccmd-stat-icon {
 		font-size: 18px !important;
 	}
 
-	.stat-value {
+	.ccmd-stat-value {
 		font-size: 16px !important;
 	}
 }
 
 /* 中等尺寸移动设备（iPad mini等） */
 @media (min-width: 429px) and (max-width: 768px) {
-	.file-creation-modal-container {
+	.ccmd-file-creation-modal-container {
 		width: 90vw !important;
 		max-width: 90vw !important;
 	}
 
-	.file-list-container {
+	.ccmd-file-list-container {
 		height: 360px !important;
 		min-height: 360px !important;
 		max-height: 360px !important;
 	}
 
 	/* 调整表格列宽比例 */
-	.creation-confirm-modal .file-table .filename-cell {
+	.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-filename-cell {
 		width: 40% !important;
 	}
 
-	.creation-confirm-modal .file-table .path-cell {
+	.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-path-cell {
 		width: 30% !important;
 	}
 
 	/* 统计容器在中等尺寸设备上保持两列布局 */
-	.stats-container {
+	.ccmd-stats-container {
 		grid-template-columns: 1fr 1fr !important;
 		gap: 15px !important;
 	}
 
-	.creation-confirm-modal .button-container button {
+	.ccmd-creation-confirm-modal .ccmd-button-container button {
 		padding: 10px 18px !important;
 		font-size: 14px !important;
 	}
@@ -614,43 +614,43 @@
 /* 触屏设备通用优化 */
 @media (pointer: coarse) {
 	/* 增大点击区域 */
-	.creation-confirm-modal input[type="checkbox"] {
+	.ccmd-creation-confirm-modal input[type="checkbox"] {
 		width: 22px !important;
 		height: 22px !important;
 		margin: 3px !important;
 	}
 
 	/* 增大行高以便于触摸选择 */
-	.file-table tr {
+	.ccmd-file-table tr {
 		height: 44px !important;
 	}
 
 	/* 改善滚动体验 */
-	.file-list-container {
+	.ccmd-file-list-container {
 		-webkit-overflow-scrolling: touch !important;
 		scroll-behavior: smooth !important;
 	}
 
 	/* 按钮边距和大小 */
-	.button-container {
+	.ccmd-button-container {
 		margin-top: 25px !important;
 		margin-bottom: 15px !important;
 	}
 
 	/* 避免Safari上的弹性滚动问题 */
-	.file-table td,
-	.file-list-container,
+	.ccmd-file-table td,
+	.ccmd-file-list-container,
 	.modal {
 		overscroll-behavior: contain !important;
 	}
 }
 
 /* 暗色模式下的对比度优化 - 适用于所有设备 */
-.theme-dark .progress-bar {
+.theme-dark .ccmd-progress-bar {
 	background-image: linear-gradient(90deg, #5c9dff, #3a7eef) !important;
 }
 
-.theme-dark .stat-item {
+.theme-dark .ccmd-stat-item {
 	background-color: var(--background-secondary) !important;
 }
 
@@ -770,7 +770,7 @@
 /* ----- 规则管理相关样式 ----- */
 
 /* 规则管理模态窗口 */
-.rule-management-modal {
+.ccmd-rule-management-modal {
 	width: 100%;
 	max-width: 1200px !important; /* 增加最大宽度 */
 	padding: 28px !important;
@@ -779,15 +779,15 @@
 	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
 }
 
-.modal-container .rule-management-modal,
-.modal-container .rule-edit-modal {
+.ccmd-modal-container .ccmd-rule-management-modal,
+.ccmd-modal-container .ccmd-rule-edit-modal {
 	width: 90vw !important; /* 增加宽度 */
 	max-width: 1160px !important; /* 增加最大宽度 */
 	min-width: 600px !important; /* 添加最小宽度 */
 	max-height: 85vh !important; /* 增加最大高度 */
 }
 
-.rule-management-title {
+.ccmd-rule-management-title {
 	margin-bottom: 24px !important;
 	text-align: center !important;
 	font-size: 28px !important;
@@ -796,7 +796,7 @@
 	letter-spacing: -0.5px !important;
 }
 
-.rule-management-description {
+.ccmd-rule-management-description {
 	margin-bottom: 25px !important;
 	color: var(--text-muted) !important;
 	line-height: 1.6 !important;
@@ -807,7 +807,7 @@
 	margin-right: auto !important;
 }
 
-.rules-list-container {
+.ccmd-rules-list-container {
 	max-height: 50vh;
 	overflow-y: auto;
 	margin-bottom: 24px;
@@ -817,7 +817,7 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.empty-rules-message {
+.ccmd-empty-rules-message {
 	padding: 40px 20px;
 	text-align: center;
 	color: var(--text-muted);
@@ -829,7 +829,7 @@
 }
 
 /* 规则项目容器 */
-.rule-item-container {
+.ccmd-rule-item-container {
 	background-color: var(--background-secondary-alt);
 	border-radius: 8px;
 	margin: 16px;
@@ -839,29 +839,29 @@
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.rule-item-container:hover {
+.ccmd-rule-item-container:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 规则设置 */
-.rule-setting {
+.ccmd-rule-setting {
 	padding: 0 !important;
 	border-bottom: 1px solid var(--background-modifier-border);
 	margin-bottom: 15px;
 }
 
-.rule-setting .setting-item-info {
+.ccmd-rule-setting .ccmd-setting-item-info {
 	flex: 2.5; /* 给名称更多空间 */
 }
 
-.rule-setting .setting-item-control {
+.ccmd-rule-setting .ccmd-setting-item-control {
 	flex: 1;
 	justify-content: flex-end;
 }
 
 /* 规则详情容器 */
-.rule-details-container {
+.ccmd-rule-details-container {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -869,7 +869,7 @@
 	padding-left: 4px;
 }
 
-.rule-detail-item {
+.ccmd-rule-detail-item {
 	background-color: var(--background-primary);
 	padding: 8px 12px;
 	border-radius: 6px;
@@ -879,14 +879,14 @@
 }
 
 /* 规则操作按钮容器 */
-.rule-actions-container {
+.ccmd-rule-actions-container {
 	display: flex;
 	justify-content: flex-end;
 	gap: 12px;
 	margin-top: 12px;
 }
 
-.rule-action-button {
+.ccmd-rule-action-button {
 	background-color: var(--background-modifier-border);
 	color: var(--text-normal);
 	border-radius: 6px;
@@ -897,80 +897,50 @@
 	border: none;
 }
 
-.rule-action-button:hover {
+.ccmd-rule-action-button:hover {
 	background-color: var(--interactive-accent);
 	color: var(--text-on-accent);
 	transform: translateY(-1px);
 }
 
-.rule-delete-button {
+.ccmd-rule-delete-button {
 	background-color: rgba(244, 67, 54, 0.1);
 	color: #f44336;
 }
 
-.rule-delete-button:hover {
+.ccmd-rule-delete-button:hover {
 	background-color: #f44336;
 	color: white;
 }
 
 /* 规则编辑模态窗口 */
-.rule-edit-modal {
+.ccmd-rule-edit-modal {
 	padding: 24px;
 	width: 100%;
-	max-width: 900px !important;
+	max-width: 1160px !important;
 }
 
-.choiceNameHeader {
-	text-align: center;
-	font-size: 24px;
-	margin-bottom: 24px;
-	color: var(--text-normal);
-	cursor: pointer;
-	user-select: none;
-	transition: color 0.2s ease;
-}
-
-.choiceNameHeader:hover {
-	color: var(--interactive-accent);
-}
-
-/* 条件部分 */
-.conditions-section {
-	margin: 24px 0;
-	padding: 20px;
-	border-radius: 8px;
-	background-color: var(--background-secondary-alt);
-	border: 1px solid var(--background-modifier-border);
-}
-
-.conditions-section h3 {
-	margin-top: 0;
-	margin-bottom: 16px;
-	font-size: 18px;
-	color: var(--text-normal);
-}
-
-.condition-and {
+.ccmd-condition-and {
 	border-left-color: #4CAF50 !important; /* 绿色 */
 	background-color: rgba(76, 175, 80, 0.05) !important;
 }
 
-.condition-or {
+.ccmd-condition-or {
 	border-left-color: #2196F3 !important; /* 蓝色 */
 	background-color: rgba(33, 150, 243, 0.05) !important;
 }
 
-.condition-not {
+.ccmd-condition-not {
 	border-left-color: #FFC107 !important; /* 黄色 */
 	background-color: rgba(255, 193, 7, 0.05) !important;
 }
 
-.condition-exclude {
+.ccmd-condition-exclude {
 	border-left-color: #F44336 !important; /* 红色 */
 	background-color: rgba(244, 67, 54, 0.05) !important;
 }
 
-.condition-title {
+.ccmd-condition-title {
 	font-size: 16px !important;
 	font-weight: 600 !important;
 	color: var(--text-normal) !important;
@@ -979,8 +949,7 @@
 	align-items: center !important;
 }
 
-
-.condition-delete-button {
+.ccmd-condition-delete-button {
 	color: var(--text-muted);
 	transition: color 0.2s ease;
 	padding: 6px;
@@ -988,22 +957,22 @@
 	margin-top: -10px;
 }
 
-.condition-delete-button:hover {
+.ccmd-condition-delete-button:hover {
 	color: #F44336;
 	background-color: rgba(244, 67, 54, 0.1);
 }
 
 /* 按钮样式 */
-.rule-management-buttons,
-.rule-edit-buttons {
+.ccmd-rule-management-buttons,
+.ccmd-rule-edit-buttons {
 	display: flex;
 	justify-content: flex-end;
 	gap: 16px;
 	margin-top: 24px;
 }
 
-.rule-cancel-button,
-.rule-save-button {
+.ccmd-rule-cancel-button,
+.ccmd-rule-save-button {
 	padding: 8px 20px;
 	border-radius: 6px;
 	font-size: 15px;
@@ -1013,34 +982,28 @@
 	border: none;
 }
 
-.rule-cancel-button {
+.ccmd-rule-cancel-button {
 	background-color: var(--background-secondary);
 	color: var(--text-normal);
 	border: 1px solid var(--background-modifier-border);
 }
 
-.rule-cancel-button:hover {
+.ccmd-rule-cancel-button:hover {
 	background-color: var(--background-secondary-alt);
 }
 
-.rule-save-button {
+.ccmd-rule-save-button {
 	background-color: var(--interactive-accent);
 	color: white;
 }
 
-.rule-save-button:hover {
+.ccmd-rule-save-button:hover {
 	background-color: var(--interactive-accent-hover);
 	transform: translateY(-1px);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 模板选择模态窗口 */
-.template-selection-modal {
-	padding: 24px;
-	max-width: 800px !important;
-}
-
-.template-search-input {
+.ccmd-template-search-input {
 	width: 100%;
 	padding: 10px 12px;
 	border-radius: 6px;
@@ -1052,36 +1015,17 @@
 	transition: all 0.2s ease;
 }
 
-.template-search-input:focus {
+.ccmd-template-search-input:focus {
 	border-color: var(--interactive-accent);
 	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
 	outline: none;
 }
 
-.template-list {
-	max-height: 400px;
-	overflow-y: auto;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
-	background-color: var(--background-primary);
-}
-
-.template-item {
-	padding: 12px 16px;
-	border-bottom: 1px solid var(--background-modifier-border);
-	cursor: pointer;
-	transition: background-color 0.2s ease;
-}
-
-.template-item:last-child {
+.ccmd-template-item:last-child {
 	border-bottom: none;
 }
 
-.template-item:hover {
-	background-color: var(--background-secondary-alt);
-}
-
-.no-templates {
+.ccmd-no-templates {
 	padding: 40px 20px;
 	text-align: center;
 	color: var(--text-muted);
@@ -1089,24 +1033,24 @@
 }
 
 /* 确认删除模态窗口 */
-.confirm-delete-modal {
+.ccmd-confirm-delete-modal {
 	padding: 24px;
 	max-width: 500px !important;
 	text-align: center;
 }
 
-.confirm-delete-modal h2 {
+.ccmd-confirm-delete-modal h2 {
 	margin-bottom: 16px;
 	color: #F44336;
 }
 
-.confirm-delete-modal p {
+.ccmd-confirm-delete-modal p {
 	margin-bottom: 24px;
 	font-size: 16px;
 	line-height: 1.5;
 }
 
-.confirm-buttons {
+.ccmd-confirm-buttons {
 	display: flex;
 	justify-content: center;
 	gap: 16px;
@@ -1114,70 +1058,66 @@
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-	.rule-management-modal,
-	.rule-edit-modal {
+	.ccmd-rule-management-modal,
+	.ccmd-rule-edit-modal {
 		padding: 16px;
 	}
 
-	.condition-content {
+	.ccmd-condition-content {
 		grid-template-columns: 1fr;
 		gap: 12px;
 	}
 
-	.rule-actions-container {
+	.ccmd-rule-actions-container {
 		flex-wrap: wrap;
 	}
 
-	.rule-action-button {
+	.ccmd-rule-action-button {
 		padding: 8px 12px;
 		font-size: 14px;
 	}
 
-	.rule-management-buttons,
-	.rule-edit-buttons {
+	.ccmd-rule-management-buttons,
+	.ccmd-rule-edit-buttons {
 		flex-direction: column-reverse;
 		gap: 10px;
 	}
 
-	.rule-cancel-button,
-	.rule-save-button {
+	.ccmd-rule-cancel-button,
+	.ccmd-rule-save-button {
 		width: 100%;
 		padding: 12px;
 	}
 
-	.rule-item-container {
+	.ccmd-rule-item-container {
 		margin: 12px;
 		padding: 12px;
-	}
-
-	.rule-detail-item {
-		font-size: 13px;
 	}
 }
 
 /* 文件夹和模板路径选择设置项 */
-.setting-item.rule-folder-setting,
-.setting-item.rule-template-setting {
+.ccmd-setting-item.ccmd-rule-folder-setting,
+.ccmd-setting-item.ccmd-rule-template-setting {
 	margin-bottom: 20px;
 	padding: 16px;
 	background-color: var(--background-secondary-alt);
 	border-radius: 8px;
 }
 
-.setting-item.rule-folder-setting .setting-item-info,
-.setting-item.rule-template-setting .setting-item-info {
+.ccmd-setting-item.ccmd-rule-folder-setting .ccmd-setting-item-info,
+.ccmd-setting-item.ccmd-rule-template-setting .ccmd-setting-item-info {
 	margin-bottom: 8px;
 }
 
-.setting-item.rule-folder-setting .setting-item-control,
-.setting-item.rule-template-setting .setting-item-control {
+.ccmd-setting-item.ccmd-rule-folder-setting .ccmd-setting-item-control,
+.ccmd-setting-item.ccmd-rule-template-setting .ccmd-setting-item-control {
 	flex-direction: column;
 	align-items: flex-start;
 	width: 100%;
 }
 
-.setting-item.rule-folder-setting input,
-.setting-item.rule-template-setting input {
+.ccmd-setting-item.ccmd-rule-folder-setting input,
+.ccmd-setting-item.ccmd-rule-template-setting input {
 	width: 100%;
 	padding: 8px 12px;
 	border-radius: 6px;
@@ -1186,8 +1126,8 @@
 }
 
 /* 提升表单元素的可用性 */
-.rule-edit-modal .setting-item input[type="text"],
-.rule-edit-modal .setting-item textarea {
+.ccmd-rule-edit-modal .ccmd-setting-item input[type="text"],
+.ccmd-rule-edit-modal .ccmd-setting-item textarea {
 	width: 100%;
 	padding: 8px 12px;
 	border-radius: 6px;
@@ -1195,7 +1135,7 @@
 	background-color: var(--background-primary);
 }
 
-.rule-edit-modal .setting-item select {
+.ccmd-rule-edit-modal .ccmd-setting-item select {
 	padding: 8px 12px;
 	border-radius: 6px;
 	border: 1px solid var(--background-modifier-border);
@@ -1204,10 +1144,10 @@
 
 /* 添加规则按钮样式 */
 .missing-link-file-creator button.mod-cta,
-.creation-confirm-modal button.mod-cta,
-.rule-management-modal button.mod-cta,
-.rule-edit-modal button.mod-cta,
-.confirm-delete-modal button.mod-cta {
+.ccmd-creation-confirm-modal button.mod-cta,
+.ccmd-rule-management-modal button.mod-cta,
+.ccmd-rule-edit-modal button.mod-cta,
+.ccmd-confirm-delete-modal button.mod-cta {
 	background-color: var(--interactive-accent) !important;
 	color: white !important;
 	padding: 8px 16px !important;
@@ -1219,10 +1159,10 @@
 }
 
 .missing-link-file-creator button.mod-cta:hover,
-.creation-confirm-modal button.mod-cta:hover,
-.rule-management-modal button.mod-cta:hover,
-.rule-edit-modal button.mod-cta:hover,
-.confirm-delete-modal button.mod-cta:hover {
+.ccmd-creation-confirm-modal button.mod-cta:hover,
+.ccmd-rule-management-modal button.mod-cta:hover,
+.ccmd-rule-edit-modal button.mod-cta:hover,
+.ccmd-confirm-delete-modal button.mod-cta:hover {
 	background-color: var(--interactive-accent-hover) !important;
 	transform: translateY(-1px) !important;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
@@ -1233,25 +1173,8 @@
 	width: calc(100% - 20px);
 }
 
-/* 建议容器样式 */
-.suggestion-container-1 {
-	position: absolute;
-	z-index: 1000;
-	background-color: var(--background-primary);
-	border-radius: 4px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	border: 1px solid var(--background-modifier-border);
-	max-height: 300px;
-	overflow-y: auto;
-	width: 100%;
-}
-
-.suggestion {
-	padding: 5px 0;
-}
-
 /* 调整下拉菜单选项的样式 */
-.suggestion-item {
+.ccmd-suggestion-item {
 	text-overflow: ellipsis !important;
 	overflow: hidden !important;
 	white-space: nowrap !important;
@@ -1259,37 +1182,37 @@
 	position: relative !important;
 }
 
-.suggestion-item:hover {
+.ccmd-suggestion-item:hover {
 	background-color: var(--background-secondary);
 }
 
-.suggestion-item.is-selected {
+.ccmd-suggestion-item.is-selected {
 	background-color: var(--background-modifier-hover);
 	color: var(--text-accent);
 }
 
 /* 适应不同密度的界面 */
-.suggestion-item.is-selected,
-.suggestion-item:hover {
+.ccmd-suggestion-item.is-selected,
+.ccmd-suggestion-item:hover {
 	font-weight: 500;
 }
 
 /* 提高悬停时的对比度 */
-body.theme-dark .suggestion-item:hover,
-body.theme-dark .suggestion-item.is-selected {
+body.theme-dark .ccmd-suggestion-item:hover,
+body.theme-dark .ccmd-suggestion-item.is-selected {
 	background-color: var(--interactive-hover);
 }
 
 /* 优化移动设备上的交互 */
 @media (pointer: coarse) {
-	.suggestion-item {
+	.ccmd-suggestion-item {
 		padding: 12px;
 		min-height: 44px; /* 增大触摸区域 */
 	}
 }
 
 /* 通用模态框样式 */
-.quickAddModal {
+.ccmd-quickAddModal {
 	padding: 12px;
 	border-radius: 5px;
 }
@@ -1297,7 +1220,7 @@ body.theme-dark .suggestion-item.is-selected {
 /* ====== 规则编辑器重新设计的样式 ====== */
 
 /* 规则编辑容器 - 两列布局 */
-.rule-edit-container {
+.ccmd-rule-edit-container {
 	display: flex;
 	gap: 24px;
 	height: 65vh;
@@ -1305,7 +1228,7 @@ body.theme-dark .suggestion-item.is-selected {
 	overflow: hidden;
 }
 
-.rule-edit-left-panel-scroll {
+.ccmd-rule-edit-left-panel-scroll {
 	flex: 3;
 	overflow-y: auto;
 	padding-right: 10px;
@@ -1313,11 +1236,11 @@ body.theme-dark .suggestion-item.is-selected {
 	border-radius: 8px;
 }
 
-.rule-edit-left-panel {
+.ccmd-rule-edit-left-panel {
 	min-width: 0;
 }
 
-.rule-edit-right-panel {
+.ccmd-rule-edit-right-panel {
 	flex: 2;
 	min-width: 0;
 	display: flex;
@@ -1329,7 +1252,7 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 标题部分 */
-.rule-header-section {
+.ccmd-rule-header-section {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -1338,7 +1261,7 @@ body.theme-dark .suggestion-item.is-selected {
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.rule-edit-title {
+.ccmd-rule-edit-title {
 	margin: 0;
 	font-size: 24px;
 	font-weight: 600;
@@ -1348,57 +1271,58 @@ body.theme-dark .suggestion-item.is-selected {
 	align-items: center;
 }
 
-.rule-edit-title:hover {
+.ccmd-rule-edit-title:hover {
 	color: var(--interactive-accent);
 }
 
-.rule-edit-title:hover::after {
+.ccmd-rule-edit-title:hover::after {
 	content: "✏️";
 	font-size: 14px;
 	margin-left: 8px;
 	opacity: 0.7;
 }
 
+/* ----- 开关按扭 ----- */
 /* 启用/禁用开关 */
-.rule-toggle-setting,
-.rule-enable-toggle {
+.ccmd-rule-toggle-setting,
+.ccmd-rule-enable-toggle {
 	margin: 0 !important;
 }
 
-.rule-toggle-setting .setting-item-info,
-.rule-enable-toggle .setting-item-info {
+.ccmd-rule-toggle-setting .ccmd-setting-item-info,
+.ccmd-rule-enable-toggle .ccmd-setting-item-info {
 	display: flex !important;
 	flex-direction: row !important;
 	align-items: center !important;
 	margin-bottom: 0 !important;
 }
 
-.rule-toggle-setting .setting-item-name,
-.rule-enable-toggle .setting-item-name {
+.ccmd-rule-toggle-setting .ccmd-setting-item-name,
+.ccmd-rule-enable-toggle .ccmd-setting-item-name {
 	margin-right: 8px !important;
 	font-size: 14px !important;
 	font-weight: 500 !important;
 }
 
-.rule-toggle-setting .setting-item-description,
-.rule-enable-toggle .setting-item-description {
+.ccmd-rule-toggle-setting .ccmd-setting-item-description,
+.ccmd-rule-enable-toggle .ccmd-setting-item-description {
 	display: none !important;
 }
 
-.rule-toggle-setting .setting-item-control,
-.rule-enable-toggle .setting-item-control {
+.ccmd-rule-toggle-setting .ccmd-setting-item-control,
+.ccmd-rule-enable-toggle .ccmd-setting-item-control {
 	margin-top: 0 !important;
 }
 
 /* 规则部分 */
-.rule-section {
+.ccmd-rule-section {
 	background-color: var(--background-secondary-alt);
 	border-radius: 8px;
 	padding: 16px;
 	margin-bottom: 20px;
 }
 
-.rule-section-title {
+.ccmd-rule-section-title {
 	margin-top: 0;
 	margin-bottom: 16px;
 	font-size: 16px;
@@ -1409,11 +1333,11 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 条件样式改进 */
-.conditions-container {
+.ccmd-conditions-container {
 	margin-bottom: 16px;
 }
 
-.condition-item {
+.ccmd-condition-item {
 	border-left: 3px solid transparent;
 	background-color: var(--background-primary) !important;
 	border-radius: 10px !important;
@@ -1426,13 +1350,13 @@ body.theme-dark .suggestion-item.is-selected {
 	animation: slideIn 0.3s ease-out forwards;
 }
 
-.condition-item:hover {
+.ccmd-condition-item:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 	transform: translateY(-2px) !important;
 }
 
 /* 条件内部布局优化 */
-.condition-header {
+.ccmd-condition-header {
 	display: flex !important;
 	justify-content: space-between !important;
 	align-items: center !important;
@@ -1441,16 +1365,16 @@ body.theme-dark .suggestion-item.is-selected {
 	border-bottom: 1px solid var(--background-modifier-border) !important;
 }
 
-.condition-operator-setting {
+.ccmd-condition-operator-setting {
 	margin: 0 !important;
 }
 
-.condition-operator-setting .setting-item-info {
+.ccmd-condition-operator-setting .ccmd-setting-item-info {
 	display: none !important;
 }
 
 /* 添加条件按钮 */
-.rule-add-condition-button {
+.ccmd-rule-add-condition-button {
 	background-color: var(--background-primary);
 	color: var(--text-normal);
 	padding: 8px 12px;
@@ -1465,19 +1389,19 @@ body.theme-dark .suggestion-item.is-selected {
 	transition: all 0.2s ease;
 }
 
-.rule-add-condition-button:hover {
+.ccmd-rule-add-condition-button:hover {
 	background-color: var(--background-modifier-form-field-highlighted);
 	color: var(--interactive-accent);
 }
 
-.rule-add-condition-button svg {
+.ccmd-rule-add-condition-button svg {
 	width: 14px;
 	height: 14px;
 	margin-right: 6px;
 }
 
 /* 空条件提示改进 */
-.empty-conditions-message {
+.ccmd-empty-conditions-message {
 	background-color: var(--background-primary);
 	border-radius: 6px;
 	padding: 16px;
@@ -1489,24 +1413,24 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 文件夹和模板设置 */
-.rule-folder-setting,
-.rule-template-setting {
+.ccmd-rule-folder-setting,
+.ccmd-rule-template-setting {
 	margin: 0 0 16px 0 !important;
 	padding: 0 !important;
 }
 
-.rule-folder-setting .setting-item-info,
-.rule-template-setting .setting-item-info {
+.ccmd-rule-folder-setting .ccmd-setting-item-info,
+.ccmd-rule-template-setting .ccmd-setting-item-info {
 	margin-bottom: 8px !important;
 }
 
-.rule-folder-setting .setting-item-control,
-.rule-template-setting .setting-item-control {
+.ccmd-rule-folder-setting .ccmd-setting-item-control,
+.ccmd-rule-template-setting .ccmd-setting-item-control {
 	width: 100% !important;
 }
 
-.rule-folder-setting input,
-.rule-template-setting input {
+.ccmd-rule-folder-setting input,
+.ccmd-rule-template-setting input {
 	width: 100% !important;
 	padding: 8px 10px !important;
 	border-radius: 4px !important;
@@ -1517,7 +1441,7 @@ body.theme-dark .suggestion-item.is-selected {
 /* ====== 规则管理重新设计的样式 ====== */
 
 /* 规则表格样式 */
-.rules-table {
+.ccmd-rules-table {
 	font-size: 14px;
 	width: 100% !important;
 	border-collapse: separate !important;
@@ -1527,11 +1451,11 @@ body.theme-dark .suggestion-item.is-selected {
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
 }
 
-.rules-table thead {
+.ccmd-rules-table thead {
 	background-color: var(--background-secondary-alt) !important;
 }
 
-.rules-table th {
+.ccmd-rules-table th {
 	border-bottom: 1px solid var(--background-modifier-border);
 	text-align: left !important;
 	padding: 14px 16px !important;
@@ -1542,14 +1466,14 @@ body.theme-dark .suggestion-item.is-selected {
 	letter-spacing: 0.5px !important;
 }
 
-.rules-table td {
+.ccmd-rules-table td {
 	border-bottom: 1px solid var(--background-modifier-border);
 	padding: 14px 16px !important;
 	vertical-align: middle !important;
 	border-top: 1px solid var(--background-modifier-border) !important;
 }
 
-.rules-table tbody tr {
+.ccmd-rules-table tbody tr {
 	background-color: var(--background-primary) !important;
 	transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
 	will-change: transform, opacity !important;
@@ -1557,7 +1481,7 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 
-.rules-table tbody tr:hover {
+.ccmd-rules-table tbody tr:hover {
 	background-color: var(--background-secondary) !important;
 	transform: translateY(-2px) !important;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important;
@@ -1565,41 +1489,41 @@ body.theme-dark .suggestion-item.is-selected {
 	position: relative !important;
 }
 
-.rules-table tbody tr:last-child td {
+.ccmd-rules-table tbody tr:last-child td {
 	border-bottom: none;
 }
 
 /* 规则表格列宽 */
-.rule-status-column {
+.ccmd-rule-status-column {
 	width: 60px;
 }
 
-.rule-name-column {
+.ccmd-rule-name-column {
 	width: 180px;
 }
 
-.rule-conditions-column {
+.ccmd-rule-conditions-column {
 	width: auto;
 }
 
-.rule-target-column {
+.ccmd-rule-target-column {
 	width: 140px;
 }
 
-.rule-template-column {
+.ccmd-rule-template-column {
 	width: 140px;
 }
 
-.rule-actions-column {
+.ccmd-rule-actions-column {
 	width: 120px;
 }
 
 /* 表格内容样式 */
-.rule-name {
+.ccmd-rule-name {
 	font-weight: 500;
 }
 
-.rule-conditions-text {
+.ccmd-rule-conditions-text {
 	color: var(--text-muted);
 	white-space: nowrap;
 	overflow: hidden;
@@ -1607,8 +1531,8 @@ body.theme-dark .suggestion-item.is-selected {
 	max-width: 300px;
 }
 
-.rule-target-text,
-.rule-template-text {
+.ccmd-rule-target-text,
+.ccmd-rule-template-text {
 	font-family: var(--font-monospace);
 	font-size: 0.9em;
 	padding: 4px 8px;
@@ -1622,39 +1546,39 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 添加左侧边框来区分类型 */
-.rule-target-text {
+.ccmd-rule-target-text {
 	border-left: 3px solid #4CAF50; /* 绿色边框表示目标文件夹 */
 }
 
-.rule-template-text {
+.ccmd-rule-template-text {
 	border-left: 3px solid #2196F3; /* 蓝色边框表示模板 */
 }
 
 /* 改善空状态的显示 */
-.rule-target-text:empty::after {
+.ccmd-rule-target-text:empty::after {
 	content: "(Default)";
 	font-style: italic;
 	color: var(--text-faint);
 }
 
-.rule-template-text:empty::after {
+.ccmd-rule-template-text:empty::after {
 	content: "(None)";
 	font-style: italic;
 	color: var(--text-faint);
 }
 
 /* 禁用的规则样式 */
-.rule-disabled {
+.ccmd-rule-disabled {
 	opacity: 0.6;
 }
 
-.rule-disabled .rule-name {
+.ccmd-rule-disabled .ccmd-rule-name {
 	text-decoration: line-through;
 	color: var(--text-muted);
 }
 
 /* 空状态样式 */
-.rules-empty-state {
+.ccmd-rules-empty-state {
 	display: flex !important;
 	flex-direction: column !important;
 	align-items: center !important;
@@ -1667,27 +1591,27 @@ body.theme-dark .suggestion-item.is-selected {
 	box-shadow: inset 0 0 0 1px var(--background-modifier-border) !important;
 }
 
-.rules-empty-icon {
+.ccmd-rules-empty-icon {
 	color: var(--text-muted) !important;
 	margin-bottom: 20px !important;
 	opacity: 0.8 !important;
 	transform: scale(1.5) !important;
 }
 
-.rules-empty-text h3 {
+.ccmd-rules-empty-text h3 {
 	margin: 0 0 8px 0;
 	font-size: 18px;
 	font-weight: 600;
 	color: var(--text-normal);
 }
 
-.rules-empty-text p {
+.ccmd-rules-empty-text p {
 	margin: 0 0 20px 0;
 	color: var(--text-muted);
 	max-width: 400px;
 }
 
-.create-first-rule-button {
+.ccmd-create-first-rule-button {
 	margin-top: 15px !important;
 	padding: 10px 24px !important;
 	font-size: 15px !important;
@@ -1700,7 +1624,7 @@ body.theme-dark .suggestion-item.is-selected {
 	border: none !important;
 }
 
-.create-first-rule-button:hover {
+.ccmd-create-first-rule-button:hover {
 	background-color: var(--interactive-accent-hover) !important;
 	transform: translateY(-3px) !important;
 	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15) !important;
@@ -1708,26 +1632,26 @@ body.theme-dark .suggestion-item.is-selected {
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-	.rule-edit-container {
+	.ccmd-rule-edit-container {
 		flex-direction: column;
 	}
 
-	.condition-content {
+	.ccmd-condition-content {
 		grid-template-columns: 1fr;
 	}
 
-	.rules-table {
+	.ccmd-rules-table {
 		display: block;
 		overflow-x: auto;
 	}
 
-	.rule-conditions-text {
+	.ccmd-rule-conditions-text {
 		max-width: 100px;
 	}
 }
 
 /* 匹配-下拉框宽度增强 */
-.wider-dropdown {
+.ccmd-wider-dropdown {
 	max-width: 100% !important;
 	width: 100% !important;
 	min-width: 0 !important;
@@ -1735,14 +1659,14 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 调整输入框样式 */
-.condition-pattern input {
+.ccmd-condition-pattern input {
 	width: 100% !important;
 	box-sizing: border-box !important;
 }
 
 /* 文件夹和模板输入容器样式 */
-.folder-input-container,
-.template-input-container {
+.ccmd-folder-input-container,
+.ccmd-template-input-container {
 	display: flex;
 	align-items: center;
 	width: 100%;
@@ -1754,14 +1678,14 @@ body.theme-dark .suggestion-item.is-selected {
 	transition: all 0.2s ease;
 }
 
-.folder-input-container:focus-within,
-.template-input-container:focus-within {
+.ccmd-folder-input-container:focus-within,
+.ccmd-template-input-container:focus-within {
 	border-color: var(--interactive-accent);
 	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
 }
 
-.folder-search-input,
-.template-search-input {
+.ccmd-folder-search-input,
+.ccmd-template-search-input {
 	flex: 1;
 	border: none !important;
 	outline: none !important;
@@ -1771,58 +1695,32 @@ body.theme-dark .suggestion-item.is-selected {
 	font-size: 14px;
 }
 
-.template-browse-button-container {
-	margin-left: 8px;
-	display: flex;
-	align-items: center;
-}
-
-.template-browse-button {
-	padding: 4px !important;
-	margin: 0 !important;
-	background-color: transparent !important;
-	color: var(--text-muted) !important;
-	border-radius: 4px;
-	transition: all 0.2s ease;
-}
-
-.template-browse-button:hover {
-	color: var(--text-normal) !important;
-	background-color: var(--background-modifier-hover) !important;
-}
-
-.setting-container {
-	margin-bottom: 16px;
-	padding: 0;
-	width: 100%;
-}
-
 /* 匹配类型,匹配模式 */
-.condition-match-type, .condition-pattern {
+.ccmd-condition-match-type, .ccmd-condition-pattern {
 	margin: 0 !important;
 }
 
 /* 调整条件操作符和匹配类型的下拉框 */
-.condition-operator-setting,
-.condition-match-type {
+.ccmd-condition-operator-setting,
+.ccmd-condition-match-type {
 	width: 100%;
 	min-height: 40px;
 	display: flex;
 	align-items: center;
 }
 
-.condition-operator-setting .dropdown,
-.condition-match-type .dropdown {
+.ccmd-condition-operator-setting .dropdown,
+.ccmd-condition-match-type .dropdown {
 	width: 100%;
 }
 
 /* 调整匹配类型下拉框的垂直位置 */
-.condition-match-type .setting-item-control {
+.ccmd-condition-match-type .ccmd-setting-item-control {
 	margin-top: 10px !important;
 }
 
 /* 按钮固定到底部 */
-.rule-edit-buttons {
+.ccmd-rule-edit-buttons {
 	position: sticky;
 	bottom: 0;
 	background-color: var(--background-primary);
@@ -1833,8 +1731,8 @@ body.theme-dark .suggestion-item.is-selected {
 	z-index: 10;
 }
 
-.wider-dropdown,
-.condition-content .dropdown {
+.ccmd-wider-dropdown,
+.ccmd-condition-content .dropdown {
 	height: 36px;
 	padding: 6px 10px;
 	line-height: 1.5;
@@ -1842,7 +1740,7 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 改进三段式条件编辑器样式 */
-.condition-content {
+.ccmd-condition-content {
 	display: flex;
 	align-items: center;
 	gap: 0; /* 移除gap，我们使用margin来控制间距 */
@@ -1852,70 +1750,64 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 确保设置项内部布局正确 */
-.property-type-setting,
-.condition-match-type,
-.condition-pattern {
+.ccmd-property-type-setting,
+.ccmd-condition-match-type,
+.ccmd-condition-pattern {
 	width: 100% !important;
 	margin: 0 !important;
 	padding: 0 !important;
 }
 
-.property-type-setting .setting-item-info,
-.condition-match-type .setting-item-info,
-.condition-pattern .setting-item-info {
+.ccmd-property-type-setting .ccmd-setting-item-info,
+.ccmd-condition-match-type .ccmd-setting-item-info,
+.ccmd-condition-pattern .ccmd-setting-item-info {
 	display: none !important;
 }
 
-.property-type-setting .setting-item-control,
-.condition-match-type .setting-item-control,
-.condition-pattern .setting-item-control {
+.ccmd-property-type-setting .ccmd-setting-item-control,
+.ccmd-condition-match-type .ccmd-setting-item-control,
+.ccmd-condition-pattern .ccmd-setting-item-control {
 	width: 100% !important;
 	margin: 0 !important;
 	justify-content: flex-start !important;
 }
 
-.frontmatter-container {
-	display: flex !important;
-	width: 100% !important;
-	gap: 8px !important;
-}
-
-.condition-property-input,
-.condition-value-input {
+.ccmd-condition-property-input,
+.ccmd-condition-value-input {
 	flex: 1 !important;
 	margin: 0 !important;
 	padding: 0 !important;
 }
 
-.condition-property-input .setting-item-info,
-.condition-value-input .setting-item-info {
+.ccmd-condition-property-input .ccmd-setting-item-info,
+.ccmd-condition-value-input .ccmd-setting-item-info {
 	display: none !important;
 }
 
 
-.condition-property-input .setting-item-control,
-.condition-value-input .setting-item-control {
+.ccmd-condition-property-input .ccmd-setting-item-control,
+.ccmd-condition-value-input .ccmd-setting-item-control {
 	margin: 0 !important;
 	padding: 0 !important;
 	width: 100% !important;
 }
 
 /* 确保下拉菜单元素本身宽度适中 */
-.property-type-container .dropdown,
-.match-type-container .dropdown {
+.ccmd-property-type-container .dropdown,
+.ccmd-match-type-container .dropdown {
 	width: 100% !important; /* 宽度与容器一致 */
 }
 
 /* 控制下拉框容器样式 */
-.property-type-container,
-.match-type-container,
-.pattern-container {
+.ccmd-property-type-container,
+.ccmd-match-type-container,
+.ccmd-pattern-container {
 	position: relative;
 	overflow: visible; /* 允许下拉菜单溢出 */
 }
 
-.condition-property-input input,
-.condition-value-input input {
+.ccmd-condition-property-input input,
+.ccmd-condition-value-input input {
 	width: 100% !important;
 	font-size: 0.9em !important;
 	padding: 4px 8px !important;
@@ -1923,38 +1815,38 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 调整操作符下拉框宽度 */
-.condition-operator-setting .dropdown {
+.ccmd-condition-operator-setting .dropdown {
 	min-width: 120px !important;
 	width: auto !important;
 }
 
-.condition-operator-setting .setting-item-control {
+.ccmd-condition-operator-setting .ccmd-setting-item-control {
 	/*width: auto !important;*/
 	/*min-width: 120px !important;*/
 	padding: 0 !important;
 }
 
-.operator-setting-container {
+.ccmd-operator-setting-container {
 	min-width: 120px !important;
 	width: auto !important;
 }
 
 /* 确保下拉菜单显示完整 */
-.condition-operator-setting .suggestion-container {
+.ccmd-condition-operator-setting .ccmd-suggestion-container {
 	min-width: 150px !important;
 	max-width: 200px !important;
 }
 
-.creation-confirm-modal .file-table .rule-name-column {
+.ccmd-creation-confirm-modal .ccmd-file-table .ccmd-rule-name-column {
 	width: 15%;
 }
 
-.rule-name-cell {
+.ccmd-rule-name-cell {
 	color: var(--text-normal);
 	font-size: 0.9em;
 }
 
-.no-rule-match {
+.ccmd-no-rule-match {
 	color: var(--text-muted);
 	font-style: italic;
 }
@@ -1975,10 +1867,10 @@ body.theme-dark .suggestion-item.is-selected {
 /* ----- 文件夹筛选 -----*/
 
 /* 增强型可滚动输入框 - 通用样式 */
-.suggestion-item input[type="text"],
-.setting-item-control input[type="text"],
-.folder-input-container input,
-.template-input-container input {
+.ccmd-suggestion-item input[type="text"],
+.ccmd-setting-item-control input[type="text"],
+.ccmd-folder-input-container input,
+.ccmd-template-input-container input {
 	white-space: nowrap !important;
 	overflow-x: auto !important;
 	text-overflow: clip !important; /* 不使用省略号，允许完整内容滚动 */
@@ -1987,25 +1879,25 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 滚动条样式调整 */
-.suggestion-item input[type="text"]::-webkit-scrollbar,
-.setting-item-control input[type="text"]::-webkit-scrollbar,
-.folder-input-container input::-webkit-scrollbar,
-.template-input-container input::-webkit-scrollbar {
+.ccmd-suggestion-item input[type="text"]::-webkit-scrollbar,
+.ccmd-setting-item-control input[type="text"]::-webkit-scrollbar,
+.ccmd-folder-input-container input::-webkit-scrollbar,
+.ccmd-template-input-container input::-webkit-scrollbar {
 	height: 4px !important;
 	background: transparent !important;
 }
 
-.suggestion-item input[type="text"]::-webkit-scrollbar-thumb,
-.setting-item-control input[type="text"]::-webkit-scrollbar-thumb,
-.folder-input-container input::-webkit-scrollbar-thumb,
-.template-input-container input::-webkit-scrollbar-thumb {
+.ccmd-suggestion-item input[type="text"]::-webkit-scrollbar-thumb,
+.ccmd-setting-item-control input[type="text"]::-webkit-scrollbar-thumb,
+.ccmd-folder-input-container input::-webkit-scrollbar-thumb,
+.ccmd-template-input-container input::-webkit-scrollbar-thumb {
 	background-color: var(--interactive-accent) !important;
 	border-radius: 2px !important;
 	opacity: 0.5 !important;
 }
 
 /* 悬停提示样式 */
-.path-tooltip {
+.ccmd-path-tooltip {
 	position: absolute !important;
 	z-index: 1000 !important;
 	background-color: var(--background-secondary) !important;
@@ -2021,7 +1913,7 @@ body.theme-dark .suggestion-item.is-selected {
 	transition: opacity 0.2s ease !important;
 }
 
-.path-tooltip.show {
+.ccmd-path-tooltip.show {
 	opacity: 1 !important;
 }
 
@@ -2029,7 +1921,7 @@ body.theme-dark .suggestion-item.is-selected {
 /*----- 优化建议文件夹/文件-全路径显示 ----*/
 
 /* 下拉菜单的提示样式 */
-.suggestion-container .path-tooltip {
+.ccmd-suggestion-container .ccmd-path-tooltip {
 	max-width: 400px !important; /* 更宽的提示框，适合长路径 */
 	word-break: normal !important;
 	white-space: nowrap !important;
@@ -2037,11 +1929,7 @@ body.theme-dark .suggestion-item.is-selected {
 }
 
 /* 控制实际下拉列表的宽度和位置 */
-.condition-editor .suggestion-container,
-.rule-edit-modal .suggestion-container,
-.file-suggester .suggestion-container,
-.folder-suggester .suggestion-container,
-.ccmd-folder-select-container .suggestion-container {
+.ccmd-suggestion-container {
 	min-width: 120px !important;
 	max-width: 180px !important;
 	max-height: 300px !important;
@@ -2049,21 +1937,60 @@ body.theme-dark .suggestion-item.is-selected {
 	z-index: 100; /* 确保在最上层 */
 	overflow-y: auto !important;
 	scrollbar-width: thin !important;
+	background-color: var(--background-primary) !important;
+	border: 1px solid var(--background-modifier-border) !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-.condition-editor .suggestion-container::-webkit-scrollbar,
-.rule-edit-modal .suggestion-container::-webkit-scrollbar,
-.file-suggester .suggestion-container::-webkit-scrollbar,
-.folder-suggester .suggestion-container::-webkit-scrollbar,
-.ccmd-folder-select-container .suggestion-container::-webkit-scrollbar {
+.ccmd-suggestion-container::-webkit-scrollbar {
 	width: 6px !important;
 }
 
-.condition-editor .suggestion-container::-webkit-scrollbar-thumb,
-.rule-edit-modal .suggestion-container::-webkit-scrollbar-thumb,
-.file-suggester .suggestion-container::-webkit-scrollbar-thumb,
-.folder-suggester .suggestion-container::-webkit-scrollbar-thumb,
-.ccmd-folder-select-container .suggestion-container::-webkit-scrollbar-thumb {
+.ccmd-suggestion-container::-webkit-scrollbar-thumb {
 	background-color: var(--scrollbar-thumb-color) !important;
 	border-radius: 3px !important;
 }
+
+.ccmd-suggestion {
+	padding: 5px 0;
+}
+
+/* ----- 修改规则-选择模板-弹出框 ----- */
+/* 自定义模态框样式 */
+.modal:has(.ccmd-template-selection-modal) {
+	border-radius: 12px !important;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+	background-color: var(--background-primary) !important;
+	overflow: hidden !important;
+}
+
+.ccmd-template-selection-modal {
+	padding: 24px !important;
+	overflow-x: hidden !important;
+}
+
+.ccmd-template-list {
+	width: 100% !important;
+	max-height: 450px !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+	border: 1px solid var(--background-modifier-border) !important;
+	border-radius: 8px !important;
+	margin-top: 16px !important;
+}
+
+.ccmd-template-item {
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	padding: 10px 12px !important;
+	border-bottom: 1px solid var(--background-modifier-border) !important;
+	cursor: pointer !important;
+}
+
+.ccmd-template-item:hover {
+	background-color: var(--background-secondary) !important;
+}
+
+
+

@@ -25,12 +25,12 @@ class Suggest<T> {
 
 		containerEl.on(
 			"click",
-			".suggestion-item",
+			".ccmd-suggestion-item",
 			this.onSuggestionClick.bind(this)
 		);
 		containerEl.on(
 			"mousemove",
-			".suggestion-item",
+			".ccmd-suggestion-item",
 			this.onSuggestionMouseover.bind(this)
 		);
 
@@ -74,7 +74,7 @@ class Suggest<T> {
 		const suggestionEls: HTMLDivElement[] = [];
 
 		values.forEach((value) => {
-			const suggestionEl = this.containerEl.createDiv("suggestion-item");
+			const suggestionEl = this.containerEl.createDiv("ccmd-suggestion-item");
 			this.owner.renderSuggestion(value, suggestionEl);
 			suggestionEls.push(suggestionEl);
 
@@ -116,7 +116,7 @@ class Suggest<T> {
 
 	// 清除活跃的工具提示
 	clearActiveTooltip() {
-		const tooltips = document.querySelectorAll('.path-tooltip');
+		const tooltips = document.querySelectorAll('.ccmd-path-tooltip');
 		tooltips.forEach(tooltip => {
 			tooltip.remove();
 		});
@@ -134,7 +134,7 @@ class Suggest<T> {
 				this.clearActiveTooltip();
 
 				tooltip = document.createElement('div');
-				tooltip.addClass('path-tooltip');
+				tooltip.addClass('ccmd-path-tooltip');
 				tooltip.setText(suggestionEl.textContent || '');
 				document.body.appendChild(tooltip);
 				this.activeTooltip = tooltip;  // 跟踪活跃的工具提示
@@ -179,8 +179,8 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 		this.inputEl = inputEl;
 		this.scope = new Scope();
 
-		this.suggestEl = createDiv("suggestion-container");
-		const suggestion = this.suggestEl.createDiv("suggestion");
+		this.suggestEl = createDiv("ccmd-suggestion-container");
+		const suggestion = this.suggestEl.createDiv("ccmd-suggestion");
 		this.suggest = new Suggest(this, suggestion, this.scope);
 
 		this.scope.register([], "Escape", this.close.bind(this));
@@ -190,7 +190,7 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 		this.inputEl.addEventListener("blur", this.close.bind(this));
 		this.suggestEl.on(
 			"mousedown",
-			".suggestion-container",
+			".ccmd-suggestion-container",
 			(event: MouseEvent) => {
 				event.preventDefault();
 			}
@@ -256,7 +256,7 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 		this.app.keymap.popScope(this.scope);
 
 		// 确保清除任何可能存在的工具提示
-		const tooltips = document.querySelectorAll('.path-tooltip');
+		const tooltips = document.querySelectorAll('.ccmd-path-tooltip');
 		tooltips.forEach(tooltip => {
 			tooltip.remove();
 		});

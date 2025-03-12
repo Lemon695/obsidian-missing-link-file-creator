@@ -17,23 +17,23 @@ export class RuleManagementModal extends CustomModal {
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.empty();
-		contentEl.addClass('rule-management-modal', 'quickAddModal');
+		contentEl.addClass('ccmd-rule-management-modal', 'ccmd-quickAddModal');
 
 		contentEl.createEl('h2', {
 			text: 'File Creation Rules Management',
-			cls: 'rule-management-title'
+			cls: 'ccmd-rule-management-title'
 		});
 
 		contentEl.createEl('p', {
 			text: 'Rules determine file creation location and template based on filename patterns. Priority is listed from high to low.',
-			cls: 'rule-management-description setting-item-description'
+			cls: 'ccmd-rule-management-description ccmd-setting-item-description'
 		});
 
-		this.rulesContainer = contentEl.createDiv({cls: 'rules-list-container'});
+		this.rulesContainer = contentEl.createDiv({cls: 'ccmd-rules-list-container'});
 
 		this.refreshRulesList();
 
-		const buttonContainer = contentEl.createDiv({cls: 'rule-management-buttons'});
+		const buttonContainer = contentEl.createDiv({cls: 'ccmd-rule-management-buttons'});
 
 		const addRuleButton = new ButtonComponent(buttonContainer);
 		addRuleButton
@@ -89,12 +89,12 @@ export class RuleManagementModal extends CustomModal {
 		this.rulesContainer.empty();
 
 		if (!this.plugin.settings.rules || this.plugin.settings.rules.length === 0) {
-			const emptyState = this.rulesContainer.createDiv({cls: 'rules-empty-state'});
+			const emptyState = this.rulesContainer.createDiv({cls: 'ccmd-rules-empty-state'});
 
-			const emptyIcon = emptyState.createDiv({cls: 'rules-empty-icon'});
+			const emptyIcon = emptyState.createDiv({cls: 'ccmd-rules-empty-icon'});
 			emptyIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path><line x1="9" y1="9" x2="10" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg>`;
 
-			const emptyText = emptyState.createDiv({cls: 'rules-empty-text'});
+			const emptyText = emptyState.createDiv({cls: 'ccmd-rules-empty-text'});
 			emptyText.createEl('h3', {text: 'No rules created yet'});
 			emptyText.createEl('p', {text: 'Rules automate file placement and template assignment based on filenames.'});
 
@@ -102,7 +102,7 @@ export class RuleManagementModal extends CustomModal {
 			createFirstButton
 				.setButtonText('Create First Rule')
 				.setCta()
-				.setClass('create-first-rule-button')
+				.setClass('ccmd-create-first-rule-button')
 				.onClick(() => {
 					this.createNewRule();
 				});
@@ -114,19 +114,19 @@ export class RuleManagementModal extends CustomModal {
 		const rules = [...this.plugin.settings.rules].sort((a, b) => a.priority - b.priority);
 
 		// 规则表格
-		const rulesTable = this.rulesContainer.createEl('table', {cls: 'rules-table'});
+		const rulesTable = this.rulesContainer.createEl('table', {cls: 'ccmd-rules-table'});
 
 		// 表头
 		const tableHead = rulesTable.createEl('thead');
 		const headerRow = tableHead.createEl('tr');
 
 		// 表头列
-		headerRow.createEl('th', {cls: 'rule-status-column', text: ''});
-		headerRow.createEl('th', {cls: 'rule-name-column', text: 'Rule Name'});
-		headerRow.createEl('th', {cls: 'rule-conditions-column', text: 'Match Conditions'});
-		headerRow.createEl('th', {cls: 'rule-target-column', text: 'Target Folder'});
-		headerRow.createEl('th', {cls: 'rule-template-column', text: 'Use Template'});
-		headerRow.createEl('th', {cls: 'rule-actions-column', text: 'Actions'});
+		headerRow.createEl('th', {cls: 'ccmd-rule-status-column', text: ''});
+		headerRow.createEl('th', {cls: 'ccmd-rule-name-column', text: 'Rule Name'});
+		headerRow.createEl('th', {cls: 'ccmd-rule-conditions-column', text: 'Match Conditions'});
+		headerRow.createEl('th', {cls: 'ccmd-rule-target-column', text: 'Target Folder'});
+		headerRow.createEl('th', {cls: 'ccmd-rule-template-column', text: 'Use Template'});
+		headerRow.createEl('th', {cls: 'ccmd-rule-actions-column', text: 'Actions'});
 
 		// 表体
 		const tableBody = rulesTable.createEl('tbody');
@@ -134,61 +134,63 @@ export class RuleManagementModal extends CustomModal {
 		rules.forEach((rule, index) => {
 			const ruleRow = tableBody.createEl('tr', {cls: 'rule-row'});
 			if (!rule.enabled) {
-				ruleRow.addClass('rule-disabled');
+				ruleRow.addClass('ccmd-rule-disabled');
 			}
 
 			const statusCell = ruleRow.createEl('td', {cls: 'rule-status-cell'});
 			new Setting(statusCell)
-				.setClass('rule-toggle-setting')
+				.setClass('ccmd-rule-toggle-setting')
 				.addToggle(toggle => {
 					toggle
 						.setTooltip(rule.enabled ? 'Enabled' : 'Disabled')
 						.setValue(rule.enabled)
 						.onChange(async value => {
 							rule.enabled = value;
-							await this.plugin.saveSettings();
-							this.refreshRulesList();
+							setTimeout(async () => {
+								await this.plugin.saveSettings();
+								this.refreshRulesList();
+							}, 150);
 						});
 				});
 
 			// 名称列
-			const nameCell = ruleRow.createEl('td', {cls: 'rule-name-cell'});
+			const nameCell = ruleRow.createEl('td', {cls: 'ccmd-rule-name-cell'});
 			nameCell.createEl('div', {
 				text: rule.name,
-				cls: 'rule-name'
+				cls: 'ccmd-rule-name'
 			});
 
 			// 条件列
 			const conditionsCell = ruleRow.createEl('td', {cls: 'rule-conditions-cell'});
 			conditionsCell.createEl('div', {
 				text: this.getConditionsDescription(rule),
-				cls: 'rule-conditions-text'
+				cls: 'ccmd-rule-conditions-text'
 			});
 
 			// 目标文件夹列
 			const targetCell = ruleRow.createEl('td', {cls: 'rule-target-cell'});
 			targetCell.createEl('div', {
 				text: rule.targetFolder || '(Default)',
-				cls: 'rule-target-text'
+				cls: 'ccmd-rule-target-text'
 			});
 
 			// 模板列
 			const templateCell = ruleRow.createEl('td', {cls: 'rule-template-cell'});
 			templateCell.createEl('div', {
 				text: rule.templatePath || '(无)',
-				cls: 'rule-template-text'
+				cls: 'ccmd-rule-template-text'
 			});
 
 			// 操作列
 			const actionsCell = ruleRow.createEl('td', {cls: 'rule-actions-cell'});
-			const actionsContainer = actionsCell.createDiv({cls: 'rule-actions-container'});
+			const actionsContainer = actionsCell.createDiv({cls: 'ccmd-rule-actions-container'});
 
 			// 编辑按钮
 			const editButton = new ButtonComponent(actionsContainer);
 			editButton
 				.setTooltip('Edit Rule')
 				.setIcon('pencil')
-				.setClass('rule-action-button')
+				.setClass('ccmd-rule-action-button')
 				.onClick(() => {
 					this.editRule(rule);
 				});
@@ -199,7 +201,7 @@ export class RuleManagementModal extends CustomModal {
 				moveUpButton
 					.setTooltip('Move Up') //提高优先级
 					.setIcon('arrow-up')
-					.setClass('rule-action-button')
+					.setClass('ccmd-rule-action-button')
 					.onClick(async () => {
 						await this.moveRuleUp(index);
 					});
@@ -210,7 +212,7 @@ export class RuleManagementModal extends CustomModal {
 				moveDownButton
 					.setTooltip('Move Down') //降低优先级
 					.setIcon('arrow-down')
-					.setClass('rule-action-button')
+					.setClass('ccmd-rule-action-button')
 					.onClick(async () => {
 						await this.moveRuleDown(index);
 					});
@@ -220,13 +222,13 @@ export class RuleManagementModal extends CustomModal {
 			deleteButton
 				.setTooltip('Delete Rule') //删除规则
 				.setIcon('trash')
-				.setClass('rule-action-button')
+				.setClass('ccmd-rule-action-button')
 				.onClick(async () => {
 					if (await this.confirmDelete(rule.name)) {
 						this.deleteRule(rule.id);
 					}
 				});
-			deleteButton.buttonEl.addClass('rule-delete-button');
+			deleteButton.buttonEl.addClass('ccmd-rule-delete-button');
 		});
 	}
 
@@ -376,12 +378,12 @@ class ConfirmDeleteModal extends Modal {
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.empty();
-		contentEl.addClass('confirm-delete-modal', 'quickAddModal');
+		contentEl.addClass('ccmd-confirm-delete-modal', 'ccmd-quickAddModal');
 
 		contentEl.createEl('h2', {text: 'Confirm Deletion'});
 		contentEl.createEl('p', {text: `Are you sure you want to delete rule "${this.ruleName}"?`});
 
-		const buttonContainer = contentEl.createDiv({cls: 'confirm-buttons'});
+		const buttonContainer = contentEl.createDiv({cls: 'ccmd-confirm-buttons'});
 
 		const cancelButton = new ButtonComponent(buttonContainer);
 		cancelButton

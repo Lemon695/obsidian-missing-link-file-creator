@@ -289,7 +289,7 @@ export class UIManager {
 			});
 
 			// 按钮区域
-			const buttonContainer = form.createDiv({cls: 'button-container'});
+			const buttonContainer = form.createDiv({cls: 'ccmd-button-container'});
 
 			const cancelButton = buttonContainer.createEl('button', {
 				text: 'Cancel',

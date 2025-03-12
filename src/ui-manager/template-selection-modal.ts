@@ -1,6 +1,7 @@
 import {App, Modal, TFile} from "obsidian";
+import {SelectTemplateView} from "../view/select-template-view";
 
-export class TemplateSelectionModal extends Modal {
+export class TemplateSelectionModal extends SelectTemplateView {
 	private templates: string[];
 	private onChoose: (path: string) => void;
 
@@ -13,17 +14,15 @@ export class TemplateSelectionModal extends Modal {
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.empty();
-		contentEl.addClass('template-selection-modal', 'quickAddModal');
-		contentEl.style.width = "600px";
-		contentEl.style.maxWidth = "80vw";
+		contentEl.addClass('ccmd-template-selection-modal', 'ccmd-quickAddModal');
 
-		contentEl.createEl('h2', {text: 'Select Template'}); //选择模板
+		contentEl.createEl('h2', {text: 'Select Template'});
 
 		const searchContainer = contentEl.createDiv({cls: 'template-search-container'});
 		const searchInput = searchContainer.createEl('input', {
 			type: 'text',
 			placeholder: 'Search templates...', //搜索模板...
-			cls: 'template-search-input'
+			cls: 'ccmd-template-search-input'
 		});
 		searchInput.style.width = "100%";
 		searchInput.style.marginBottom = "15px";
@@ -31,12 +30,12 @@ export class TemplateSelectionModal extends Modal {
 		searchInput.style.borderRadius = "4px";
 		searchInput.style.border = "1px solid var(--background-modifier-border)";
 
-		const templateList = contentEl.createDiv({cls: 'template-list'});
+		const templateList = contentEl.createDiv({cls: 'ccmd-template-list'});
 
 		if (this.templates.length === 0) {
 			templateList.createEl('div', {
 				text: 'No template files found', //没有找到模板文件
-				cls: 'no-templates'
+				cls: 'ccmd-no-templates'
 			});
 			return;
 		}
@@ -47,14 +46,14 @@ export class TemplateSelectionModal extends Modal {
 			if (templates.length === 0) {
 				templateList.createEl('div', {
 					text: 'No matching templates', //未找到匹配的模板
-					cls: 'no-templates'
+					cls: 'ccmd-no-templates'
 				});
 				return;
 			}
 
 			templates.forEach(templatePath => {
 				const item = templateList.createEl('div', {
-					cls: 'template-item',
+					cls: 'ccmd-template-item',
 					text: templatePath
 				});
 

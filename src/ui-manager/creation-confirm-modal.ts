@@ -97,7 +97,7 @@ export class CreationConfirmModal extends Modal {
 
 		if (this.totalPages > 1) {
 			const paginationControls = document.createElement('div');
-			paginationControls.addClass('pagination-controls');
+			paginationControls.addClass('ccmd-pagination-controls');
 
 			const prevButton = document.createElement('button');
 			prevButton.textContent = 'Previous';
@@ -134,7 +134,7 @@ export class CreationConfirmModal extends Modal {
 	 */
 	private updateFileList(): void {
 		const contentEl = this.contentEl;
-		const fileListDiv = contentEl.querySelector('.file-list-container');
+		const fileListDiv = contentEl.querySelector('.ccmd-file-list-container');
 
 		if (fileListDiv) {
 			fileListDiv.empty();
@@ -150,14 +150,14 @@ export class CreationConfirmModal extends Modal {
 			}
 
 			const table = document.createElement('table');
-			table.addClass('file-table');
+			table.addClass('ccmd-file-table');
 
 			// 表头
 			const thead = document.createElement('thead');
 			const headerRow = document.createElement('tr');
 
 			const selectHeader = document.createElement('th');
-			selectHeader.addClass('select-column');
+			selectHeader.addClass('ccmd-select-column');
 			this.selectAllCheckbox = document.createElement('input');
 			this.selectAllCheckbox.type = 'checkbox';
 			this.selectAllCheckbox.disabled = this.isProcessing;
@@ -177,7 +177,7 @@ export class CreationConfirmModal extends Modal {
 
 			const ruleNameHeader = document.createElement('th');
 			ruleNameHeader.textContent = 'Matched Rule';
-			ruleNameHeader.addClass('rule-name-column');
+			ruleNameHeader.addClass('ccmd-rule-name-column');
 
 			// const actionsHeader = document.createElement('th');
 			// actionsHeader.textContent = 'Actions';
@@ -213,31 +213,31 @@ export class CreationConfirmModal extends Modal {
 
 				const filenameCell = document.createElement('td');
 				filenameCell.textContent = file.filename;
-				filenameCell.addClass('filename-cell');
+				filenameCell.addClass('ccmd-filename-cell');
 
 				const pathCell = document.createElement('td');
 				pathCell.textContent = file.path;
-				pathCell.addClass('path-cell');
+				pathCell.addClass('ccmd-path-cell');
 
 				const aliasesCell = document.createElement('td');
 				if (file.aliases.length > 0) {
 					// 滑动显示别名全部内容
 					const aliasesContainer = document.createElement('div');
-					aliasesContainer.addClass('aliases-cell-container');
+					aliasesContainer.addClass('ccmd-aliases-cell-container');
 					aliasesContainer.textContent = file.aliases.join(', ');
 					aliasesCell.appendChild(aliasesContainer);
 				} else {
 					aliasesCell.textContent = '-';
-					aliasesCell.addClass('no-aliases');
+					aliasesCell.addClass('ccmd-no-aliases');
 				}
 
 				const ruleNameCell = document.createElement('td');
-				ruleNameCell.addClass('rule-name-cell');
+				ruleNameCell.addClass('ccmd-rule-name-cell');
 				if (file.matchedRule) {
 					ruleNameCell.textContent = file.matchedRule;
 				} else {
 					ruleNameCell.textContent = '-';
-					ruleNameCell.addClass('no-rule-match');
+					ruleNameCell.addClass('ccmd-no-rule-match');
 				}
 
 				/**
@@ -294,47 +294,47 @@ export class CreationConfirmModal extends Modal {
 		contentEl.createEl('h2', {text: 'Creating Files'});
 
 		// 创建进度指示器
-		const progressContainer = contentEl.createDiv({cls: 'progress-page-container'});
+		const progressContainer = contentEl.createDiv({cls: 'ccmd-progress-page-container'});
 
 		// 百分比显示
-		const percentageDisplay = progressContainer.createDiv({cls: 'percentage-display'});
+		const percentageDisplay = progressContainer.createDiv({cls: 'ccmd-percentage-display'});
 		percentageDisplay.textContent = '0%';
 
 		// 进度条容器
-		const progressBarContainer = progressContainer.createDiv({cls: 'progress-bar-container'});
-		const progressBar = progressBarContainer.createDiv({cls: 'progress-bar'});
+		const progressBarContainer = progressContainer.createDiv({cls: 'ccmd-progress-bar-container'});
+		const progressBar = progressBarContainer.createDiv({cls: 'ccmd-progress-bar'});
 		progressBar.style.width = '0%';
 		progressBar.style.display = 'block';
 
 		// 详细进度文本
-		const progressText = progressContainer.createDiv({cls: 'progress-text'});
+		const progressText = progressContainer.createDiv({cls: 'ccmd-progress-text'});
 		progressText.textContent = `Creating files (0/${selectedFiles.length})`;
 
 		// 实时统计容器
-		const statsContainer = contentEl.createDiv({cls: 'stats-container'});
+		const statsContainer = contentEl.createDiv({cls: 'ccmd-stats-container'});
 
 		// 统计项
-		const createdStat = statsContainer.createDiv({cls: 'stat-item created-stat'});
-		createdStat.innerHTML = `<span class="stat-icon">✅</span> Successfully created: <span class="stat-value">0</span>&nbsp; files`;
+		const createdStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-created-stat'});
+		createdStat.innerHTML = `<span class="ccmd-stat-icon">✅</span> Successfully created: <span class="ccmd-stat-value">0</span>&nbsp; files`;
 
-		const skippedStat = statsContainer.createDiv({cls: 'stat-item skipped-stat'});
-		skippedStat.innerHTML = `<span class="stat-icon">⏭️</span> Skipped: <span class="stat-value">0</span>&nbsp; files`;
+		const skippedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-skipped-stat'});
+		skippedStat.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> Skipped: <span class="ccmd-stat-value">0</span>&nbsp; files`;
 
-		const failedStat = statsContainer.createDiv({cls: 'stat-item failed-stat'});
-		failedStat.innerHTML = `<span class="stat-icon">❌</span> Failed: <span class="stat-value">0</span>&nbsp; files`;
+		const failedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-failed-stat'});
+		failedStat.innerHTML = `<span class="ccmd-stat-icon">❌</span> Failed: <span class="ccmd-stat-value">0</span>&nbsp; files`;
 
-		const aliasesStat = statsContainer.createDiv({cls: 'stat-item aliases-stat'});
-		aliasesStat.innerHTML = `<span class="stat-icon">🏷️</span> Added aliases: <span class="stat-value">0</span>`;
+		const aliasesStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-aliases-stat'});
+		aliasesStat.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> Added aliases: <span class="ccmd-stat-value">0</span>`;
 
 		this.progressElements = {
 			percentageDisplay,
 			progressBar,
 			progressText,
 			stats: {
-				created: createdStat.querySelector('.stat-value') as HTMLElement,
-				skipped: skippedStat.querySelector('.stat-value') as HTMLElement,
-				failed: failedStat.querySelector('.stat-value') as HTMLElement,
-				aliases: aliasesStat.querySelector('.stat-value') as HTMLElement
+				created: createdStat.querySelector('.ccmd-stat-value') as HTMLElement,
+				skipped: skippedStat.querySelector('.ccmd-stat-value') as HTMLElement,
+				failed: failedStat.querySelector('.ccmd-stat-value') as HTMLElement,
+				aliases: aliasesStat.querySelector('.ccmd-stat-value') as HTMLElement
 			}
 		};
 	}
@@ -499,17 +499,17 @@ export class CreationConfirmModal extends Modal {
 		}
 
 		// 文件列表
-		const fileListContainer = contentEl.createDiv({cls: 'file-list-container'});
+		const fileListContainer = contentEl.createDiv({cls: 'ccmd-file-list-container'});
 
 		// 分页控件
-		this.paginationDiv = contentEl.createDiv({cls: 'pagination-container'});
+		this.paginationDiv = contentEl.createDiv({cls: 'ccmd-pagination-container'});
 
 		// 结果显示区域
-		this.resultDiv = contentEl.createDiv({cls: 'result-container'});
+		this.resultDiv = contentEl.createDiv({cls: 'ccmd-result-container'});
 		this.resultDiv.style.display = 'none';
 
 		// 按钮容器
-		const buttonContainer = contentEl.createDiv({cls: 'button-container'});
+		const buttonContainer = contentEl.createDiv({cls: 'ccmd-button-container'});
 
 		// 取消按钮
 		this.cancelButton = document.createElement('button');
@@ -583,11 +583,11 @@ export class CreationConfirmModal extends Modal {
 		this.updatePagination();
 		this.updateConfirmButton();
 
-		contentEl.addClass('creation-confirm-modal');
+		contentEl.addClass('ccmd-creation-confirm-modal');
 
 		const modalContainer = contentEl.closest('.modal');
 		if (modalContainer) {
-			modalContainer.addClass('file-creation-modal-container');
+			modalContainer.addClass('ccmd-file-creation-modal-container');
 		}
 	}
 
