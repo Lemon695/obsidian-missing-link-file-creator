@@ -9,6 +9,8 @@ import {ConditionEditor} from "./condition-editor";
 import {TemplateSelectionModal} from "./template-selection-modal";
 import {CustomModal} from "./custom-modal";
 import {log} from "../utils/log-utils";
+import {RuleManagementModal} from './rule-management-modal';
+import {CreateFileSettingTab} from "../settings/settings";
 
 export class RuleEditModal extends CustomModal {
 	private rule: FileCreationRule;
@@ -134,14 +136,7 @@ export class RuleEditModal extends CustomModal {
 				cb.setPlaceholder("Select Template")
 					.setValue(this.rule.templatePath)
 					.onChange(value => {
-						const oldValue = this.rule.templatePath;
 						this.rule.templatePath = value;
-
-						// 只有当值变化显著时才重新加载 (比如从无到有，或者完全变成空)
-						if ((oldValue === "" && value !== "") ||
-							(oldValue !== "" && value === "")) {
-							this.reload();
-						}
 					});
 			});
 
@@ -154,21 +149,19 @@ export class RuleEditModal extends CustomModal {
 		});
 
 		// 只在选择了模板时显示别名处理选项
-		if (this.rule.templatePath) {
-			new Setting(targetSection)
-				.setName('Template Alias Handling')
-				.setDesc('Control how aliases are handled when using Templater')
-				.addDropdown(dropdown => {
-					dropdown.selectEl.addClass('ccmd-wider-dropdown');
-					dropdown
-						.addOption(TemplateAliasHandling.SKIP, "Skip (Templater handles aliases)")
-						.addOption(TemplateAliasHandling.MERGE, "Merge with template")
-						.setValue(this.rule.templateAliasHandling || TemplateAliasHandling.SKIP)
-						.onChange(value => {
-							this.rule.templateAliasHandling = value as TemplateAliasHandling;
-						});
-				});
-		}
+		new Setting(targetSection)
+			.setName('Template Alias Handling')
+			.setDesc('Control how aliases are handled when using Templater')
+			.addDropdown(dropdown => {
+				dropdown.selectEl.addClass('ccmd-wider-dropdown');
+				dropdown
+					.addOption(TemplateAliasHandling.SKIP, "Skip (Templater handles aliases)")
+					.addOption(TemplateAliasHandling.MERGE, "Merge with template")
+					.setValue(this.rule.templateAliasHandling || TemplateAliasHandling.SKIP)
+					.onChange(value => {
+						this.rule.templateAliasHandling = value as TemplateAliasHandling;
+					});
+			});
 
 		const buttonContainer = contentEl.createDiv({cls: 'ccmd-rule-edit-buttons'});
 
@@ -250,7 +243,14 @@ export class RuleEditModal extends CustomModal {
 			templates,
 			(templatePath) => {
 				this.rule.templatePath = templatePath;
-				this.reload();
+
+				const templateInputs = this.contentEl.querySelectorAll('.setting-item-control input');
+				templateInputs.forEach(input => {
+					const settingItem = input.closest('.setting-item');
+					if (settingItem && settingItem.querySelector('.setting-item-name')?.textContent?.includes('Use Template')) {
+						(input as HTMLInputElement).value = templatePath;
+					}
+				});
 			}
 		);
 
@@ -300,6 +300,14 @@ export class RuleEditModal extends CustomModal {
 
 		// 显示通知
 		new Notice(`Rule "${this.rule.name}" saved`);
+
+		if (RuleManagementModal.currentInstance) {
+			RuleManagementModal.currentInstance.refreshRulesList();
+		}
+
+		if (CreateFileSettingTab.currentInstance) {
+			CreateFileSettingTab.currentInstance.refreshRulesSummary();
+		}
 	}
 
 	onClose() {

@@ -8,10 +8,13 @@ import {CustomModal} from "./custom-modal";
 export class RuleManagementModal extends CustomModal {
 	private plugin: CheckAndCreateMDFilePlugin;
 	private rulesContainer: HTMLElement;
+	public static currentInstance: RuleManagementModal | null = null;
+
 
 	constructor(app: App, plugin: CheckAndCreateMDFilePlugin) {
 		super(app);
 		this.plugin = plugin;
+		RuleManagementModal.currentInstance = this;
 	}
 
 	onOpen() {
@@ -85,7 +88,7 @@ export class RuleManagementModal extends CustomModal {
 	}
 
 	// 刷新规则列表
-	private refreshRulesList() {
+	public refreshRulesList() {
 		this.rulesContainer.empty();
 
 		if (!this.plugin.settings.rules || this.plugin.settings.rules.length === 0) {
@@ -362,6 +365,8 @@ export class RuleManagementModal extends CustomModal {
 	onClose() {
 		const {contentEl} = this;
 		contentEl.empty();
+
+		RuleManagementModal.currentInstance = null;
 	}
 }
 

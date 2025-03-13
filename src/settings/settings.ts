@@ -58,9 +58,14 @@ export const DEFAULT_SETTINGS: CreateFileSettings = {
 export class CreateFileSettingTab extends PluginSettingTab {
 	plugin: CheckAndCreateMDFilePlugin;
 
+	private rulesInfoContainer: HTMLElement | null = null;
+	public static currentInstance: CreateFileSettingTab | null = null;
+
 	constructor(app: App, plugin: CheckAndCreateMDFilePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+
+		CreateFileSettingTab.currentInstance = this;
 	}
 
 	display(): void {
@@ -156,31 +161,9 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					modal.open();
 				}));
 
-		// 样式提示
-		if (this.plugin.settings.rules && this.plugin.settings.rules.length > 0) {
-			const rulesInfo = containerEl.createDiv({cls: 'rules-info'});
-			rulesInfo.createEl('p', {
-				text: `${this.plugin.settings.rules.length} rules configured`,
-				cls: 'rules-count'
-			});
+		this.rulesInfoContainer = containerEl.createDiv();
 
-			// 显示前3条规则摘要
-			const previewCount = Math.min(this.plugin.settings.rules.length, 3);
-			const rulesList = rulesInfo.createEl('ul', {cls: 'rules-preview'});
-
-			for (let i = 0; i < previewCount; i++) {
-				const rule = this.plugin.settings.rules[i];
-				const ruleItem = rulesList.createEl('li');
-				ruleItem.innerHTML = `<strong>${rule.name}</strong>: ${this.getRuleMatchDescription(rule)}`;
-			}
-
-			if (this.plugin.settings.rules.length > 3) {
-				rulesInfo.createEl('p', {
-					text: `... and ${this.plugin.settings.rules.length - 3} more rules`,
-					cls: 'rules-more'
-				});
-			}
-		}
+		this.createRulesSummary();
 
 		// containerEl.createEl('h3', {text: 'Auto Tagging'});
 		//
@@ -285,4 +268,43 @@ export class CreateFileSettingTab extends PluginSettingTab {
 			(rule.enabled ? '' : ' [Disabled]');
 	}
 
+	private createRulesSummary() {
+		if (!this.rulesInfoContainer) return;
+
+		// 清空容器
+		this.rulesInfoContainer.empty();
+
+		if (this.plugin.settings.rules && this.plugin.settings.rules.length > 0) {
+			const rulesInfo = this.rulesInfoContainer.createDiv({cls: 'rules-info'});
+			rulesInfo.createEl('p', {
+				text: `${this.plugin.settings.rules.length} rules configured`,
+				cls: 'rules-count'
+			});
+
+			// 显示前3条规则摘要
+			const previewCount = Math.min(this.plugin.settings.rules.length, 3);
+			const rulesList = rulesInfo.createEl('ul', {cls: 'rules-preview'});
+
+			for (let i = 0; i < previewCount; i++) {
+				const rule = this.plugin.settings.rules[i];
+				const ruleItem = rulesList.createEl('li');
+				ruleItem.innerHTML = `<strong>${rule.name}</strong>: ${this.getRuleMatchDescription(rule)}`;
+			}
+
+			if (this.plugin.settings.rules.length > 3) {
+				rulesInfo.createEl('p', {
+					text: `... and ${this.plugin.settings.rules.length - 3} more rules`,
+					cls: 'rules-more'
+				});
+			}
+		}
+	}
+
+	public refreshRulesSummary() {
+		this.createRulesSummary();
+	}
+
+	hide() {
+		CreateFileSettingTab.currentInstance = null;
+	}
 }
