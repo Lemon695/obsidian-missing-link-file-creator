@@ -9,13 +9,13 @@ import {CreateFileSettings} from "../settings/settings";
  */
 export function resolveFilePath(filePath: string, basePath: string, settings?: CreateFileSettings): string {
 	if (settings?.debugMode) {
-		this.logger.debug(`Resolving file path. Input: ${filePath}, Base: ${basePath}`);
+		log.debug(() => `Resolving file path. Input: ${filePath}, Base: ${basePath}`);
 	}
 
 	// 如果文件路径已经是绝对路径，直接返回
 	if (filePath.startsWith('/')) {
 		if (settings?.debugMode) {
-			log.debug(`Absolute path detected, returning: ${filePath}`);
+			log.debug(() => `Absolute path detected, returning: ${filePath}`);
 		}
 		return filePath;
 	}
@@ -37,7 +37,7 @@ export function resolveFilePath(filePath: string, basePath: string, settings?: C
 	// 返回解析后的完整路径
 	const result = baseSegments.join('/');
 	if (settings?.debugMode) {
-		log.debug(`Resolved path: ${result}`);
+		log.debug(() => `Resolved path: ${result}`);
 	}
 	return result;
 }

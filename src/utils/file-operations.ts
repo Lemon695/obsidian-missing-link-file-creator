@@ -525,6 +525,83 @@ export class FileOperations {
 	}
 
 	/**
+	 * 扫描整个 vault 并创建缺失的 MD 文件，支持多别名，带UI交互
+	 */
+	async checkAndCreateMDFilesInVault(): Promise<void> {
+		// 获取 vault 中的所有 markdown 文件
+		const files = this.app.vault.getMarkdownFiles();
+
+		if (files.length === 0) {
+			new Notice("No markdown files found in vault");
+			return;
+		}
+
+		// 显示初始进度通知
+		const progressNotice = this.uiManager.showProgressNotice(
+			'Scanning vault',
+			0,
+			files.length
+		);
+
+		try {
+			// 收集所有文件中的链接
+			const allLinks: LinkInfo[] = [];
+			let processedCount = 0;
+
+			for (const file of files) {
+				try {
+					const fileContent = await this.app.vault.read(file);
+					const fileLinks = this.extractMDLinks(fileContent);
+					allLinks.push(...fileLinks);
+				} catch (error) {
+					console.error(`Error processing file ${file.path}:`, error);
+				}
+
+				// 更新进度
+				processedCount++;
+				this.uiManager.updateProgressNotice(
+					progressNotice,
+					'Scanning vault',
+					processedCount,
+					files.length
+				);
+			}
+
+			// 关闭进度通知
+			progressNotice.hide();
+
+			// 合并文件的多个别名
+			const fileMap = this.consolidateFileAliases(allLinks);
+
+			// 待创建的文件列表
+			const filesToCreate = this.prepareFilesToCreate(fileMap);
+
+			if (filesToCreate.length === 0) {
+				new Notice('No linkable files found in entire vault');
+				return;
+			}
+
+			// 显示确认对话框
+			const result = await this.uiManager.showCreationConfirmDialog(
+				filesToCreate,
+				async (filePath, aliases, templatePath, templateAliasHandling) => {
+					return await this.createFileWithMultipleAliases(filePath, aliases, templatePath, templateAliasHandling);
+				}
+			);
+
+			// 直接关闭对话框，result为undefined
+			if (result) {
+				this.uiManager.showResultSummary(result);
+			}
+		} catch (error) {
+			// 出错时关闭进度通知
+			progressNotice.hide();
+			console.error('Error scanning vault:', error);
+			new Notice(`Error scanning vault: ${error.message}`);
+		}
+	}
+
+	/**
 	 * 确保目录存在
 	 * @param pathToCreate 要创建的路径
 	 */

@@ -47,6 +47,17 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 			},
 		});
 
+		//扫描整个 vault 中的所有文件并创建缺失的链接文件
+		this.addCommand({
+			id: 'create-missing-links-vault-scan',
+			name: 'Scan Entire Vault and Create Missing Files',
+			callback: async () => {
+				this.isCommandExecuting = true;
+				await this.fileOperations.checkAndCreateMDFilesInVault();
+				this.isCommandExecuting = false;
+			},
+		});
+
 		this.addCommand({
 			id: 'open-create-missing-links-rule-management',
 			name: 'Manage File Creation Rules',
