@@ -20,4 +20,5 @@ export interface MatchCondition {
 	pattern: string;              // 匹配模式
 	operator: ConditionOperator;  // 条件运算符
 	property?: string;            // 用于frontmatter匹配的属性名
+	frontmatterMatchType?: ConditionMatchType; // frontmatter模式下的子匹配类型
 }

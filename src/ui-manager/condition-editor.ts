@@ -215,9 +215,9 @@ export class ConditionEditor {
 						.addOption(ConditionMatchType.ENDS_WITH, "ends with")
 						.addOption(ConditionMatchType.EXACT, "matches")
 						.addOption(ConditionMatchType.REGEX, "regex")
-						.setValue(this.condition.type === ConditionMatchType.FRONTMATTER ? ConditionMatchType.EXACT : this.condition.type)
+						.setValue(this.condition.frontmatterMatchType || ConditionMatchType.EXACT)
 						.onChange(value => {
-							this.condition.type = value as ConditionMatchType;
+							this.condition.frontmatterMatchType = value as ConditionMatchType;
 							this.onChange(this.condition);
 						});
 				});

@@ -147,16 +147,22 @@ export class RuleManager {
 				return false;
 			}
 
+			// 获取frontmatter匹配类型，默认为精确匹配
+			const matchType = condition.frontmatterMatchType || ConditionMatchType.EXACT;
+
 			// 处理数组值
 			if (Array.isArray(propertyValue)) {
-				// 如果属性值是数组，检查数组中是否包含匹配值
+				// 如果属性值是数组，检查数组中是否有值匹配
 				log.debug(`Checking array value for "${condition.property}": ${JSON.stringify(propertyValue)}`);
-				return propertyValue.some(value => String(value) === condition.pattern);
+				return propertyValue.some(value => {
+					const valueStr = String(value);
+					return this.matchString(valueStr, condition.pattern, matchType);
+				});
 			}
 
 			// 将属性值转换为字符串进行匹配
 			const valueStr = String(propertyValue);
-			return valueStr === condition.pattern;
+			return this.matchString(valueStr, condition.pattern, matchType);
 		}
 
 		switch (condition.type) {
@@ -178,6 +184,36 @@ export class RuleManager {
 
 			default:
 				return false;
+		}
+	}
+
+	/**
+	 * 根据匹配类型对字符串进行匹配
+	 * @param value 要匹配的值
+	 * @param pattern 匹配模式
+	 * @param matchType 匹配类型
+	 * @returns 是否匹配
+	 */
+	private matchString(value: string, pattern: string, matchType: ConditionMatchType): boolean {
+		switch (matchType) {
+			case ConditionMatchType.CONTAINS:
+				return value.includes(pattern);
+
+			case ConditionMatchType.STARTS_WITH:
+				return value.startsWith(pattern);
+
+			case ConditionMatchType.ENDS_WITH:
+				return value.endsWith(pattern);
+
+			case ConditionMatchType.EXACT:
+				return value === pattern;
+
+			case ConditionMatchType.REGEX:
+				const regex = new RegExp(pattern);
+				return regex.test(value);
+
+			default:
+				return value === pattern;
 		}
 	}
 
