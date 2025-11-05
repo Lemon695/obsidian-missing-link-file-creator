@@ -219,7 +219,7 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 
 		container.appendChild(this.suggestEl);
 		this.popper = createPopper(inputEl, this.suggestEl, {
-			placement: "bottom-start",
+			placement: "bottom-end", // 从右边对齐，向左扩展
 			modifiers: [
 				{
 					name: "offset",
@@ -235,10 +235,15 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 					},
 				},
 				{
+					name: "flip",  // 自动翻转到有空间的方向
+					options: {
+						fallbackPlacements: ["bottom-start", "top-end", "top-start"],
+					},
+				},
+				{
 					name: "sameWidth",
 					enabled: false, // 禁用sameWidth修饰符
 					fn: ({state, instance}) => {
-						// 不再设置与参考元素相同的宽度
 						return;
 					},
 					phase: "beforeWrite",
@@ -248,8 +253,8 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 		});
 
 		this.suggestEl.style.width = "auto";
-		this.suggestEl.style.minWidth = "120px";
-		this.suggestEl.style.maxWidth = "180px";
+		this.suggestEl.style.minWidth = "300px";
+		this.suggestEl.style.maxWidth = "800px";
 	}
 
 	close(): void {

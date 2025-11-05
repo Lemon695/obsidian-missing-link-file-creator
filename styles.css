@@ -1056,7 +1056,19 @@
 	gap: 16px;
 }
 
-/* 响应式调整 */
+@media (min-width: 1921px) {
+	.ccmd-suggestion-container {
+		max-width: min(900px, 70vw) !important;
+	}
+}
+
+@media (min-width: 1024px) and (max-width: 1365px) {
+	.ccmd-suggestion-container {
+		max-width: min(650px, 80vw) !important;
+	}
+}
+
+/* 手机设备 */
 @media (max-width: 768px) {
 	.ccmd-rule-management-modal,
 	.ccmd-rule-edit-modal {
@@ -1092,6 +1104,18 @@
 	.ccmd-rule-item-container {
 		margin: 12px;
 		padding: 12px;
+	}
+
+	.ccmd-suggestion-container {
+		max-width: 400px !important;
+		min-width: 250px !important;
+	}
+}
+
+@media (max-width: 480px) {
+	.ccmd-suggestion-container {
+		max-width: 90vw !important;
+		min-width: 200px !important;
 	}
 }
 
@@ -1918,7 +1942,7 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 }
 
 
-/*----- 优化建议文件夹/文件-全路径显示 ----*/
+/*----- 建议文件夹/文件-全路径显示 ----*/
 
 /* 下拉菜单的提示样式 */
 .ccmd-suggestion-container .ccmd-path-tooltip {
@@ -1930,8 +1954,8 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 
 /* 控制实际下拉列表的宽度和位置 */
 .ccmd-suggestion-container {
-	min-width: 120px !important;
-	max-width: 180px !important;
+	min-width: 300px !important;
+	max-width: min(800px, 90vw) !important; /* 确保不会超出视口 */
 	max-height: 300px !important;
 	width: auto !important; /* 让宽度根据内容自适应，但不超过最大宽度 */
 	z-index: 100; /* 确保在最上层 */
@@ -1956,6 +1980,7 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 }
 
 /* ----- 修改规则-选择模板-弹出框 ----- */
+
 /* 自定义模态框样式 */
 .modal:has(.ccmd-template-selection-modal) {
 	border-radius: 12px !important;
