@@ -202,7 +202,7 @@ export class UIManager {
 	}> {
 		return new Promise((resolve) => {
 			const modal = new Modal(this.app);
-			modal.titleEl.setText('Bulk Rename Files');
+			modal.titleEl.setText('Bulk rename files');
 
 			const contentEl = modal.contentEl;
 			contentEl.addClass('bulk-rename-modal');
@@ -217,8 +217,8 @@ export class UIManager {
 			// 表头
 			const thead = table.createEl('thead');
 			const headerRow = thead.createEl('tr');
-			headerRow.createEl('th', {text: 'Current Path'});
-			headerRow.createEl('th', {text: 'New Path'});
+			headerRow.createEl('th', {text: 'Current path'});
+			headerRow.createEl('th', {text: 'New path'});
 
 			// 表体
 			const tbody = table.createEl('tbody');
@@ -251,7 +251,7 @@ export class UIManager {
 
 			// 批量替换
 			const batchReplaceContainer = batchContainer.createDiv({cls: 'batch-replace'});
-			batchReplaceContainer.createEl('label', {text: 'Batch Replace: '});
+			batchReplaceContainer.createEl('label', {text: 'Batch replace: '});
 
 			const findInput = batchReplaceContainer.createEl('input', {
 				attr: {
@@ -299,7 +299,7 @@ export class UIManager {
 			});
 
 			const confirmButton = buttonContainer.createEl('button', {
-				text: 'Confirm Rename',
+				text: 'Confirm rename',
 				attr: {
 					type: 'button',
 					class: 'mod-cta'

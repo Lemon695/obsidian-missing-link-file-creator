@@ -74,7 +74,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 		// 添加新增文件通知设置
 		new Setting(containerEl)
-			.setName('Notification Settings')
+			.setName('Notification settings')
 			.setDesc('Show a notification when a file is create')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.showCreateFileNotification)
@@ -85,8 +85,8 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 		// 文件夹选择器
 		new Setting(containerEl)
-			.setName('Default Path')
-			.setDesc('Set the default folder where new MD files will be created.')
+			.setName('Default path')
+			.setDesc('Set the default folder where new md files will be created.')
 			.addSearch((cb) => {
 				new FolderSuggest(this.app, cb.inputEl);
 				cb.setPlaceholder("Example: folder1/folder2")
@@ -107,7 +107,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 			.setDesc('Set the folder for template files')
 			.addSearch(cb => {
 				new FolderSuggest(this.app, cb.inputEl);
-				cb.setPlaceholder("Example: Templates")
+				cb.setPlaceholder("Example: templates")
 					.setValue(this.plugin.settings.templateFolder)
 					.onChange(async (value) => {
 						this.plugin.settings.templateFolder = value;
@@ -117,7 +117,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName('Enable Templates')
+			.setName('Enable templates')
 			.setDesc('Use template feature when creating files')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.useTemplates)
@@ -130,7 +130,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 		// 别名控制
 		new Setting(containerEl)
 			.setName('Add aliases to frontmatter')
-			.setDesc('When enabled, aliases from links will be added to frontmatter. Disable this if it conflicts with Templater.')
+			.setDesc('When enabled, aliases from links will be added to frontmatter, disable this if it conflicts with templater.')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.addAliasesToFrontmatter)
 				.onChange(async (value) => {
@@ -138,10 +138,10 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		containerEl.createEl('h3', {text: 'Rules Management'});
+		containerEl.createEl('h3', {text: 'Rules management'});
 
 		new Setting(containerEl)
-			.setName('Enable Rules')
+			.setName('Enable rules')
 			.setDesc('Automatically apply different target folders and templates based on filename patterns')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.useRules)
@@ -151,10 +151,10 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Manage Rules')
+			.setName('Manage rules')
 			.setDesc('Add, edit and delete file creation rules')
 			.addButton(button => button
-				.setButtonText('Manage Rules')
+				.setButtonText('Manage rules')
 				.setCta()
 				.onClick(() => {
 					const modal = new RuleManagementModal(this.app, this.plugin);

@@ -16,7 +16,7 @@ export class TemplateSelectionModal extends SelectTemplateView {
 		contentEl.empty();
 		contentEl.addClass('ccmd-template-selection-modal', 'ccmd-quickAddModal');
 
-		contentEl.createEl('h2', {text: 'Select Template'});
+		contentEl.createEl('h2', {text: 'Select template'});
 
 		const searchContainer = contentEl.createDiv({cls: 'template-search-container'});
 		const searchInput = searchContainer.createEl('input', {

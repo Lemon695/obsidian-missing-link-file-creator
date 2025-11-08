@@ -98,7 +98,7 @@ export class RuleEditModal extends CustomModal {
 
 		const addConditionBtn = new ButtonComponent(conditionsSection);
 		addConditionBtn
-			.setButtonText("Add Condition")
+			.setButtonText("Add condition")
 			.setClass('ccmd-rule-add-condition-button')
 			.setIcon("plus-circle")
 			.onClick(() => {
@@ -107,11 +107,11 @@ export class RuleEditModal extends CustomModal {
 
 		// === 右侧面板内容 ===
 		const targetSection = rightPanel.createDiv({cls: 'ccmd-rule-section'});
-		targetSection.createEl('h3', {text: 'Target Settings', cls: 'ccmd-rule-section-title'});
+		targetSection.createEl('h3', {text: 'Target settings', cls: 'ccmd-rule-section-title'});
 
 		// 目标文件夹，使用文件夹建议器
 		new Setting(targetSection)
-			.setName('Target Folder')
+			.setName('Target folder')
 			.setDesc('Matched files will be created in this folder')
 			.addSearch(cb => {
 				new FolderSuggest(this.app, cb.inputEl);
@@ -123,7 +123,7 @@ export class RuleEditModal extends CustomModal {
 			});
 
 		const templateSetting = new Setting(targetSection)
-			.setName('Use Template')
+			.setName('Use template')
 			.setDesc('Template used when creating files')
 			.addSearch(cb => {
 				if (this.plugin.settings.templateFolder) {
@@ -133,7 +133,7 @@ export class RuleEditModal extends CustomModal {
 						FileSuggestMode.TemplateFiles
 					);
 				}
-				cb.setPlaceholder("Select Template")
+				cb.setPlaceholder("Select template")
 					.setValue(this.rule.templatePath)
 					.onChange(value => {
 						this.rule.templatePath = value;
@@ -142,7 +142,7 @@ export class RuleEditModal extends CustomModal {
 
 		templateSetting.addButton(button => {
 			button.setIcon("search")
-				.setTooltip("Browse Templates")
+				.setTooltip("Browse templates")
 				.onClick(() => {
 					this.browseTemplates();
 				});
@@ -150,12 +150,12 @@ export class RuleEditModal extends CustomModal {
 
 		// 只在选择了模板时显示别名处理选项
 		new Setting(targetSection)
-			.setName('Template Alias Handling')
-			.setDesc('Control how aliases are handled when using Templater')
+			.setName('Template alias handling')
+			.setDesc('Control how aliases are handled when using templater')
 			.addDropdown(dropdown => {
 				dropdown.selectEl.addClass('ccmd-wider-dropdown');
 				dropdown
-					.addOption(TemplateAliasHandling.SKIP, "Skip (Templater handles aliases)")
+					.addOption(TemplateAliasHandling.SKIP, "Skip (templater handles aliases)")
 					.addOption(TemplateAliasHandling.MERGE, "Merge with template")
 					.setValue(this.rule.templateAliasHandling || TemplateAliasHandling.SKIP)
 					.onChange(value => {
@@ -193,7 +193,7 @@ export class RuleEditModal extends CustomModal {
 
 		if (this.rule.conditions.length === 0) {
 			const emptyMessage = this.conditionsContainer.createEl('div', {
-				text: 'Click "Add Condition" to create your first matching rule', //点击"添加条件"创建第一个匹配条件
+				text: 'Click "add condition" to create your first matching rule', //点击"添加条件"创建第一个匹配条件
 				cls: 'ccmd-empty-conditions-message'
 			});
 			return;

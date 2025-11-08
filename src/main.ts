@@ -26,7 +26,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		// 校验当前文件关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-current-file',
-			name: 'Create Files for Unresolved Links in Current File',
+			name: 'Create files for unresolved links in current file',
 			callback: async () => {
 				// 设置命令执行标志
 				this.isCommandExecuting = true;
@@ -39,7 +39,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		//监测当前文件所在文件夹内的所有文件-关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-folder-scan',
-			name: 'Scan Folder and Create Missing Files',
+			name: 'Scan folder and create missing files',
 			callback: async () => {
 				this.isCommandExecuting = true;
 				await this.fileOperations.checkAndCreateMDFilesInFolder();
@@ -50,7 +50,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		//扫描整个 vault 中的所有文件并创建缺失的链接文件
 		this.addCommand({
 			id: 'create-missing-links-vault-scan',
-			name: 'Scan Entire Vault and Create Missing Files',
+			name: 'Scan entire vault and create missing files',
 			callback: async () => {
 				this.isCommandExecuting = true;
 				await this.fileOperations.checkAndCreateMDFilesInVault();
@@ -60,7 +60,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 		this.addCommand({
 			id: 'open-create-missing-links-rule-management',
-			name: 'Manage File Creation Rules',
+			name: 'Manage file creation rules',
 			callback: () => {
 				new RuleManagementModal(this.app, this).open();
 			}
@@ -73,7 +73,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 				if (selectedText && selectedText.includes("[[")) {
 					menu.addItem((item) => {
 						item
-							.setTitle("Create Files for Selected Unresolved Links") //创建选中的未解析链接
+							.setTitle("Create files for selected unresolved links") //创建选中的未解析链接
 							.setIcon("document-plus")
 							.onClick(async () => {
 								// 调用新方法处理选中文本中的链接

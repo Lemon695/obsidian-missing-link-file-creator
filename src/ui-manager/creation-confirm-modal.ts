@@ -176,7 +176,7 @@ export class CreationConfirmModal extends Modal {
 			aliasesHeader.textContent = 'Aliases';
 
 			const ruleNameHeader = document.createElement('th');
-			ruleNameHeader.textContent = 'Matched Rule';
+			ruleNameHeader.textContent = 'Matched rule';
 			ruleNameHeader.addClass('ccmd-rule-name-column');
 
 			// const actionsHeader = document.createElement('th');
@@ -291,7 +291,7 @@ export class CreationConfirmModal extends Modal {
 		contentEl.empty();
 
 		// 进度页面标题
-		contentEl.createEl('h2', {text: 'Creating Files'});
+		contentEl.createEl('h2', {text: 'Creating files'});
 
 		// 创建进度指示器
 		const progressContainer = contentEl.createDiv({cls: 'ccmd-progress-page-container'});
@@ -488,7 +488,7 @@ export class CreationConfirmModal extends Modal {
 		const {contentEl} = this;
 
 		// 设置标题
-		contentEl.createEl('h2', {text: 'Create Files'});
+		contentEl.createEl('h2', {text: 'Create files'});
 
 		// 只在初始状态显示描述
 		if (!this.isProcessing) {
@@ -523,7 +523,7 @@ export class CreationConfirmModal extends Modal {
 
 		// 确认按钮
 		this.confirmButton = document.createElement('button');
-		this.confirmButton.textContent = 'Create Selected Files';
+		this.confirmButton.textContent = 'Create selected files';
 		this.confirmButton.addClass('mod-cta');
 		this.confirmButton.addEventListener('click', () => {
 			if (this.isProcessing) return;

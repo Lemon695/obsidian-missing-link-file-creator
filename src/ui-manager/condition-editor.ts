@@ -42,7 +42,7 @@ export class ConditionEditor {
 		conditionHeader.style.marginBottom = "15px";
 
 		const headerTitle = conditionHeader.createEl('h4', {
-			text: "Condition Settings",
+			text: "Condition settings",
 			cls: 'ccmd-condition-title'
 		});
 		headerTitle.style.margin = "0";
@@ -54,7 +54,7 @@ export class ConditionEditor {
 
 		const operatorSettingContainer = controlsContainer.createDiv({cls: 'ccmd-operator-setting-container'});
 		const operatorSetting = new Setting(operatorSettingContainer)
-			.setName("Condition Type")
+			.setName("Condition type")
 			.setClass('ccmd-condition-operator-setting')
 			.addDropdown(dropdown => {
 				dropdown.selectEl.addClass('ccmd-wider-dropdown');
@@ -74,7 +74,7 @@ export class ConditionEditor {
 		const deleteBtn = new ButtonComponent(controlsContainer);
 		deleteBtn
 			.setIcon("trash")
-			.setTooltip("Delete This Condition")
+			.setTooltip("Delete this condition")
 			.setClass('ccmd-condition-delete-button')
 			.onClick(() => {
 				this.onDelete();
@@ -179,7 +179,7 @@ export class ConditionEditor {
 				.setClass('ccmd-condition-property-input')
 				.addText(text => {
 					text
-						.setPlaceholder("Property Name")
+						.setPlaceholder("Property name")
 						.setValue(this.condition.property || "")
 						.onChange(value => {
 							this.condition.property = value;
@@ -227,7 +227,7 @@ export class ConditionEditor {
 				.setClass('ccmd-condition-value-input')
 				.addText(text => {
 					text
-						.setPlaceholder("Property Value")
+						.setPlaceholder("Property value")
 						.setValue(this.condition.pattern)
 						.onChange(value => {
 							this.condition.pattern = value;
@@ -285,7 +285,7 @@ export class ConditionEditor {
 				.setClass('ccmd-condition-pattern')
 				.addText(text => {
 					text
-						.setPlaceholder("Text to Match")
+						.setPlaceholder("Text to match")
 						.setValue(this.condition.pattern)
 						.onChange(value => {
 							this.condition.pattern = value;
