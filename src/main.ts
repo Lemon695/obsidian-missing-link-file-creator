@@ -4,6 +4,7 @@ import {RuleManagementModal} from "./ui-manager/rule-management-modal";
 import {log} from "./utils/log-utils";
 import {TemplaterService} from "./service/templater-service";
 import {CreateFileSettings, CreateFileSettingTab, DEFAULT_SETTINGS} from "./settings/settings";
+import {t} from "./i18n/locale";
 
 export default class CheckAndCreateMDFilePlugin extends Plugin {
 	settings: CreateFileSettings;
@@ -12,6 +13,11 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 	private isCommandExecuting: boolean = false; // 添加命令执行状态标志
 
 	async onload() {
+		console.log(t('loadingPlugin') + this.manifest.version);
+
+		// 调试语言设置
+		//debugLocale();
+
 		await this.loadSettings();
 
 		log.setDebugMode(this.settings.debugMode);
@@ -26,7 +32,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 		// 校验当前文件关联的文件链接
 		this.addCommand({
 			id: 'create-missing-links-current-file',
-			name: 'Create files for unresolved links in current file',
+			name: t('createFilesForUnresolvedLinksInCurrentFile'),
 			callback: async () => {
 				// 设置命令执行标志
 				this.isCommandExecuting = true;
