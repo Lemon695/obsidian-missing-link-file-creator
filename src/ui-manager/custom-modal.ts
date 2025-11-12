@@ -12,7 +12,7 @@ export class CustomModal extends Modal {
 			const modalEl = this.contentEl.closest('.modal');
 			if (modalEl instanceof HTMLElement) {
 				modalEl.style.width = '90vw';
-				modalEl.style.maxWidth = '1200px';
+				modalEl.style.maxWidth = '1400px';
 				modalEl.style.minWidth = '600px';
 
 				modalEl.style.left = '50%';

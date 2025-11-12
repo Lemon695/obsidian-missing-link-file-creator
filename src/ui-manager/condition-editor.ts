@@ -82,13 +82,14 @@ export class ConditionEditor {
 
 		const conditionContent = this.conditionEl.createDiv({cls: 'ccmd-condition-content'});
 		conditionContent.style.display = "flex";
-		conditionContent.style.gap = "10px";
+		conditionContent.style.gap = "12px";
 		conditionContent.style.alignItems = "center";
+		conditionContent.style.width = "100%";
 
 		// 选择匹配属性类型的下拉框（第一列）
 		const propertyTypeContainer = conditionContent.createDiv({cls: 'ccmd-property-type-container'});
-		propertyTypeContainer.style.width = "18%";
-		propertyTypeContainer.style.marginRight = "10px";
+		propertyTypeContainer.style.flex = "0 0 130px";
+		propertyTypeContainer.style.minWidth = "130px";
 
 		const propertyTypeDropdown = new Setting(propertyTypeContainer)
 			.setClass('ccmd-property-type-setting')
@@ -120,7 +121,9 @@ export class ConditionEditor {
 		const restLayoutContainer = conditionContent.createDiv({cls: 'rest-layout-container'});
 		restLayoutContainer.style.display = "flex";
 		restLayoutContainer.style.flex = "1";
-		restLayoutContainer.style.gap = "10px";
+		restLayoutContainer.style.gap = "12px";
+		restLayoutContainer.style.alignItems = "center";
+		restLayoutContainer.style.minWidth = "0";
 
 		this.propertyField = this.conditionEl.createDiv({cls: 'property-field-container'});
 		this.propertyField.style.display = "none";
@@ -162,17 +165,18 @@ export class ConditionEditor {
 
 			// 属性名容器（第二列）
 			const propertyNameContainer = restLayoutContainer.createDiv({cls: 'property-name-container'});
-			propertyNameContainer.style.flex = "25%";
-			propertyNameContainer.style.marginRight = "10px";
+			propertyNameContainer.style.flex = "0 0 160px";
+			propertyNameContainer.style.minWidth = "0";
 
 			// 匹配类型容器（第三列）
 			const matchTypeContainer = restLayoutContainer.createDiv({cls: 'ccmd-match-type-container'});
-			matchTypeContainer.style.flex = "25%";
-			matchTypeContainer.style.marginRight = "10px";
+			matchTypeContainer.style.flex = "0 0 130px";
+			matchTypeContainer.style.minWidth = "0";
 
 			// 属性值容器（第四列）
 			const valueContainer = restLayoutContainer.createDiv({cls: 'value-container'});
-			valueContainer.style.flex = "50%";
+			valueContainer.style.flex = "1";
+			valueContainer.style.minWidth = "0";
 
 			// 添加属性名输入框
 			const propertyInput = new Setting(propertyNameContainer)
@@ -197,13 +201,13 @@ export class ConditionEditor {
 					);
 
 					text.inputEl.style.width = "100%";
-					text.inputEl.style.height = "40px";
+					text.inputEl.style.height = "36px";
+					text.inputEl.style.boxSizing = "border-box";
 					return text;
 				});
 
 			propertyInput.settingEl.style.padding = "0";
 			propertyInput.settingEl.style.border = "none";
-			propertyInput.settingEl.style.height = "40px";
 
 			new Setting(matchTypeContainer)
 				.setClass('ccmd-condition-match-type')
@@ -242,12 +246,12 @@ export class ConditionEditor {
 					);
 
 					text.inputEl.style.width = "100%";
-					text.inputEl.style.height = "40px";
+					text.inputEl.style.height = "36px";
+					text.inputEl.style.boxSizing = "border-box";
 					return text;
 				});
 			valueInput.settingEl.style.padding = "0";
 			valueInput.settingEl.style.border = "none";
-			valueInput.settingEl.style.height = "40px";
 
 		} else {
 			// ===== 普通模式：三列布局 =====
@@ -255,12 +259,13 @@ export class ConditionEditor {
 
 			// 创建匹配类型容器（第二列）
 			const matchTypeContainer = restLayoutContainer.createDiv({cls: 'ccmd-match-type-container'});
-			matchTypeContainer.style.flex = "30%";
-			matchTypeContainer.style.marginRight = "10px";
+			matchTypeContainer.style.flex = "0 0 130px";
+			matchTypeContainer.style.minWidth = "0";
 
 			// 创建模式匹配容器（第三列）
 			const patternContainer = restLayoutContainer.createDiv({cls: 'ccmd-pattern-container'});
-			patternContainer.style.flex = "70%";
+			patternContainer.style.flex = "1";
+			patternContainer.style.minWidth = "0";
 
 			// 添加匹配类型下拉
 			new Setting(matchTypeContainer)
@@ -293,11 +298,11 @@ export class ConditionEditor {
 						});
 					text.inputEl.style.width = "100%";
 					text.inputEl.style.height = "36px";
+					text.inputEl.style.boxSizing = "border-box";
 					return text;
 				});
 			patternInput.settingEl.style.padding = "0";
 			patternInput.settingEl.style.border = "none";
-			patternInput.settingEl.style.height = "40px";
 
 			this.valueSuggester = null;
 		}

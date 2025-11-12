@@ -119,6 +119,7 @@ export const translations = {
 		// Rule Management Modal
 		fileCreationRulesManagement: 'File creation rules management',
 		rulesManagementDescription: 'Rules determine file creation location and template based on filename patterns. Priority is listed from high to low.',
+		searchRules: 'Search rules...',
 		addRule: 'Add rule',
 		close: 'Close',
 		noRulesCreatedYet: 'No rules created yet',
@@ -311,6 +312,7 @@ export const translations = {
 		// 规则管理弹窗
 		fileCreationRulesManagement: '文件创建规则管理',
 		rulesManagementDescription: '规则根据文件名模式确定文件创建位置和模板。优先级从高到低列出。',
+		searchRules: '搜索规则...',
 		addRule: '添加规则',
 		close: '关闭',
 		noRulesCreatedYet: '尚未创建规则',

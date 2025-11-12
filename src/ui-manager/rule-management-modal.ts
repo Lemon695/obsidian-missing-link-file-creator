@@ -9,6 +9,7 @@ import {t} from "../i18n/locale";
 export class RuleManagementModal extends CustomModal {
 	private plugin: CheckAndCreateMDFilePlugin;
 	private rulesContainer: HTMLElement;
+	private searchQuery: string = '';
 	public static currentInstance: RuleManagementModal | null = null;
 
 
@@ -23,20 +24,42 @@ export class RuleManagementModal extends CustomModal {
 		contentEl.empty();
 		contentEl.addClass('ccmd-rule-management-modal', 'ccmd-quickAddModal');
 
-		contentEl.createEl('h2', {
+		// Header section with title
+		const headerSection = contentEl.createDiv({cls: 'ccmd-rule-management-header'});
+
+		headerSection.createEl('h2', {
 			text: t('fileCreationRulesManagement'),
 			cls: 'ccmd-rule-management-title'
 		});
 
-		contentEl.createEl('p', {
+		headerSection.createEl('p', {
 			text: t('rulesManagementDescription'),
-			cls: 'ccmd-rule-management-description ccmd-setting-item-description'
+			cls: 'ccmd-rule-management-description'
 		});
 
+		// Search bar section
+		const searchSection = contentEl.createDiv({cls: 'ccmd-rule-search-section'});
+		const searchInput = searchSection.createEl('input', {
+			type: 'text',
+			placeholder: t('searchRules'),
+			cls: 'ccmd-rule-search-input'
+		});
+
+		// Search icon
+		const searchIcon = searchSection.createEl('span', {cls: 'ccmd-search-icon'});
+		searchIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>`;
+
+		searchInput.addEventListener('input', (e) => {
+			this.searchQuery = (e.target as HTMLInputElement).value.toLowerCase();
+			this.refreshRulesList();
+		});
+
+		// Rules container
 		this.rulesContainer = contentEl.createDiv({cls: 'ccmd-rules-list-container'});
 
 		this.refreshRulesList();
 
+		// Footer buttons
 		const buttonContainer = contentEl.createDiv({cls: 'ccmd-rule-management-buttons'});
 
 		const addRuleButton = new ButtonComponent(buttonContainer);
@@ -115,7 +138,24 @@ export class RuleManagementModal extends CustomModal {
 		}
 
 		// 获取并排序规则
-		const rules = [...this.plugin.settings.rules].sort((a, b) => a.priority - b.priority);
+		let rules = [...this.plugin.settings.rules].sort((a, b) => a.priority - b.priority);
+
+		// 应用搜索筛选
+		if (this.searchQuery) {
+			rules = rules.filter(rule =>
+				rule.name.toLowerCase().includes(this.searchQuery) ||
+				rule.targetFolder?.toLowerCase().includes(this.searchQuery) ||
+				rule.templatePath?.toLowerCase().includes(this.searchQuery)
+			);
+		}
+
+		// 如果筛选后没有结果，显示空状态
+		if (rules.length === 0) {
+			const emptyState = this.rulesContainer.createDiv({cls: 'ccmd-rules-empty-state'});
+			const emptyText = emptyState.createDiv({cls: 'ccmd-rules-empty-text'});
+			emptyText.createEl('p', {text: `No rules match "${this.searchQuery}"`});
+			return;
+		}
 
 		// 规则表格
 		const rulesTable = this.rulesContainer.createEl('table', {cls: 'ccmd-rules-table'});
