@@ -1,5 +1,6 @@
 import {App, Modal, Setting, TFile, Notice} from 'obsidian';
 import {CreationModalParams, CreationResult, FileToCreate} from "../model/file-types";
+import {t} from "../i18n/locale";
 
 /**
  * 文件创建确认弹窗
@@ -92,7 +93,12 @@ export class CreationConfirmModal extends Modal {
 		const selectedCount = this.params.files.filter(file => file.selected).length;
 
 		const paginationInfo = document.createElement('span');
-		paginationInfo.textContent = `Page ${this.currentPage}/${this.totalPages}, ${this.params.files.length} files total, ${selectedCount} selected`;
+		paginationInfo.textContent = t('page', {
+			current: this.currentPage.toString(),
+			total: this.totalPages.toString(),
+			fileCount: this.params.files.length.toString(),
+			selectedCount: selectedCount.toString()
+		});
 		this.paginationDiv.appendChild(paginationInfo);
 
 		if (this.totalPages > 1) {
@@ -100,7 +106,7 @@ export class CreationConfirmModal extends Modal {
 			paginationControls.addClass('ccmd-pagination-controls');
 
 			const prevButton = document.createElement('button');
-			prevButton.textContent = 'Previous';
+			prevButton.textContent = t('previous');
 			prevButton.disabled = this.currentPage === 1 || this.isProcessing;
 			prevButton.addEventListener('click', () => {
 				if (this.currentPage > 1) {
@@ -112,7 +118,7 @@ export class CreationConfirmModal extends Modal {
 			});
 
 			const nextButton = document.createElement('button');
-			nextButton.textContent = 'Next';
+			nextButton.textContent = t('next');
 			nextButton.disabled = this.currentPage === this.totalPages || this.isProcessing;
 			nextButton.addEventListener('click', () => {
 				if (this.currentPage < this.totalPages) {
@@ -143,7 +149,7 @@ export class CreationConfirmModal extends Modal {
 
 			if (currentFiles.length === 0) {
 				const emptyMessage = document.createElement('div');
-				emptyMessage.textContent = 'No files to create';
+				emptyMessage.textContent = t('noFilesToCreate');
 				emptyMessage.addClass('empty-message');
 				fileListDiv.appendChild(emptyMessage);
 				return;
@@ -167,16 +173,16 @@ export class CreationConfirmModal extends Modal {
 			selectHeader.appendChild(this.selectAllCheckbox);
 
 			const filenameHeader = document.createElement('th');
-			filenameHeader.textContent = 'Filename';
+			filenameHeader.textContent = t('filename');
 
 			const pathHeader = document.createElement('th');
-			pathHeader.textContent = 'Path';
+			pathHeader.textContent = t('path');
 
 			const aliasesHeader = document.createElement('th');
-			aliasesHeader.textContent = 'Aliases';
+			aliasesHeader.textContent = t('aliases', {count: ''}).replace(': ', '');
 
 			const ruleNameHeader = document.createElement('th');
-			ruleNameHeader.textContent = 'Matched rule';
+			ruleNameHeader.textContent = t('matchedRule');
 			ruleNameHeader.addClass('ccmd-rule-name-column');
 
 			// const actionsHeader = document.createElement('th');
@@ -256,10 +262,10 @@ export class CreationConfirmModal extends Modal {
 							const fileContent = await this.params.onPreview(file.path, file.aliases, file.templatePath);
 							this.showPreviewModal(file.filename, fileContent);
 						} else {
-							new Notice('Preview function is not available');
+							new Notice(t('previewFunctionNotAvailable'));
 						}
 					} catch (error) {
-						new Notice(`Failed to generate preview: ${error.message}`);
+						new Notice(t('failedToGeneratePreview', {message: error.message}));
 					}
 				});
 				actionsCell.appendChild(previewButton);*/
@@ -291,7 +297,7 @@ export class CreationConfirmModal extends Modal {
 		contentEl.empty();
 
 		// 进度页面标题
-		contentEl.createEl('h2', {text: 'Creating files'});
+		contentEl.createEl('h2', {text: t('creatingFilesProgress')});
 
 		// 创建进度指示器
 		const progressContainer = contentEl.createDiv({cls: 'ccmd-progress-page-container'});
@@ -308,23 +314,23 @@ export class CreationConfirmModal extends Modal {
 
 		// 详细进度文本
 		const progressText = progressContainer.createDiv({cls: 'ccmd-progress-text'});
-		progressText.textContent = `Creating files (0/${selectedFiles.length})`;
+		progressText.textContent = t('creatingFilesStatus', {current: '0', total: selectedFiles.length.toString()});
 
 		// 实时统计容器
 		const statsContainer = contentEl.createDiv({cls: 'ccmd-stats-container'});
 
 		// 统计项
 		const createdStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-created-stat'});
-		createdStat.innerHTML = `<span class="ccmd-stat-icon">✅</span> Successfully created: <span class="ccmd-stat-value">0</span>&nbsp; files`;
+		createdStat.innerHTML = `<span class="ccmd-stat-icon">✅</span> ${t('successfullyCreated', {count: '0'})}`;
 
 		const skippedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-skipped-stat'});
-		skippedStat.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> Skipped: <span class="ccmd-stat-value">0</span>&nbsp; files`;
+		skippedStat.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> ${t('skipped', {count: '0'})}`;
 
 		const failedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-failed-stat'});
-		failedStat.innerHTML = `<span class="ccmd-stat-icon">❌</span> Failed: <span class="ccmd-stat-value">0</span>&nbsp; files`;
+		failedStat.innerHTML = `<span class="ccmd-stat-icon">❌</span> ${t('failed', {count: '0'})}`;
 
 		const aliasesStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-aliases-stat'});
-		aliasesStat.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> Added aliases: <span class="ccmd-stat-value">0</span>`;
+		aliasesStat.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> ${t('aliases', {count: '0'})}`;
 
 		this.progressElements = {
 			percentageDisplay,
@@ -364,7 +370,7 @@ export class CreationConfirmModal extends Modal {
 		});
 
 		// 更新进度
-		this.progressElements.progressText.textContent = `Creating files • ${current} of ${total}`;
+		this.progressElements.progressText.textContent = t('creatingFilesStatus', {current: current.toString(), total: total.toString()});
 
 		// 更新统计数据
 		this.progressElements.stats.created.textContent = result.created.toString();
@@ -384,7 +390,8 @@ export class CreationConfirmModal extends Modal {
 			this.updateProgressPage(1, 1, result);
 
 			if (this.progressElements.progressText) {
-				this.progressElements.progressText.textContent = `File creation completed (${result.created + result.skipped + result.failed}/${result.created + result.skipped + result.failed})`;
+				const total = result.created + result.skipped + result.failed;
+				this.progressElements.progressText.textContent = t('fileCreationCompleted', {total: total.toString()});
 			}
 
 			// 延迟10秒自动关闭
@@ -400,7 +407,7 @@ export class CreationConfirmModal extends Modal {
 	// 预览模态框
 	private showPreviewModal(filename: string, content: string) {
 		const modal = new Modal(this.app);
-		modal.titleEl.setText(`Preview: ${filename}`);
+		modal.titleEl.setText(`${t('preview')}: ${filename}`);
 
 		const contentEl = modal.contentEl;
 		contentEl.addClass('file-preview-modal');
@@ -410,11 +417,11 @@ export class CreationConfirmModal extends Modal {
 		// 创建切换按钮组
 		const toggleContainer = contentEl.createDiv({cls: 'toggle-container'});
 		const renderButton = document.createElement('button');
-		renderButton.textContent = 'Preview';
+		renderButton.textContent = t('preview');
 		renderButton.classList.add('active');
 
 		const sourceButton = document.createElement('button');
-		sourceButton.textContent = 'Source';
+		sourceButton.textContent = t('source');
 
 		toggleContainer.appendChild(renderButton);
 		toggleContainer.appendChild(sourceButton);
@@ -488,13 +495,13 @@ export class CreationConfirmModal extends Modal {
 		const {contentEl} = this;
 
 		// 设置标题
-		contentEl.createEl('h2', {text: 'Create files'});
+		contentEl.createEl('h2', {text: t('createFiles')});
 
 		// 只在初始状态显示描述
 		if (!this.isProcessing) {
 			contentEl.createEl('p', {
 				cls: 'description-text',
-				text: `${this.params.files.length} links detected. Select files to be created:`
+				text: t('linksDetected', {count: this.params.files.length.toString()})
 			});
 		}
 
@@ -513,7 +520,7 @@ export class CreationConfirmModal extends Modal {
 
 		// 取消按钮
 		this.cancelButton = document.createElement('button');
-		this.cancelButton.textContent = 'Cancel';
+		this.cancelButton.textContent = t('cancel');
 		this.cancelButton.addEventListener('click', () => {
 			if (!this.isProcessing) {
 				this.params.onCancel();
@@ -523,14 +530,14 @@ export class CreationConfirmModal extends Modal {
 
 		// 确认按钮
 		this.confirmButton = document.createElement('button');
-		this.confirmButton.textContent = 'Create selected files';
+		this.confirmButton.textContent = t('createSelectedFiles');
 		this.confirmButton.addClass('mod-cta');
 		this.confirmButton.addEventListener('click', () => {
 			if (this.isProcessing) return;
 
 			const selectedFiles = this.params.files.filter(file => file.selected);
 			if (selectedFiles.length === 0) {
-				new Notice('Please select at least one file');
+				new Notice(t('pleaseSelectAtLeastOneFile'));
 				return;
 			}
 

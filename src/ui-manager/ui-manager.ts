@@ -4,6 +4,7 @@ import {CreationResult, FileToCreate} from "../model/file-types";
 import {TemplateAliasHandling} from "../model/rule-types";
 import {FileOperations} from "../utils/file-operations";
 import {CreateFileSettings} from "../settings/settings";
+import {t} from "../i18n/locale";
 
 export class UIManager {
 	private app: App;
@@ -177,11 +178,11 @@ export class UIManager {
 		const statusEmoji = result.created > 0 ? '✅' : (result.failed > 0 ? '⚠️' : '📋');
 
 		const message = [
-			`${statusEmoji} Operation complete`,
-			`📄 Successfully created: ${result.created} files`,
-			`⏭️ Skipped: ${result.skipped} files`,
-			`${result.failed > 0 ? '❌' : '✓'} Failed: ${result.failed} files`,
-			`🏷️ Aliases: ${result.aliasesAdded}`
+			`${statusEmoji} ${t('operationComplete')}`,
+			`📄 ${t('successfullyCreated', {count: result.created.toString()})}`,
+			`⏭️ ${t('skipped', {count: result.skipped.toString()})}`,
+			`${result.failed > 0 ? '❌' : '✓'} ${t('failed', {count: result.failed.toString()})}`,
+			`🏷️ ${t('aliases', {count: result.aliasesAdded.toString()})}`
 		].join('\n');
 
 		const notice = new Notice(message, 10000); // 显示10秒,自动消失显示框
@@ -202,7 +203,7 @@ export class UIManager {
 	}> {
 		return new Promise((resolve) => {
 			const modal = new Modal(this.app);
-			modal.titleEl.setText('Bulk rename files');
+			modal.titleEl.setText(t('bulkRenameFiles'));
 
 			const contentEl = modal.contentEl;
 			contentEl.addClass('bulk-rename-modal');
@@ -217,8 +218,8 @@ export class UIManager {
 			// 表头
 			const thead = table.createEl('thead');
 			const headerRow = thead.createEl('tr');
-			headerRow.createEl('th', {text: 'Current path'});
-			headerRow.createEl('th', {text: 'New path'});
+			headerRow.createEl('th', {text: t('currentPath')});
+			headerRow.createEl('th', {text: t('newPath')});
 
 			// 表体
 			const tbody = table.createEl('tbody');
@@ -235,7 +236,7 @@ export class UIManager {
 					attr: {
 						type: 'text',
 						value: file.newName || file.path,
-						placeholder: 'New path...'
+						placeholder: t('newPathPlaceholder')
 					}
 				});
 
@@ -251,24 +252,24 @@ export class UIManager {
 
 			// 批量替换
 			const batchReplaceContainer = batchContainer.createDiv({cls: 'batch-replace'});
-			batchReplaceContainer.createEl('label', {text: 'Batch replace: '});
+			batchReplaceContainer.createEl('label', {text: t('batchReplace')});
 
 			const findInput = batchReplaceContainer.createEl('input', {
 				attr: {
 					type: 'text',
-					placeholder: 'Find...'
+					placeholder: t('find')
 				}
 			});
 
 			const replaceInput = batchReplaceContainer.createEl('input', {
 				attr: {
 					type: 'text',
-					placeholder: 'Replace with...'
+					placeholder: t('replaceWith')
 				}
 			});
 
 			const replaceButton = batchReplaceContainer.createEl('button', {
-				text: 'Apply',
+				text: t('apply'),
 				attr: {
 					type: 'button'
 				}
@@ -292,14 +293,14 @@ export class UIManager {
 			const buttonContainer = form.createDiv({cls: 'ccmd-button-container'});
 
 			const cancelButton = buttonContainer.createEl('button', {
-				text: 'Cancel',
+				text: t('cancel'),
 				attr: {
 					type: 'button'
 				}
 			});
 
 			const confirmButton = buttonContainer.createEl('button', {
-				text: 'Confirm rename',
+				text: t('confirmRename'),
 				attr: {
 					type: 'button',
 					class: 'mod-cta'

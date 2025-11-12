@@ -4,6 +4,7 @@ import CheckAndCreateMDFilePlugin from "../main";
 import {FolderSuggest} from './suggesters/folder-suggester';
 import {log} from 'src/utils/log-utils';
 import {RuleManagementModal} from "../ui-manager/rule-management-modal";
+import {t} from "../i18n/locale";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
@@ -74,8 +75,8 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 		// 添加新增文件通知设置
 		new Setting(containerEl)
-			.setName('Notification settings')
-			.setDesc('Show a notification when a file is create')
+			.setName(t('notificationSettings'))
+			.setDesc(t('notificationSettingsDesc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.showCreateFileNotification)
 				.onChange(async (value) => {
@@ -85,11 +86,11 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 		// 文件夹选择器
 		new Setting(containerEl)
-			.setName('Default path')
-			.setDesc('Set the default folder where new md files will be created.')
+			.setName(t('defaultPath'))
+			.setDesc(t('defaultPathDesc'))
 			.addSearch((cb) => {
 				new FolderSuggest(this.app, cb.inputEl);
-				cb.setPlaceholder("Example: folder1/folder2")
+				cb.setPlaceholder(t('exampleFolder'))
 					.setValue(this.plugin.settings.defaultFolderPath)
 					.onChange((new_folder) => {
 						new_folder = new_folder.trim()
@@ -103,11 +104,11 @@ export class CreateFileSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName('Template folder')
-			.setDesc('Set the folder for template files')
+			.setName(t('templateFolder'))
+			.setDesc(t('templateFolderDesc'))
 			.addSearch(cb => {
 				new FolderSuggest(this.app, cb.inputEl);
-				cb.setPlaceholder("Example: templates")
+				cb.setPlaceholder(t('exampleTemplates'))
 					.setValue(this.plugin.settings.templateFolder)
 					.onChange(async (value) => {
 						this.plugin.settings.templateFolder = value;
@@ -117,8 +118,8 @@ export class CreateFileSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName('Enable templates')
-			.setDesc('Use template feature when creating files')
+			.setName(t('enableTemplates'))
+			.setDesc(t('enableTemplatesDesc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.useTemplates)
 				.onChange(async (value) => {
@@ -129,8 +130,8 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 		// 别名控制
 		new Setting(containerEl)
-			.setName('Add aliases to frontmatter')
-			.setDesc('When enabled, aliases from links will be added to frontmatter, disable this if it conflicts with templater.')
+			.setName(t('addAliasesToFrontmatter'))
+			.setDesc(t('addAliasesToFrontmatterDesc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.addAliasesToFrontmatter)
 				.onChange(async (value) => {
@@ -138,11 +139,11 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		containerEl.createEl('h3', {text: 'Rules management'});
+		containerEl.createEl('h3', {text: t('rulesManagement')});
 
 		new Setting(containerEl)
-			.setName('Enable rules')
-			.setDesc('Automatically apply different target folders and templates based on filename patterns')
+			.setName(t('enableRules'))
+			.setDesc(t('enableRulesDesc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.useRules)
 				.onChange(async (value) => {
@@ -151,10 +152,10 @@ export class CreateFileSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Manage rules')
-			.setDesc('Add, edit and delete file creation rules')
+			.setName(t('manageRules'))
+			.setDesc(t('manageRulesDesc'))
 			.addButton(button => button
-				.setButtonText('Manage rules')
+				.setButtonText(t('manageRulesButton'))
 				.setCta()
 				.onClick(() => {
 					const modal = new RuleManagementModal(this.app, this.plugin);
@@ -190,13 +191,13 @@ export class CreateFileSettingTab extends PluginSettingTab {
 		// 		}));
 
 		new Setting(containerEl)
-			.setName('Developer')
+			.setName(t('developer'))
 			.setHeading()
 
 		// Debug mode
 		new Setting(containerEl)
-			.setName('Debug mode')
-			.setDesc('Enable debug mode to log detailed information to the console.')
+			.setName(t('debugMode'))
+			.setDesc(t('debugModeDesc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.debugMode)
 				.onChange(async (value) => {
@@ -222,38 +223,38 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 			switch (cond.operator) {
 				case "and":
-					operatorDesc = "and";
+					operatorDesc = t('and');
 					break;
 				case "or":
-					operatorDesc = "or";
+					operatorDesc = t('or');
 					break;
 				case "not":
-					operatorDesc = "not";
+					operatorDesc = t('not');
 					break;
 				case "exclude":
-					operatorDesc = "exclude";
+					operatorDesc = t('exclude');
 					break;
 			}
 
 			switch (cond.type) {
 				case "contains":
-					typeDesc = "contains";
+					typeDesc = t('contains');
 					break;
 				case "startsWith":
-					typeDesc = "begins with";
+					typeDesc = t('beginsWith');
 					break;
 				case "endsWith":
-					typeDesc = "ends with";
+					typeDesc = t('endsWith');
 					break;
 				case "exact":
-					typeDesc = "matches";
+					typeDesc = t('matches');
 					break;
 				case "regex":
-					typeDesc = "regex";
+					typeDesc = t('regex');
 					break;
 			}
 
-			return `${operatorDesc}${typeDesc}"${cond.pattern}"`;
+			return `${operatorDesc} ${typeDesc} "${cond.pattern}"`;
 		});
 
 		let description = conditionDescriptions.join("; ");
@@ -277,7 +278,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 		if (this.plugin.settings.rules && this.plugin.settings.rules.length > 0) {
 			const rulesInfo = this.rulesInfoContainer.createDiv({cls: 'rules-info'});
 			rulesInfo.createEl('p', {
-				text: `${this.plugin.settings.rules.length} rules configured`,
+				text: t('rulesConfigured', {count: this.plugin.settings.rules.length.toString()}),
 				cls: 'rules-count'
 			});
 
@@ -293,7 +294,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 			if (this.plugin.settings.rules.length > 3) {
 				rulesInfo.createEl('p', {
-					text: `... and ${this.plugin.settings.rules.length - 3} more rules`,
+					text: t('andMoreRules', {count: (this.plugin.settings.rules.length - 3).toString()}),
 					cls: 'rules-more'
 				});
 			}

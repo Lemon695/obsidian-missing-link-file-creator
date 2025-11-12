@@ -4,6 +4,7 @@ import {ConditionMatchType, ConditionOperator} from "../model/condition-types";
 import CheckAndCreateMDFilePlugin from "../main";
 import {RuleEditModal} from "./rule-edit-modal";
 import {CustomModal} from "./custom-modal";
+import {t} from "../i18n/locale";
 
 export class RuleManagementModal extends CustomModal {
 	private plugin: CheckAndCreateMDFilePlugin;
@@ -23,12 +24,12 @@ export class RuleManagementModal extends CustomModal {
 		contentEl.addClass('ccmd-rule-management-modal', 'ccmd-quickAddModal');
 
 		contentEl.createEl('h2', {
-			text: 'File creation rules management',
+			text: t('fileCreationRulesManagement'),
 			cls: 'ccmd-rule-management-title'
 		});
 
 		contentEl.createEl('p', {
-			text: 'Rules determine file creation location and template based on filename patterns. Priority is listed from high to low.',
+			text: t('rulesManagementDescription'),
 			cls: 'ccmd-rule-management-description ccmd-setting-item-description'
 		});
 
@@ -40,7 +41,7 @@ export class RuleManagementModal extends CustomModal {
 
 		const addRuleButton = new ButtonComponent(buttonContainer);
 		addRuleButton
-			.setButtonText('Add rule')
+			.setButtonText(t('addRule'))
 			.setCta()
 			.onClick(() => {
 				this.createNewRule();
@@ -48,7 +49,7 @@ export class RuleManagementModal extends CustomModal {
 
 		const closeButton = new ButtonComponent(buttonContainer);
 		closeButton
-			.setButtonText('Close')
+			.setButtonText(t('close'))
 			.onClick(() => {
 				this.close();
 			});
@@ -57,7 +58,7 @@ export class RuleManagementModal extends CustomModal {
 	private createNewRule() {
 		const newRule: FileCreationRule = {
 			id: `rule-${Date.now()}`,
-			name: 'New Rule',
+			name: t('createRule'),
 			enabled: true,
 			conditions: [{
 				id: `cond-${Date.now()}`,
@@ -98,12 +99,12 @@ export class RuleManagementModal extends CustomModal {
 			emptyIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path><line x1="9" y1="9" x2="10" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg>`;
 
 			const emptyText = emptyState.createDiv({cls: 'ccmd-rules-empty-text'});
-			emptyText.createEl('h3', {text: 'No rules created yet'});
-			emptyText.createEl('p', {text: 'Rules automate file placement and template assignment based on filenames.'});
+			emptyText.createEl('h3', {text: t('noRulesCreatedYet')});
+			emptyText.createEl('p', {text: t('rulesAutomateDescription')});
 
 			const createFirstButton = new ButtonComponent(emptyState);
 			createFirstButton
-				.setButtonText('Create first rule')
+				.setButtonText(t('createFirstRule'))
 				.setCta()
 				.setClass('ccmd-create-first-rule-button')
 				.onClick(() => {
@@ -125,11 +126,11 @@ export class RuleManagementModal extends CustomModal {
 
 		// 表头列
 		headerRow.createEl('th', {cls: 'ccmd-rule-status-column', text: ''});
-		headerRow.createEl('th', {cls: 'ccmd-rule-name-column', text: 'Rule name'});
-		headerRow.createEl('th', {cls: 'ccmd-rule-conditions-column', text: 'Match conditions'});
-		headerRow.createEl('th', {cls: 'ccmd-rule-target-column', text: 'Target folder'});
-		headerRow.createEl('th', {cls: 'ccmd-rule-template-column', text: 'Use template'});
-		headerRow.createEl('th', {cls: 'ccmd-rule-actions-column', text: 'Actions'});
+		headerRow.createEl('th', {cls: 'ccmd-rule-name-column', text: t('ruleName')});
+		headerRow.createEl('th', {cls: 'ccmd-rule-conditions-column', text: t('matchConditions')});
+		headerRow.createEl('th', {cls: 'ccmd-rule-target-column', text: t('targetFolder')});
+		headerRow.createEl('th', {cls: 'ccmd-rule-template-column', text: t('useTemplate')});
+		headerRow.createEl('th', {cls: 'ccmd-rule-actions-column', text: t('actions')});
 
 		// 表体
 		const tableBody = rulesTable.createEl('tbody');
@@ -145,7 +146,7 @@ export class RuleManagementModal extends CustomModal {
 				.setClass('ccmd-rule-toggle-setting')
 				.addToggle(toggle => {
 					toggle
-						.setTooltip(rule.enabled ? 'Enabled' : 'Disabled')
+						.setTooltip(rule.enabled ? t('enabled') : t('disabled'))
 						.setValue(rule.enabled)
 						.onChange(async value => {
 							rule.enabled = value;
@@ -191,7 +192,7 @@ export class RuleManagementModal extends CustomModal {
 			// 编辑按钮
 			const editButton = new ButtonComponent(actionsContainer);
 			editButton
-				.setTooltip('Edit rule')
+				.setTooltip(t('editRule'))
 				.setIcon('pencil')
 				.setClass('ccmd-rule-action-button')
 				.onClick(() => {
@@ -202,7 +203,7 @@ export class RuleManagementModal extends CustomModal {
 			if (index > 0) {
 				const moveUpButton = new ButtonComponent(actionsContainer);
 				moveUpButton
-					.setTooltip('Move up') //提高优先级
+					.setTooltip(t('moveUp')) //提高优先级
 					.setIcon('arrow-up')
 					.setClass('ccmd-rule-action-button')
 					.onClick(async () => {
@@ -213,7 +214,7 @@ export class RuleManagementModal extends CustomModal {
 			if (index < rules.length - 1) {
 				const moveDownButton = new ButtonComponent(actionsContainer);
 				moveDownButton
-					.setTooltip('Move down') //降低优先级
+					.setTooltip(t('moveDown')) //降低优先级
 					.setIcon('arrow-down')
 					.setClass('ccmd-rule-action-button')
 					.onClick(async () => {
@@ -223,7 +224,7 @@ export class RuleManagementModal extends CustomModal {
 
 			const deleteButton = new ButtonComponent(actionsContainer);
 			deleteButton
-				.setTooltip('Delete rule') //删除规则
+				.setTooltip(t('deleteRule')) //删除规则
 				.setIcon('trash')
 				.setClass('ccmd-rule-action-button')
 				.onClick(async () => {
@@ -237,7 +238,7 @@ export class RuleManagementModal extends CustomModal {
 
 	private getConditionsDescription(rule: FileCreationRule): string {
 		if (!rule.conditions || rule.conditions.length === 0) {
-			return "No match conditions"; //无匹配条件
+			return t('noMatchConditions'); //无匹配条件
 		}
 
 		return rule.conditions.map(cond => {
@@ -246,34 +247,34 @@ export class RuleManagementModal extends CustomModal {
 
 			switch (cond.operator) {
 				case ConditionOperator.AND:
-					operatorDesc = "and";
+					operatorDesc = t('and');
 					break;
 				case ConditionOperator.OR:
-					operatorDesc = "or";
+					operatorDesc = t('or');
 					break;
 				case ConditionOperator.NOT:
-					operatorDesc = "not";
+					operatorDesc = t('not');
 					break;
 				case ConditionOperator.EXCLUDE:
-					operatorDesc = "exclude";
+					operatorDesc = t('exclude');
 					break;
 			}
 
 			switch (cond.type) {
 				case ConditionMatchType.CONTAINS:
-					typeDesc = "contains";
+					typeDesc = t('contains');
 					break;
 				case ConditionMatchType.STARTS_WITH:
-					typeDesc = "begins with..."; //以...开头
+					typeDesc = t('beginsWith'); //以...开头
 					break;
 				case ConditionMatchType.ENDS_WITH:
-					typeDesc = "ends with..."; //以...结尾
+					typeDesc = t('endsWith'); //以...结尾
 					break;
 				case ConditionMatchType.EXACT:
-					typeDesc = "matches"; //精确匹配
+					typeDesc = t('matches'); //精确匹配
 					break;
 				case ConditionMatchType.REGEX:
-					typeDesc = "regex"; //正则匹配
+					typeDesc = t('regex'); //正则匹配
 					break;
 			}
 
@@ -313,7 +314,7 @@ export class RuleManagementModal extends CustomModal {
 		await this.plugin.saveSettings();
 		this.refreshRulesList();
 
-		new Notice(`Rule deleted`);
+		new Notice(t('ruleDeleted'));
 	}
 
 	// 确认删除
@@ -385,14 +386,14 @@ class ConfirmDeleteModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('ccmd-confirm-delete-modal', 'ccmd-quickAddModal');
 
-		contentEl.createEl('h2', {text: 'Confirm deletion'});
-		contentEl.createEl('p', {text: `Are you sure you want to delete rule "${this.ruleName}"?`});
+		contentEl.createEl('h2', {text: t('confirmDeletion')});
+		contentEl.createEl('p', {text: t('confirmDeleteRule', {name: this.ruleName})});
 
 		const buttonContainer = contentEl.createDiv({cls: 'ccmd-confirm-buttons'});
 
 		const cancelButton = new ButtonComponent(buttonContainer);
 		cancelButton
-			.setButtonText('Cancel')
+			.setButtonText(t('cancel'))
 			.onClick(() => {
 				this.onConfirm(false);
 				this.close();
@@ -400,7 +401,7 @@ class ConfirmDeleteModal extends Modal {
 
 		const confirmButton = new ButtonComponent(buttonContainer);
 		confirmButton
-			.setButtonText('Delete')
+			.setButtonText(t('delete'))
 			.setWarning()
 			.onClick(() => {
 				this.onConfirm(true);

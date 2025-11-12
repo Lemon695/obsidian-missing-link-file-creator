@@ -8,6 +8,7 @@ import {TemplateAliasHandling} from "../model/rule-types";
 import {TemplaterService} from "../service/templater-service";
 import {TagHelper} from "../service/tag-helper";
 import {CreateFileSettings} from "../settings/settings";
+import {t} from "../i18n/locale";
 
 export interface FileOperationsOptions {
 	app: App;
@@ -162,7 +163,7 @@ export class FileOperations {
 			// 如果文件已存在，跳过
 			if (fileExists) {
 				log.debug(
-					() => `Skipping existing file: ${key}`);
+					() => t('skippingExistingFile', {path: key}));
 				continue;
 			}
 
@@ -181,7 +182,7 @@ export class FileOperations {
 				if (fileEntry) {
 					fileEntry.aliases.add(link.alias);
 					log.debug(
-						() => `Added alias "${link.alias}" to file "${key}"`);
+						() => t('addedAlias', {alias: link.alias || '', file: key}));
 				}
 			}
 		}
@@ -264,7 +265,7 @@ export class FileOperations {
 					targetPath = `${resolvedPath}/${fileName}.md`;
 
 					if (this.app.vault.getAbstractFileByPath(targetPath) instanceof TFile) {
-						log.debug(() => `Skipping existing file at specific path: ${targetPath}`);
+						log.debug(() => t('skippingExistingFileAtPath', {path: targetPath}));
 						continue;
 					}
 				} else {
@@ -279,7 +280,7 @@ export class FileOperations {
 
 					// 检查全局是否存在该文件
 					if (this.fileUtils.isFileExistsInVault(resolvedFilename)) {
-						log.debug(() => `Skipping existing file in vault: ${resolvedFilename}`);
+						log.debug(() => t('skippingExistingFileInVault', {file: resolvedFilename}));
 						continue;
 					}
 				}
@@ -300,7 +301,7 @@ export class FileOperations {
 						conflictResolution = "update_aliases";
 					} else {
 						// 已存在且无新别名 - 跳过
-						log.debug(() => `Skipping existing file with no new aliases: ${targetPath}`);
+						log.debug(() => t('skippingExistingFileNoAliases', {path: targetPath}));
 						continue;
 					}
 				} else if (pathConflict) {
@@ -318,14 +319,14 @@ export class FileOperations {
 						counter++;
 						// 防止无限循环
 						if (counter > 1000) {
-							log.error(() => `无法为 ${targetPath} 创建唯一路径，尝试次数过多`);
+							log.error(() => `Unable to create unique path for ${targetPath}, too many attempts`);
 							break;
 						}
 					}
 
 					targetPath = uniquePath;
 					conflictResolution = "renamed";
-					log.debug(() => `Renamed conflicting path to: ${targetPath}`);
+					log.debug(() => t('renamedConflictingPath', {path: targetPath}));
 				}
 			}
 
@@ -376,13 +377,13 @@ export class FileOperations {
 	async checkAndCreateMDFiles(): Promise<void> {
 		const currentFile = this.app.workspace.getActiveFile();
 		if (!currentFile) {
-			log.debug(() => 'No active file found.');
-			new Notice('No active file found');
+			log.debug(() => t('noActiveFile'));
+			new Notice(t('noActiveFile'));
 			return;
 		}
 
 		// 显示初始进度通知
-		const loadingNotice = new Notice('Analyzing links...', 0);
+		const loadingNotice = new Notice(t('analyzingLinks'), 0);
 
 		try {
 			const fileContent = await this.app.vault.read(currentFile);
@@ -405,7 +406,7 @@ export class FileOperations {
 			const filesToCreate = this.prepareFilesToCreate(fileMap, context);
 
 			if (filesToCreate.length === 0) {
-				new Notice('No linkable files found');
+				new Notice(t('noLinkableFilesFound'));
 				return;
 			}
 
@@ -431,8 +432,8 @@ export class FileOperations {
 		} catch (error) {
 			// 出错时关闭加载通知
 			loadingNotice.hide();
-			console.error('Error processing file:', error);
-			new Notice(`Error processing file: ${error.message}`);
+			console.error(t('errorProcessingFile', {message: error.message}), error);
+			new Notice(t('errorProcessingFile', {message: error.message}));
 		}
 	}
 
@@ -442,26 +443,26 @@ export class FileOperations {
 	async checkAndCreateMDFilesInFolder(): Promise<void> {
 		const currentFile = this.app.workspace.getActiveFile();
 		if (!currentFile) {
-			new Notice("No active file found");
+			new Notice(t('noActiveFile'));
 			return;
 		}
 
 		const folder = currentFile.parent;
 		if (!folder) {
-			new Notice("Current file isn't in a folder");
+			new Notice(t('currentFileNotInFolder'));
 			return;
 		}
 
 		const files = this.app.vault.getFiles().filter(file => file.parent === folder && file.extension === 'md');
 
 		if (files.length === 0) {
-			new Notice("No markdown files found in folder");
+			new Notice(t('noMarkdownFilesFoundInFolder'));
 			return;
 		}
 
 		// 显示初始进度通知
 		const progressNotice = this.uiManager.showProgressNotice(
-			'Scanning folder',
+			t('scanningFolder'),
 			0,
 			files.length
 		);
@@ -484,7 +485,7 @@ export class FileOperations {
 				processedCount++;
 				this.uiManager.updateProgressNotice(
 					progressNotice,
-					'Scanning folder',
+					t('scanningFolder'),
 					processedCount,
 					files.length
 				);
@@ -500,7 +501,7 @@ export class FileOperations {
 			const filesToCreate = this.prepareFilesToCreate(fileMap);
 
 			if (filesToCreate.length === 0) {
-				new Notice('No linkable files found');
+				new Notice(t('noLinkableFilesFound'));
 				return;
 			}
 
@@ -519,8 +520,8 @@ export class FileOperations {
 		} catch (error) {
 			// 出错时关闭进度通知
 			progressNotice.hide();
-			console.error('Error processing folder:', error);
-			new Notice(`Error processing folder: ${error.message}`);
+			console.error(t('errorProcessingFolder', {message: error.message}), error);
+			new Notice(t('errorProcessingFolder', {message: error.message}));
 		}
 	}
 
@@ -532,13 +533,13 @@ export class FileOperations {
 		const files = this.app.vault.getMarkdownFiles();
 
 		if (files.length === 0) {
-			new Notice("No markdown files found in vault");
+			new Notice(t('noMarkdownFilesFoundInVault'));
 			return;
 		}
 
 		// 显示初始进度通知
 		const progressNotice = this.uiManager.showProgressNotice(
-			'Scanning vault',
+			t('scanningVault'),
 			0,
 			files.length
 		);
@@ -561,7 +562,7 @@ export class FileOperations {
 				processedCount++;
 				this.uiManager.updateProgressNotice(
 					progressNotice,
-					'Scanning vault',
+					t('scanningVault'),
 					processedCount,
 					files.length
 				);
@@ -577,7 +578,7 @@ export class FileOperations {
 			const filesToCreate = this.prepareFilesToCreate(fileMap);
 
 			if (filesToCreate.length === 0) {
-				new Notice('No linkable files found in entire vault');
+				new Notice(t('noLinkableFilesFoundInEntireVault'));
 				return;
 			}
 
@@ -596,8 +597,8 @@ export class FileOperations {
 		} catch (error) {
 			// 出错时关闭进度通知
 			progressNotice.hide();
-			console.error('Error scanning vault:', error);
-			new Notice(`Error scanning vault: ${error.message}`);
+			console.error(t('errorScanningVault', {message: error.message}), error);
+			new Notice(t('errorScanningVault', {message: error.message}));
 		}
 	}
 
@@ -645,7 +646,9 @@ export class FileOperations {
 	): Promise<{ success: boolean, message?: string }> {
 		try {
 			// 添加调试日志
-			log.debug(`Creating Files: ${filePath}, Using template: ${templatePath || 'No Template'}, Alias handling: ${templateAliasHandling || 'default'}`);
+			log.debug(t('creatingFiles', {path: filePath}) + ', ' +
+					  t('usingTemplate', {path: templatePath || 'No Template'}) + ', ' +
+					  `Alias handling: ${templateAliasHandling || 'default'}`);
 
 			// 提取文件路径的目录部分
 			const lastSlashIndex = filePath.lastIndexOf('/');
@@ -653,13 +656,13 @@ export class FileOperations {
 
 			// 确保目录存在
 			if (directory) {
-				log.debug(`Create Directory: ${directory}`);
+				log.debug(t('createDirectory', {path: directory}));
 				try {
 					await this.ensureDirectoryExists(directory);
 				} catch (dirError) {
 					return {
 						success: false,
-						message: `Cannot Create Directory "${directory}": ${dirError.message}`
+						message: t('cannotCreateDirectory', {path: directory, message: dirError.message})
 					};
 				}
 			}
@@ -681,7 +684,7 @@ export class FileOperations {
 			} else if (shouldAddAliasesToFrontmatter && aliases && aliases.length > 0) {
 				const aliasesString = aliases.map(alias => `  - "${alias}"`).join('\n');
 				fileContent = `---\naliases:\n${aliasesString}\n---\n\n`;
-				log.debug("Aliases have been added to the frontmatter based on global settings");
+				log.debug(`Aliases have been added to the frontmatter based on global settings`);
 			}
 
 			// 准备变量
@@ -700,11 +703,11 @@ export class FileOperations {
 			let matchedRule;
 
 			if (this.settings.useTemplates && templatePath) {
-				log.debug(`Applying template: ${templatePath} to file: ${filePath}`);
+				log.debug(t('applyingTemplate', {template: templatePath, file: filePath}));
 
 				try {
 					if (this.templaterService.hasTemplaterPlugin()) {
-						log.debug('Processing template with Templater');
+						log.debug(t('processingWithTemplater'));
 
 						try {
 							const templaterMode = templateAliasHandling === TemplateAliasHandling.MERGE ? 'merge' : 'skip';
@@ -716,21 +719,21 @@ export class FileOperations {
 							);
 
 							if (processedContent) {
-								log.debug(`File has been processed with Templater: ${filePath}`);
+								log.debug(t('fileProcessedWithTemplater', {path: filePath}));
 								success = true;
 							} else {
-								log.debug("Templater processing returned empty content, will attempt basic processing");
+								log.debug(t('templaterReturnedEmptyContent'));
 							}
 						} catch (templaterError) {
-							log.error(`Templater processing failed: ${templaterError.message}`);
+							log.error(t('templaterProcessingFailed', {message: templaterError.message}));
 						}
 					}
 
 					if (!success) {
-						log.debug('Processing with basic template');
+						log.debug(t('processingWithBasicTemplate'));
 
 						const newFile = await this.app.vault.create(filePath, fileContent);
-						log.debug(`Initial file has been created: ${filePath}`);
+						log.debug(t('initialFileCreated', {path: filePath}));
 
 						// 获取模板文件
 						const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
@@ -745,24 +748,24 @@ export class FileOperations {
 							if (targetFile && targetFile instanceof TFile) {
 								const mergedContent = this.templaterService.mergeFrontmatter(fileContent, processedContent);
 								await this.app.vault.modify(targetFile, mergedContent);
-								log.debug(`File content has been updated using basic processing: ${filePath}`);
+								log.debug(t('fileContentUpdated', {path: filePath}));
 								success = true;
 							}
 						} else {
-							log.error(`Template file not found: ${templatePath}`);
+							log.error(t('templateFileNotFound', {path: templatePath}));
 						}
 					}
 				} catch (templateError) {
-					log.error(`Failed to apply template: ${templateError.message}`);
+					log.error(t('failedToApplyTemplate', {message: templateError.message}));
 					return {
 						success: true,
-						message: `File has been created, but applying the template failed: ${templateError.message}`
+						message: t('fileCreatedTemplateApplyFailed', {message: templateError.message})
 					};
 				}
 			} else {
 				// 没有使用模板，直接创建文件
 				await this.app.vault.create(filePath, fileContent);
-				log.debug(`Creating file (No Template): ${filePath}`);
+				log.debug(t('creatingFileNoTemplate', {path: filePath}));
 				success = true;
 			}
 
@@ -797,21 +800,21 @@ export class FileOperations {
 							// 更新文件
 							if (updatedContent !== currentContent) {
 								await this.app.vault.modify(targetFile, updatedContent);
-								log.debug(`Auto-added tags to ${filePath}: ${suggestedTags.join(', ')}`);
+								log.debug(t('autoAddedTags', {path: filePath, tags: suggestedTags.join(', ')}));
 							}
 						}
 					} catch (error) {
-						log.error(`Error adding auto-tags: ${error}`);
+						log.error(t('errorAddingAutoTags') + `: ${error}`);
 					}
 				}
 			}
 
 			return {success: true};
 		} catch (error) {
-			console.error(`Failed to Create File: ${filePath}`, error);
+			console.error(t('failedToCreateFile') + `: ${filePath}`, error);
 			return {
 				success: false,
-				message: `Failed to Create File: ${error.message}`
+				message: t('failedToCreateFileMessage', {message: error.message})
 			};
 		}
 	}
@@ -849,7 +852,7 @@ export class FileOperations {
 
 		// 如果没有找到链接，显示提示并返回
 		if (linkInfos.length === 0) {
-			new Notice('No links found in selected text');
+			new Notice(t('noLinksFoundInSelectedText'));
 			return;
 		}
 
@@ -870,7 +873,7 @@ export class FileOperations {
 
 		const filesToCreate = this.prepareFilesToCreate(fileMap, context);
 		if (filesToCreate.length === 0) {
-			new Notice('No linkable files to create');
+			new Notice(t('noLinkableFilesToCreate'));
 			return;
 		}
 
