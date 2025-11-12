@@ -208,9 +208,9 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 	private getRuleMatchDescription(rule: FileCreationRule): string {
 		if (!rule.conditions || rule.conditions.length === 0) {
-			return "No matching conditions  → Target folder: " + (rule.targetFolder || '(Default)') +
-				", Template: " + (rule.templatePath || '(None)') +
-				(rule.enabled ? '' : ' [Disabled]');
+			return t('noMatchConditions') + "  → " + t('targetFolder') + ": " + (rule.targetFolder || t('defaultValue')) +
+				", " + t('useTemplate') + ": " + (rule.templatePath || t('noneValue')) +
+				(rule.enabled ? '' : ` [${t('disabled')}]`);
 		}
 
 		// 只展示前两个条件，如果有更多则添加省略号
@@ -260,13 +260,13 @@ export class CreateFileSettingTab extends PluginSettingTab {
 		let description = conditionDescriptions.join("; ");
 
 		if (remainingCount > 0) {
-			description += `; ...plus ${remainingCount} more conditions`;
+			description += `; ${t('plusMoreConditions', {count: remainingCount.toString()})}`;
 		}
 
 		return description +
-			" → Target folder: " + (rule.targetFolder || '(Default)') +
-			", Template: " + (rule.templatePath || '(None)') +
-			(rule.enabled ? '' : ' [Disabled]');
+			" → " + t('targetFolder') + ": " + (rule.targetFolder || t('defaultValue')) +
+			", " + t('useTemplate') + ": " + (rule.templatePath || t('noneValue')) +
+			(rule.enabled ? '' : ` [${t('disabled')}]`);
 	}
 
 	private createRulesSummary() {

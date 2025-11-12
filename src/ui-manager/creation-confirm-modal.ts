@@ -319,17 +319,16 @@ export class CreationConfirmModal extends Modal {
 		// 实时统计容器
 		const statsContainer = contentEl.createDiv({cls: 'ccmd-stats-container'});
 
-		// 统计项
+		// 统计项 - 直接保存统计容器的引用，避免查询不存在的元素
 		const createdStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-created-stat'});
-		createdStat.innerHTML = `<span class="ccmd-stat-icon">✅</span> ${t('successfullyCreated', {count: '0'})}`;
-
 		const skippedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-skipped-stat'});
-		skippedStat.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> ${t('skipped', {count: '0'})}`;
-
 		const failedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-failed-stat'});
-		failedStat.innerHTML = `<span class="ccmd-stat-icon">❌</span> ${t('failed', {count: '0'})}`;
-
 		const aliasesStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-aliases-stat'});
+
+		// 初始化统计项内容
+		createdStat.innerHTML = `<span class="ccmd-stat-icon">✅</span> ${t('successfullyCreated', {count: '0'})}`;
+		skippedStat.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> ${t('skipped', {count: '0'})}`;
+		failedStat.innerHTML = `<span class="ccmd-stat-icon">❌</span> ${t('failed', {count: '0'})}`;
 		aliasesStat.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> ${t('aliases', {count: '0'})}`;
 
 		this.progressElements = {
@@ -337,10 +336,10 @@ export class CreationConfirmModal extends Modal {
 			progressBar,
 			progressText,
 			stats: {
-				created: createdStat.querySelector('.ccmd-stat-value') as HTMLElement,
-				skipped: skippedStat.querySelector('.ccmd-stat-value') as HTMLElement,
-				failed: failedStat.querySelector('.ccmd-stat-value') as HTMLElement,
-				aliases: aliasesStat.querySelector('.ccmd-stat-value') as HTMLElement
+				created: createdStat,
+				skipped: skippedStat,
+				failed: failedStat,
+				aliases: aliasesStat
 			}
 		};
 	}
@@ -372,11 +371,11 @@ export class CreationConfirmModal extends Modal {
 		// 更新进度
 		this.progressElements.progressText.textContent = t('creatingFilesStatus', {current: current.toString(), total: total.toString()});
 
-		// 更新统计数据
-		this.progressElements.stats.created.textContent = result.created.toString();
-		this.progressElements.stats.skipped.textContent = result.skipped.toString();
-		this.progressElements.stats.failed.textContent = result.failed.toString();
-		this.progressElements.stats.aliases.textContent = result.aliasesAdded.toString();
+		// 更新统计数据 - 重新生成HTML内容
+		this.progressElements.stats.created.innerHTML = `<span class="ccmd-stat-icon">✅</span> ${t('successfullyCreated', {count: result.created.toString()})}`;
+		this.progressElements.stats.skipped.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> ${t('skipped', {count: result.skipped.toString()})}`;
+		this.progressElements.stats.failed.innerHTML = `<span class="ccmd-stat-icon">❌</span> ${t('failed', {count: result.failed.toString()})}`;
+		this.progressElements.stats.aliases.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> ${t('aliases', {count: result.aliasesAdded.toString()})}`;
 	}
 
 	/**
@@ -487,7 +486,7 @@ export class CreationConfirmModal extends Modal {
 		return html;
 	}
 
-	public setCloseCallback(callback: (result: CreationResult | null) => void): void {
+	public setResultCallback(callback: (result: CreationResult | null) => void): void {
 		this.onCloseCallback = callback;
 	}
 

@@ -174,14 +174,14 @@ export class RuleManagementModal extends CustomModal {
 			// 目标文件夹列
 			const targetCell = ruleRow.createEl('td', {cls: 'rule-target-cell'});
 			targetCell.createEl('div', {
-				text: rule.targetFolder || '(Default)',
+				text: rule.targetFolder || t('defaultValue'),
 				cls: 'ccmd-rule-target-text'
 			});
 
 			// 模板列
 			const templateCell = ruleRow.createEl('td', {cls: 'rule-template-cell'});
 			templateCell.createEl('div', {
-				text: rule.templatePath || '(无)',
+				text: rule.templatePath || t('noneValue'),
 				cls: 'ccmd-rule-template-text'
 			});
 

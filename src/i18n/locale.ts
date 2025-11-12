@@ -185,6 +185,11 @@ export const translations = {
 		exampleFolder: 'Example: folder1/folder2',
 		exampleTemplates: 'Example: templates',
 		newPathPlaceholder: 'New path...',
+
+		// Common values
+		defaultValue: '(Default)',
+		noneValue: '(None)',
+		plusMoreConditions: '...plus {count} more conditions',
 	},
 	'zh': {
 		// 命令名称
@@ -372,6 +377,11 @@ export const translations = {
 		exampleFolder: '示例: folder1/folder2',
 		exampleTemplates: '示例: templates',
 		newPathPlaceholder: '新路径...',
+
+		// 通用值
+		defaultValue: '(默认)',
+		noneValue: '(无)',
+		plusMoreConditions: '...还有 {count} 个条件',
 	}
 };
 

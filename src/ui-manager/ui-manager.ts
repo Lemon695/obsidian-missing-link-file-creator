@@ -91,7 +91,7 @@ export class UIManager {
 				}
 			});
 
-			modal.setCloseCallback((result) => {
+			modal.setResultCallback((result) => {
 				if (result) {
 					resolve(result);
 				} else {
