@@ -1,6 +1,10 @@
-import {App, TFile} from 'obsidian';
-import {log} from "../utils/log-utils";
+import { App, TFile } from "obsidian";
+import { log } from "@/utils/log-utils";
+import { TagContext } from "@/types/frontmatter";
 
+/**
+ * 标签建议接口
+ */
 export interface TagSuggestion {
 	tag: string;
 	confidence: number; // 0-1之间的置信度
@@ -23,10 +27,7 @@ export class TagHelper {
 	 * @param context 上下文信息(可选)
 	 * @returns 标签建议列表
 	 */
-	async suggestTags(content: string, filename: string, context?: {
-		sourcePath?: string; // 源文件路径(如果是从其他文件创建的链接)
-		frontmatter?: any;   // 前置元数据
-	}): Promise<TagSuggestion[]> {
+	async suggestTags(content: string, filename: string, context?: TagContext): Promise<TagSuggestion[]> {
 		await this.ensureTagCacheUpdated();
 
 		const suggestions: TagSuggestion[] = [];
@@ -76,7 +77,7 @@ export class TagHelper {
 							(match, existingTags) => {
 								const tagList = existingTags.split(',')
 									.map((t: string) => t.trim())
-									.filter((t: any) => t);
+									.filter((t: string) => t);
 
 								// 添加新标签(避免重复)
 								for (const tag of tags) {

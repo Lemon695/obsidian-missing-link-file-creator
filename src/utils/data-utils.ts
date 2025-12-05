@@ -111,22 +111,23 @@ function generate_jsdoc(
     return newDocFile
 }
 
-function generate_jsdoc_description(
-    summarySection: DocSection
-) : string {
-    try {
-        const description = summarySection.nodes.map((node: DocNode) => 
-            node.getChildNodes()
-                .filter((node: DocNode) => node instanceof DocPlainText)
-                .map((x: DocPlainText) => x.text)
-                .join("\n")
-        );
-    
-        return description.join("\n");   
-    } catch (error) {
-        console.error('Failed to parse sumamry section');
-        throw error;
-    }
+function isDocPlainText(node: DocNode): node is DocPlainText {
+	return node instanceof DocPlainText;
+}
+function generate_jsdoc_description(summarySection: DocSection): string {
+	try {
+		const description = summarySection.nodes.map((node: DocNode) =>
+			node.getChildNodes()
+				.filter(isDocPlainText)  // ✅ 类型自动收窄
+				.map(x => x.text)        // ✅ x 自动推断为 DocPlainText
+				.join("\n")
+		);
+
+		return description.join("\n");
+	} catch (error) {
+		console.error('Failed to parse summary section');
+		throw error;
+	}
 }
 
 function generate_jsdoc_return(

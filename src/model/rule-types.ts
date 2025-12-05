@@ -1,4 +1,4 @@
-import {ConditionOperator, MatchCondition} from "./condition-types";
+import { ConditionOperator, MatchCondition, ConditionMatchType } from "./condition-types";
 
 export enum RuleMatchType {
 	CONTAINS = "contains",       // 包含指定文本
@@ -37,27 +37,70 @@ export interface RuleMatchResult {
 	templateAliasHandling?: TemplateAliasHandling; // 模板别名处理方式
 }
 
-export function convertLegacyRule(rule: any): FileCreationRule {
-	if (rule.conditions) {
-		return rule as FileCreationRule;
+/**
+ * 旧版本规则格式（v1.0.x）
+ * 用于向后兼容
+ */
+interface LegacyRule {
+	id: string;
+	name: string;
+	enabled: boolean;
+	matchType: string;
+	pattern: string;
+	targetFolder: string;
+	templatePath: string;
+	priority: number;
+	description?: string;
+	templateAliasHandling?: TemplateAliasHandling;
+}
+
+/**
+ * 类型守卫：检查是否为新版规则
+ */
+function isModernRule(rule: unknown): rule is FileCreationRule {
+	return (
+		typeof rule === 'object' &&
+		rule !== null &&
+		'conditions' in rule &&
+		Array.isArray((rule as FileCreationRule).conditions)
+	);
+}
+
+/**
+ * 转换旧版规则到新版格式
+ * @param rule 旧版或新版规则
+ * @returns 新版规则格式
+ */
+export function convertLegacyRule(rule: LegacyRule | FileCreationRule): FileCreationRule {
+	// 如果已经是新版规则，直接返回
+	if (isModernRule(rule)) {
+		return rule;
 	}
 
-	// 旧版本规则转换
+	// 验证必需字段
+	const legacyRule = rule as LegacyRule;
+	if (!legacyRule.id || !legacyRule.name || !legacyRule.matchType) {
+		throw new Error(`Invalid legacy rule: missing required fields (id, name, or matchType)`);
+	}
+
+	// 转换为新版规则
 	const newRule: FileCreationRule = {
-		id: rule.id,
-		name: rule.name,
-		enabled: rule.enabled,
+		id: legacyRule.id,
+		name: legacyRule.name,
+		enabled: legacyRule.enabled ?? true,
 		conditions: [{
 			id: `cond-${Date.now()}`,
-			type: rule.matchType,
-			pattern: rule.pattern,
+			type: legacyRule.matchType as ConditionMatchType,
+			pattern: legacyRule.pattern || '',
 			operator: ConditionOperator.AND
 		}],
-		targetFolder: rule.targetFolder,
-		templatePath: rule.templatePath,
-		priority: rule.priority,
-		description: rule.description
+		targetFolder: legacyRule.targetFolder || '',
+		templatePath: legacyRule.templatePath || '',
+		priority: legacyRule.priority ?? 0,
+		description: legacyRule.description,
+		templateAliasHandling: legacyRule.templateAliasHandling
 	};
 
 	return newRule;
 }
+

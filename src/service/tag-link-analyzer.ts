@@ -1,5 +1,5 @@
 import {App, TFile} from 'obsidian';
-import {log} from "../utils/log-utils";
+import {log} from "@/utils/log-utils";
 
 export interface TagLinkAnalysisResult {
 	suggestedName: string;

@@ -1,5 +1,5 @@
 import { Logger, LogLevel, createLogger, log } from './log-utils';
-import {CreateFileSettings} from "../settings/settings";
+import {CreateFileSettings} from "@/settings/settings";
 
 /**
  * 将相对路径解析为绝对路径

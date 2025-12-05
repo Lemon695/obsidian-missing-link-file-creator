@@ -1,10 +1,10 @@
 import {App, Modal, Notice} from "obsidian";
 import {CreationConfirmModal} from "./creation-confirm-modal";
-import {CreationResult, FileToCreate} from "../model/file-types";
-import {TemplateAliasHandling} from "../model/rule-types";
-import {FileOperations} from "../utils/file-operations";
-import {CreateFileSettings} from "../settings/settings";
-import {t} from "../i18n/locale";
+import {CreationResult, FileToCreate} from "@/model/file-types";
+import {TemplateAliasHandling} from "@/model/rule-types";
+import {FileOperations} from "@/utils/file-operations";
+import {CreateFileSettings} from "@/settings/settings";
+import {t} from "@/i18n/locale";
 
 export class UIManager {
 	private app: App;

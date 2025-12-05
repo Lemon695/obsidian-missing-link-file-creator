@@ -1,17 +1,17 @@
 import {App, Modal, Setting, Notice, ButtonComponent} from 'obsidian';
-import {FileCreationRule, TemplateAliasHandling} from "../model/rule-types";
-import {ConditionMatchType, ConditionOperator, MatchCondition} from "../model/condition-types";
+import {FileCreationRule, TemplateAliasHandling} from "@/model/rule-types";
+import {ConditionMatchType, ConditionOperator, MatchCondition} from "@/model/condition-types";
 import CheckAndCreateMDFilePlugin from "../main";
-import {FolderSuggest} from "../settings/suggesters/folder-suggester";
-import {FileSuggest, FileSuggestMode} from "../settings/suggesters/file-suggester";
+import {FolderSuggest} from "@/settings/suggesters/folder-suggester";
+import {FileSuggest, FileSuggestMode} from "@/settings/suggesters/file-suggester";
 import GenericInputPrompt from "./generic-input-prompt";
 import {ConditionEditor} from "./condition-editor";
 import {TemplateSelectionModal} from "./template-selection-modal";
 import {CustomModal} from "./custom-modal";
-import {log} from "../utils/log-utils";
+import {log} from "@/utils/log-utils";
 import {RuleManagementModal} from './rule-management-modal';
-import {CreateFileSettingTab} from "../settings/settings";
-import {t} from "../i18n/locale";
+import {CreateFileSettingTab} from "@/settings/settings";
+import {t} from "@/i18n/locale";
 
 export class RuleEditModal extends CustomModal {
 	private rule: FileCreationRule;

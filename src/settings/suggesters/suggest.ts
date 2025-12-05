@@ -1,7 +1,8 @@
 // Credits go to Liam's Periodic Notes Plugin: https://github.com/liamcain/obsidian-periodic-notes
 
-import {App, ISuggestOwner, Scope} from "obsidian";
-import {createPopper, Instance as PopperInstance} from "@popperjs/core";
+import { App, ISuggestOwner, Scope } from "obsidian";
+import { createPopper, Instance as PopperInstance } from "@popperjs/core";
+import { DELAYS } from "@/constants/ui-constants";
 
 const wrapAround = (value: number, size: number): number => {
 	return ((value % size) + size) % size;
@@ -56,16 +57,16 @@ class Suggest<T> {
 		});
 	}
 
-	onSuggestionClick(event: MouseEvent, el: HTMLDivElement): void {
+	onSuggestionClick(event: MouseEvent, el: HTMLElement): void {
 		event.preventDefault();
 
-		const item = this.suggestions.indexOf(el);
+		const item = this.suggestions.indexOf(el as HTMLDivElement);
 		this.setSelectedItem(item, false);
 		this.useSelectedItem(event);
 	}
 
-	onSuggestionMouseover(_event: MouseEvent, el: HTMLDivElement): void {
-		const item = this.suggestions.indexOf(el);
+	onSuggestionMouseover(_event: MouseEvent, el: HTMLElement): void {
+		const item = this.suggestions.indexOf(el as HTMLDivElement);
 		this.setSelectedItem(item, false);
 	}
 
@@ -140,13 +141,13 @@ class Suggest<T> {
 				this.activeTooltip = tooltip;  // 跟踪活跃的工具提示
 
 				const rect = suggestionEl.getBoundingClientRect();
-				tooltip.style.top = `${rect.bottom + 8}px`;
-				tooltip.style.left = `${rect.left}px`;
+				tooltip.style.top = `${rect.bottom + 8} px`;
+				tooltip.style.left = `${rect.left} px`;
 
 				// 延迟显示避免闪烁
 				setTimeout(() => {
 					if (tooltip) tooltip.addClass('show');
-				}, 300);
+				}, DELAYS.TOOLTIP_SHOW_MS);
 			}
 		});
 
@@ -159,7 +160,7 @@ class Suggest<T> {
 						tooltip = null;
 						this.activeTooltip = null;  // 清除活跃的工具提示引用
 					}
-				}, 200);
+				}, DELAYS.TOOLTIP_HIDE_MS);
 			}
 		});
 	}
@@ -243,7 +244,7 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 				{
 					name: "sameWidth",
 					enabled: false, // 禁用sameWidth修饰符
-					fn: ({state, instance}) => {
+					fn: ({ state, instance }) => {
 						return;
 					},
 					phase: "beforeWrite",

@@ -1,10 +1,10 @@
 import {App, PluginSettingTab, Setting, TFolder} from 'obsidian'
-import {FileCreationRule} from "../model/rule-types";
+import {FileCreationRule} from "@/model/rule-types";
 import CheckAndCreateMDFilePlugin from "../main";
 import {FolderSuggest} from './suggesters/folder-suggester';
 import {log} from 'src/utils/log-utils';
-import {RuleManagementModal} from "../ui-manager/rule-management-modal";
-import {t} from "../i18n/locale";
+import {RuleManagementModal} from "@/ui-manager/rule-management-modal";
+import {t} from "@/i18n/locale";
 
 export interface CreateFileSettings {
 	createFileSetting: string;

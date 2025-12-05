@@ -1,6 +1,6 @@
 import {App, Modal, Setting, TFile, Notice} from 'obsidian';
-import {CreationModalParams, CreationResult, FileToCreate} from "../model/file-types";
-import {t} from "../i18n/locale";
+import {CreationModalParams, CreationResult, FileToCreate} from "@/model/file-types";
+import {t} from "@/i18n/locale";
 
 /**
  * 文件创建确认弹窗

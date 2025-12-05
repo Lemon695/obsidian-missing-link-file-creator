@@ -1,10 +1,10 @@
 import {App, ButtonComponent, Modal, Notice, Setting} from 'obsidian';
-import {FileCreationRule} from "../model/rule-types";
-import {ConditionMatchType, ConditionOperator} from "../model/condition-types";
+import {FileCreationRule} from "@/model/rule-types";
+import {ConditionMatchType, ConditionOperator} from "@/model/condition-types";
 import CheckAndCreateMDFilePlugin from "../main";
 import {RuleEditModal} from "./rule-edit-modal";
 import {CustomModal} from "./custom-modal";
-import {t} from "../i18n/locale";
+import {t} from "@/i18n/locale";
 
 export class RuleManagementModal extends CustomModal {
 	private plugin: CheckAndCreateMDFilePlugin;

@@ -1,7 +1,8 @@
-import {App, TFile, TFolder} from "obsidian";
-import {FileOperations} from "../utils/file-operations";
-import {log} from "../utils/log-utils";
-import {CreateFileSettings} from "../settings/settings";
+import { App, TFile, TFolder } from "obsidian";
+import { FileOperations } from "@/utils/file-operations";
+import { log } from "@/utils/log-utils";
+import { CreateFileSettings } from "@/settings/settings";
+import { CACHE_DURATIONS } from "@/constants/cache-constants";
 
 export class TemplaterService {
 	private app: App;
@@ -22,7 +23,6 @@ export class TemplaterService {
 	 * 检查Templater插件是否存在并启用
 	 */
 	hasTemplaterPlugin(): boolean {
-		// @ts-ignore - 使用插件API检查Templater
 		const hasTemplater = this.app.plugins.plugins["templater-obsidian"] !== undefined;
 		log.debug(`Templater plugin ${hasTemplater ? 'is installed' : 'is not installed'}`);
 		return hasTemplater;
@@ -62,11 +62,10 @@ export class TemplaterService {
 			log.debug(`Template content has been read, length: ${templateContent.length} characters`);
 
 			try {
-				// @ts-ignore - 访问Templater API
 				const templaterPlugin = this.app.plugins.plugins["templater-obsidian"];
 
 				// 使用Templater的overwrite_file_commands方法
-				if (templaterPlugin.templater.overwrite_file_commands) {
+				if (templaterPlugin && typeof (templaterPlugin as any).templater?.overwrite_file_commands === 'function') {
 
 					let targetFile = this.app.vault.getAbstractFileByPath(targetPath);
 					if (!targetFile) {
@@ -275,7 +274,7 @@ export class TemplaterService {
 							.toLowerCase();
 					case 'camelcase':
 						return value
-							.replace(/[\s-_]+(.)/g, (_: any, c: string) => c.toUpperCase())
+							.replace(/[\s-_]+(.)/g, (_match: string, c: string) => c.toUpperCase())
 							.replace(/^[A-Z]/, (c: string) => c.toLowerCase());
 					case 'titlecase':
 						return value.replace(/\b\w/g, (c: string) => c.toUpperCase());
@@ -360,9 +359,9 @@ export class TemplaterService {
 	 * 获取可用的模板列表
 	 */
 	getAvailableTemplates(): string[] {
-		// 如果缓存存在且未过期(3分钟内)，直接返回缓存
+		// 使用缓存减少文件系统访问
 		const now = Date.now();
-		if (this.templateListCache && (now - this.templateLastRefreshTime < 180000)) {
+		if (this.templateListCache && (now - this.templateLastRefreshTime < CACHE_DURATIONS.TEMPLATE_LIST_MS)) {
 			return this.templateListCache;
 		}
 
@@ -407,7 +406,7 @@ export class TemplaterService {
 	 * @returns 扩展后的变量对象
 	 */
 	private expandTemplateVariables(variables: Record<string, string>, targetPath: string): Record<string, string> {
-		const expanded = {...variables};
+		const expanded = { ...variables };
 
 		// 当前日期时间变量
 		const now = new Date();

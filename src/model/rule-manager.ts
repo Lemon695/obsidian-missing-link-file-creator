@@ -1,8 +1,9 @@
-import {App} from "obsidian";
-import {convertLegacyRule, FileCreationRule, RuleMatchResult, RuleMatchType} from "./rule-types";
-import {log} from "../utils/log-utils";
-import {ConditionMatchType, ConditionOperator, MatchCondition} from "./condition-types";
-import {CreateFileSettings} from "../settings/settings";
+import { App } from "obsidian";
+import { convertLegacyRule, FileCreationRule, RuleMatchResult, RuleMatchType } from "./rule-types";
+import { log } from "@/utils/log-utils";
+import { ConditionMatchType, ConditionOperator, MatchCondition } from "./condition-types";
+import { CreateFileSettings } from "@/settings/settings";
+import { ObsidianFrontmatter, RuleMatchContext } from "@/types/frontmatter";
 
 /**
  * 规则管理器 - 负责管理和应用文件创建规则
@@ -24,10 +25,21 @@ export class RuleManager {
 		}
 	}
 
-	matchRule(filename: string, context?: { frontmatter?: any, sourcePath?: string }): RuleMatchResult {
-		// 没有启用规则/规则列表为空——>返回False
-		if (!this.settings.useRules || !this.settings.rules || this.settings.rules.length === 0) {
-			return {matched: false};
+	matchRule(filename: string, context?: RuleMatchContext): RuleMatchResult {
+		// Guard Clause: 验证文件名
+		if (!filename || filename.trim() === '') {
+			log.warn('matchRule called with empty filename');
+			return { matched: false };
+		}
+
+		// Guard Clause: 检查规则是否启用
+		if (!this.settings.useRules) {
+			return { matched: false };
+		}
+
+		// Guard Clause: 检查规则列表
+		if (!this.settings.rules || this.settings.rules.length === 0) {
+			return { matched: false };
 		}
 
 		// 获取所有启用的规则——>"优先级"排序
@@ -35,8 +47,9 @@ export class RuleManager {
 			.filter(rule => rule.enabled)
 			.sort((a, b) => a.priority - b.priority);
 
+		// Guard Clause: 检查是否有启用的规则
 		if (activeRules.length === 0) {
-			return {matched: false};
+			return { matched: false };
 		}
 
 		for (const rule of activeRules) {
@@ -53,13 +66,10 @@ export class RuleManager {
 			}
 		}
 
-		return {matched: false};
+		return { matched: false };
 	}
 
-	private checkRuleMatch(filename: string, rule: FileCreationRule, context?: {
-		frontmatter?: any,
-		sourcePath?: string
-	}): boolean {
+	private checkRuleMatch(filename: string, rule: FileCreationRule, context?: RuleMatchContext): boolean {
 		if (!rule.conditions || rule.conditions.length === 0) return false;
 
 		try {
@@ -123,10 +133,7 @@ export class RuleManager {
 		}
 	}
 
-	private checkConditionMatch(filename: string, condition: MatchCondition, context?: {
-		frontmatter?: any,
-		sourcePath?: string
-	}): boolean {
+	private checkConditionMatch(filename: string, condition: MatchCondition, context?: RuleMatchContext): boolean {
 		// 如果是frontmatter匹配类型，但没有传入frontmatter上下文，则无法匹配
 		if (condition.type === ConditionMatchType.FRONTMATTER) {
 			if (!context || !context.frontmatter) {

@@ -1,14 +1,15 @@
-import {App, Notice, TAbstractFile, TFile, Vault} from 'obsidian';
-import {FileUtils} from './file-utils';
-import {log} from "./log-utils";
-import {resolveFilePath} from "./path-utils";
-import {UIManager} from "../ui-manager/ui-manager";
-import {RuleManager} from "../model/rule-manager";
-import {TemplateAliasHandling} from "../model/rule-types";
-import {TemplaterService} from "../service/templater-service";
-import {TagHelper} from "../service/tag-helper";
-import {CreateFileSettings} from "../settings/settings";
-import {t} from "../i18n/locale";
+import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
+import { FileUtils } from './file-utils';
+import { log } from "./log-utils";
+import { resolveFilePath } from "./path-utils";
+import { UIManager } from "../ui-manager/ui-manager";
+import { RuleManager } from "../model/rule-manager";
+import { TemplateAliasHandling } from "../model/rule-types";
+import { TemplaterService } from "../service/templater-service";
+import { TagHelper } from "../service/tag-helper";
+import { CreateFileSettings } from "../settings/settings";
+import { t } from "../i18n/locale";
+import { RuleMatchContext } from "../types/frontmatter";
 
 export interface FileOperationsOptions {
 	app: App;
@@ -163,7 +164,7 @@ export class FileOperations {
 			// 如果文件已存在，跳过
 			if (fileExists) {
 				log.debug(
-					() => t('skippingExistingFile', {path: key}));
+					() => t('skippingExistingFile', { path: key }));
 				continue;
 			}
 
@@ -182,7 +183,7 @@ export class FileOperations {
 				if (fileEntry) {
 					fileEntry.aliases.add(link.alias);
 					log.debug(
-						() => t('addedAlias', {alias: link.alias || '', file: key}));
+						() => t('addedAlias', { alias: link.alias || '', file: key }));
 				}
 			}
 		}
@@ -265,7 +266,7 @@ export class FileOperations {
 					targetPath = `${resolvedPath}/${fileName}.md`;
 
 					if (this.app.vault.getAbstractFileByPath(targetPath) instanceof TFile) {
-						log.debug(() => t('skippingExistingFileAtPath', {path: targetPath}));
+						log.debug(() => t('skippingExistingFileAtPath', { path: targetPath }));
 						continue;
 					}
 				} else {
@@ -280,7 +281,7 @@ export class FileOperations {
 
 					// 检查全局是否存在该文件
 					if (this.fileUtils.isFileExistsInVault(resolvedFilename)) {
-						log.debug(() => t('skippingExistingFileInVault', {file: resolvedFilename}));
+						log.debug(() => t('skippingExistingFileInVault', { file: resolvedFilename }));
 						continue;
 					}
 				}
@@ -301,7 +302,7 @@ export class FileOperations {
 						conflictResolution = "update_aliases";
 					} else {
 						// 已存在且无新别名 - 跳过
-						log.debug(() => t('skippingExistingFileNoAliases', {path: targetPath}));
+						log.debug(() => t('skippingExistingFileNoAliases', { path: targetPath }));
 						continue;
 					}
 				} else if (pathConflict) {
@@ -326,7 +327,7 @@ export class FileOperations {
 
 					targetPath = uniquePath;
 					conflictResolution = "renamed";
-					log.debug(() => t('renamedConflictingPath', {path: targetPath}));
+					log.debug(() => t('renamedConflictingPath', { path: targetPath }));
 				}
 			}
 
@@ -432,8 +433,8 @@ export class FileOperations {
 		} catch (error) {
 			// 出错时关闭加载通知
 			loadingNotice.hide();
-			console.error(t('errorProcessingFile', {message: error.message}), error);
-			new Notice(t('errorProcessingFile', {message: error.message}));
+			console.error(t('errorProcessingFile', { message: error.message }), error);
+			new Notice(t('errorProcessingFile', { message: error.message }));
 		}
 	}
 
@@ -520,8 +521,8 @@ export class FileOperations {
 		} catch (error) {
 			// 出错时关闭进度通知
 			progressNotice.hide();
-			console.error(t('errorProcessingFolder', {message: error.message}), error);
-			new Notice(t('errorProcessingFolder', {message: error.message}));
+			console.error(t('errorProcessingFolder', { message: error.message }), error);
+			new Notice(t('errorProcessingFolder', { message: error.message }));
 		}
 	}
 
@@ -597,8 +598,8 @@ export class FileOperations {
 		} catch (error) {
 			// 出错时关闭进度通知
 			progressNotice.hide();
-			console.error(t('errorScanningVault', {message: error.message}), error);
-			new Notice(t('errorScanningVault', {message: error.message}));
+			console.error(t('errorScanningVault', { message: error.message }), error);
+			new Notice(t('errorScanningVault', { message: error.message }));
 		}
 	}
 
@@ -646,9 +647,9 @@ export class FileOperations {
 	): Promise<{ success: boolean, message?: string }> {
 		try {
 			// 添加调试日志
-			log.debug(t('creatingFiles', {path: filePath}) + ', ' +
-					  t('usingTemplate', {path: templatePath || 'No Template'}) + ', ' +
-					  `Alias handling: ${templateAliasHandling || 'default'}`);
+			log.debug(t('creatingFiles', { path: filePath }) + ', ' +
+				t('usingTemplate', { path: templatePath || 'No Template' }) + ', ' +
+				`Alias handling: ${templateAliasHandling || 'default'}`);
 
 			// 提取文件路径的目录部分
 			const lastSlashIndex = filePath.lastIndexOf('/');
@@ -656,13 +657,13 @@ export class FileOperations {
 
 			// 确保目录存在
 			if (directory) {
-				log.debug(t('createDirectory', {path: directory}));
+				log.debug(t('createDirectory', { path: directory }));
 				try {
 					await this.ensureDirectoryExists(directory);
 				} catch (dirError) {
 					return {
 						success: false,
-						message: t('cannotCreateDirectory', {path: directory, message: dirError.message})
+						message: t('cannotCreateDirectory', { path: directory, message: dirError.message })
 					};
 				}
 			}
@@ -703,7 +704,7 @@ export class FileOperations {
 			let matchedRule;
 
 			if (this.settings.useTemplates && templatePath) {
-				log.debug(t('applyingTemplate', {template: templatePath, file: filePath}));
+				log.debug(t('applyingTemplate', { template: templatePath, file: filePath }));
 
 				try {
 					if (this.templaterService.hasTemplaterPlugin()) {
@@ -719,13 +720,13 @@ export class FileOperations {
 							);
 
 							if (processedContent) {
-								log.debug(t('fileProcessedWithTemplater', {path: filePath}));
+								log.debug(t('fileProcessedWithTemplater', { path: filePath }));
 								success = true;
 							} else {
 								log.debug(t('templaterReturnedEmptyContent'));
 							}
 						} catch (templaterError) {
-							log.error(t('templaterProcessingFailed', {message: templaterError.message}));
+							log.error(t('templaterProcessingFailed', { message: templaterError.message }));
 						}
 					}
 
@@ -733,7 +734,7 @@ export class FileOperations {
 						log.debug(t('processingWithBasicTemplate'));
 
 						const newFile = await this.app.vault.create(filePath, fileContent);
-						log.debug(t('initialFileCreated', {path: filePath}));
+						log.debug(t('initialFileCreated', { path: filePath }));
 
 						// 获取模板文件
 						const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
@@ -748,24 +749,24 @@ export class FileOperations {
 							if (targetFile && targetFile instanceof TFile) {
 								const mergedContent = this.templaterService.mergeFrontmatter(fileContent, processedContent);
 								await this.app.vault.modify(targetFile, mergedContent);
-								log.debug(t('fileContentUpdated', {path: filePath}));
+								log.debug(t('fileContentUpdated', { path: filePath }));
 								success = true;
 							}
 						} else {
-							log.error(t('templateFileNotFound', {path: templatePath}));
+							log.error(t('templateFileNotFound', { path: templatePath }));
 						}
 					}
 				} catch (templateError) {
-					log.error(t('failedToApplyTemplate', {message: templateError.message}));
+					log.error(t('failedToApplyTemplate', { message: templateError.message }));
 					return {
 						success: true,
-						message: t('fileCreatedTemplateApplyFailed', {message: templateError.message})
+						message: t('fileCreatedTemplateApplyFailed', { message: templateError.message })
 					};
 				}
 			} else {
 				// 没有使用模板，直接创建文件
 				await this.app.vault.create(filePath, fileContent);
-				log.debug(t('creatingFileNoTemplate', {path: filePath}));
+				log.debug(t('creatingFileNoTemplate', { path: filePath }));
 				success = true;
 			}
 
@@ -782,7 +783,7 @@ export class FileOperations {
 						const tagSuggestions = await this.tagHelper.suggestTags(
 							currentContent,
 							targetFile.basename,
-							{sourcePath: this.app.workspace.getActiveFile()?.path}
+							{ sourcePath: this.app.workspace.getActiveFile()?.path }
 						);
 
 						// 过滤高置信度的标签
@@ -800,7 +801,7 @@ export class FileOperations {
 							// 更新文件
 							if (updatedContent !== currentContent) {
 								await this.app.vault.modify(targetFile, updatedContent);
-								log.debug(t('autoAddedTags', {path: filePath, tags: suggestedTags.join(', ')}));
+								log.debug(t('autoAddedTags', { path: filePath, tags: suggestedTags.join(', ') }));
 							}
 						}
 					} catch (error) {
@@ -809,12 +810,12 @@ export class FileOperations {
 				}
 			}
 
-			return {success: true};
+			return { success: true };
 		} catch (error) {
 			console.error(t('failedToCreateFile') + `: ${filePath}`, error);
 			return {
 				success: false,
-				message: t('failedToCreateFileMessage', {message: error.message})
+				message: t('failedToCreateFileMessage', { message: error.message })
 			};
 		}
 	}
@@ -946,7 +947,7 @@ export class FileOperations {
 		const filesToUpdate = new Map<TFile, string>();
 
 		// 处理每个重命名对
-		for (const {oldPath, newPath} of renamePairs) {
+		for (const { oldPath, newPath } of renamePairs) {
 			try {
 				// 获取要重命名的文件
 				const file = this.app.vault.getAbstractFileByPath(oldPath);

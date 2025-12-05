@@ -1,7 +1,7 @@
 import {App, ButtonComponent, Setting} from "obsidian";
-import {ConditionMatchType, ConditionOperator, MatchCondition} from "../model/condition-types";
-import {FrontmatterValueSuggester} from "../settings/suggesters/frontmatter-value-suggester";
-import {FrontmatterPropertySuggester} from "../settings/suggesters/frontmatter-property-suggester";
+import {ConditionMatchType, ConditionOperator, MatchCondition} from "@/model/condition-types";
+import {FrontmatterValueSuggester} from "@/settings/suggesters/frontmatter-value-suggester";
+import {FrontmatterPropertySuggester} from "@/settings/suggesters/frontmatter-property-suggester";
 
 export class ConditionEditor {
 	private app: App;

@@ -1,5 +1,5 @@
 import {App, Modal, TFile} from "obsidian";
-import {SelectTemplateView} from "../view/select-template-view";
+import {SelectTemplateView} from "@/view/select-template-view";
 
 export class TemplateSelectionModal extends SelectTemplateView {
 	private templates: string[];
