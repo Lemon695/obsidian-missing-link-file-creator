@@ -1911,10 +1911,36 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 .ccmd-condition-content {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 8px;
+	/* Reduced gap */
 	padding: 8px 0;
 	position: relative;
 	width: 100%;
+}
+
+.rest-layout-container {
+	display: flex;
+	gap: 8px;
+	flex: 1;
+	align-items: center;
+	min-width: 0;
+}
+
+.ccmd-property-type-container,
+.ccmd-match-type-container {
+	flex: 0 0 110px !important;
+	min-width: 110px !important;
+}
+
+.property-name-container {
+	flex: 0 0 140px !important;
+	min-width: 0;
+}
+
+.value-container,
+.ccmd-pattern-container {
+	flex: 1;
+	min-width: 0;
 }
 
 /* 确保设置项内部布局正确 */
