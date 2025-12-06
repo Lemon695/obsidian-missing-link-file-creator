@@ -4,16 +4,18 @@ import { log } from "./log-utils";
 import { resolveFilePath } from "./path-utils";
 import { UIManager } from "../ui-manager/ui-manager";
 import { RuleManager } from "../model/rule-manager";
-import { TemplateAliasHandling } from "../model/rule-types";
+import { TemplateAliasHandling, RuleMatchResult } from "../model/rule-types";
 import { TemplaterService } from "../service/templater-service";
 import { TagHelper } from "../service/tag-helper";
 import { CreateFileSettings } from "../settings/settings";
 import { t } from "../i18n/locale";
 import { RuleMatchContext } from "../types/frontmatter";
+import { IgnoreListManager } from "../service/ignore-list-manager";
 
 export interface FileOperationsOptions {
 	app: App;
 	settings: CreateFileSettings;
+	ignoreListManager?: IgnoreListManager;
 }
 
 interface LinkInfo {
@@ -23,6 +25,18 @@ interface LinkInfo {
 	baseName?: string;
 	isEmbed?: boolean; //是否为嵌入类型
 	isMediaType?: boolean; //是否为媒体类型（图片、视频等）
+	sourcePath?: string; // 链接所在的源文件路径
+}
+
+export interface MissingLinkData {
+	filePath: string;            // The intended full path of the missing file
+	aliases: Set<string>;        // Collected aliases
+	sourceFiles: Set<string>;    // Paths of files referencing this link
+	occurrenceCount: number;     // Total times referenced
+	ruleMatch?: {                // Rule that determined the path (if any)
+		name: string;
+		templatePath?: string;
+	}
 }
 
 // 跟踪文件及其多个别名
@@ -42,6 +56,7 @@ export class FileOperations {
 	private ruleManager: RuleManager;
 	public pendingAliases: Map<string, string[]> = new Map();
 	private tagHelper: TagHelper;
+	public ignoreListManager?: IgnoreListManager;
 
 	constructor(options: FileOperationsOptions) {
 		this.app = options.app;
@@ -51,14 +66,23 @@ export class FileOperations {
 		this.templaterService = new TemplaterService(options.app, options.settings, this);
 		this.ruleManager = new RuleManager(options.app, options.settings);
 		this.tagHelper = new TagHelper(options.app);
+		this.ignoreListManager = options.ignoreListManager;
+	}
+
+	/**
+	 * Public method to match rules (for use by views)
+	 */
+	public matchRule(filename: string, context?: RuleMatchContext): RuleMatchResult {
+		return this.ruleManager.matchRule(filename, context);
 	}
 
 	/**
 	 * 提取文件中的 MD 链接，正确处理别名、路径和引用
 	 * @param content 文件内容
+	 * @param sourcePath 源文件路径（可选）
 	 * @returns 提取的链接信息数组
 	 */
-	extractMDLinks(content: string): LinkInfo[] {
+	extractMDLinks(content: string, sourcePath?: string): LinkInfo[] {
 		const regex = /!?\[\[((?:\\.|[^\[\]\|])+(?:\|(?:\\.|[^\[\]])+?)?)(?<!\\)]]/g;
 		const linkInfos: LinkInfo[] = [];
 		let match;
@@ -115,7 +139,8 @@ export class FileOperations {
 				filename: filename,
 				alias: alias,
 				isEmbed: isEmbed,
-				isMediaType: this.fileUtils.isMediaFile(filename)
+				isMediaType: this.fileUtils.isMediaFile(filename),
+				sourcePath: sourcePath
 			};
 
 			if (filename.includes('/')) {
@@ -373,6 +398,101 @@ export class FileOperations {
 	}
 
 	/**
+	 * Creates a single file from a link, applying all rules (folder, template).
+	 * This is used by the Side View to ensure consistency with batch operations.
+	 * @param link The raw link text (e.g. "Folder/Note" or "Note")
+	 * @param sourcePath The path of the file containing the link (for context)
+	 */
+	async createSingleFileFromLink(link: string, sourcePath?: string): Promise<{ success: boolean, message?: string, path?: string }> {
+		// 1. Parse Link
+		let filename = link;
+		let pathProp: string | undefined = undefined;
+		let baseName: string | undefined = undefined;
+
+		if (link.includes('/')) {
+			const lastSlashIndex = link.lastIndexOf('/');
+			pathProp = link.substring(0, lastSlashIndex);
+			baseName = link.substring(lastSlashIndex + 1);
+			filename = baseName;
+		} else {
+			baseName = link;
+		}
+
+		// 2. Resolve Relative Path (if needed) & Normalize
+		let resolvedFilename = this.resolveRelativePath(filename);
+		const ruleBaseName = baseName || resolvedFilename.split('/').pop() || resolvedFilename;
+
+		// 3. Match Rule
+		// We try to get context from source file if possible
+		let context: RuleMatchContext | undefined = undefined;
+		if (sourcePath) {
+			const sourceFile = this.app.vault.getAbstractFileByPath(sourcePath);
+			if (sourceFile instanceof TFile) {
+				const frontmatter = this.app.metadataCache.getFileCache(sourceFile)?.frontmatter;
+				context = { frontmatter, sourcePath };
+			}
+		}
+
+		const ruleMatch = this.ruleManager.matchRule(ruleBaseName, context);
+		let targetPath = '';
+		let templatePath = undefined;
+		let templateAliasHandling = undefined;
+
+		if (this.settings.useRules && ruleMatch.matched) {
+			templatePath = ruleMatch.templatePath;
+			templateAliasHandling = ruleMatch.templateAliasHandling;
+
+			if (ruleMatch.targetFolder) {
+				const folderPath = ruleMatch.targetFolder.replace(/^\/+|\/+$/g, '');
+				targetPath = folderPath
+					? `${folderPath}/${ruleBaseName}.md`
+					: `${ruleBaseName}.md`;
+			} else if (pathProp) {
+				const resolvedPath = this.resolveRelativePath(pathProp);
+				targetPath = `${resolvedPath}/${ruleBaseName}.md`;
+			} else {
+				let folderPath = this.settings.defaultFolderPath || '';
+				folderPath = folderPath.replace(/^\/+|\/+$/g, '');
+				targetPath = folderPath
+					? `${folderPath}/${resolvedFilename}.md`
+					: `${resolvedFilename}.md`;
+			}
+		} else {
+			// Default Logic
+			if (pathProp) {
+				const resolvedPath = this.resolveRelativePath(pathProp);
+				targetPath = `${resolvedPath}/${ruleBaseName}.md`;
+			} else {
+				let folderPath = this.settings.defaultFolderPath || '';
+				folderPath = folderPath.replace(/^\/+|\/+$/g, '');
+				targetPath = folderPath
+					? `${folderPath}/${resolvedFilename}.md`
+					: `${resolvedFilename}.md`;
+			}
+		}
+
+		targetPath = this.normalizeFilePath(targetPath);
+
+		// 4. Check Existence / Conflict
+		if (this.app.vault.getAbstractFileByPath(targetPath)) {
+			// If file exists, we can't create it. 
+			// In batch mode we might update aliases, but here "Create" implies making a new file.
+			// Return failure or just notify.
+			return { success: false, message: t('fileAlreadyExists', { file: targetPath }) };
+		}
+
+		// 5. Create
+		const result = await this.createFileWithMultipleAliases(
+			targetPath,
+			[],
+			templatePath,
+			templateAliasHandling
+		);
+
+		return { ...result, path: targetPath };
+	}
+
+	/**
 	 * 检查并创建MD文件，支持多个别名
 	 */
 	async checkAndCreateMDFiles(): Promise<void> {
@@ -529,10 +649,110 @@ export class FileOperations {
 	/**
 	 * 扫描整个 vault 并创建缺失的 MD 文件，支持多别名，带UI交互
 	 */
-	async checkAndCreateMDFilesInVault(): Promise<void> {
-		// 获取 vault 中的所有 markdown 文件
+	/**
+	 * 扫描整个 vault 中的缺失链接
+	 */
+	async scanVaultForMissingLinks(progressCallback?: (processed: number, total: number) => void): Promise<Map<string, MissingLinkData>> {
 		const files = this.app.vault.getMarkdownFiles();
+		const results = new Map<string, MissingLinkData>();
 
+		if (files.length === 0) return results;
+
+		let processedCount = 0;
+
+		// 临时存储所有 LinkInfo，用于后续处理
+		const allLinkInfos: LinkInfo[] = [];
+
+		for (const file of files) {
+			try {
+				const fileContent = await this.app.vault.read(file);
+				const fileLinks = this.extractMDLinks(fileContent, file.path);
+				allLinkInfos.push(...fileLinks);
+			} catch (error) {
+				console.error(`Error processing file ${file.path}:`, error);
+			}
+
+			processedCount++;
+			if (progressCallback) {
+				progressCallback(processedCount, files.length);
+			}
+		}
+
+		// 过滤掉媒体类型的链接和已存在的文件
+		const nonMediaLinks = allLinkInfos.filter(link => !link.isMediaType);
+
+		// 获取忽略列表 (Use Manager if available, else Settings legacy)
+		const ignoreList = this.ignoreListManager
+			? new Set(this.ignoreListManager.getIgnoreList())
+			: new Set(this.settings.ignoreList || []);
+
+		for (const link of nonMediaLinks) {
+			// 文件的完整路径 key
+			const key = link.path
+				? `${link.path}/${link.baseName || link.filename}`
+				: link.filename;
+
+			// 检查是否在忽略列表中
+			if (ignoreList.has(key) || ignoreList.has(link.filename)) {
+				continue;
+			}
+
+			// 检查文件是否已经存在
+			let fileExists = false;
+			if (link.path) {
+				fileExists = this.fileUtils.isFileExistsInVault(key, true);
+			} else {
+				fileExists = this.fileUtils.isFileExistsInVault(link.filename);
+			}
+
+			if (fileExists) continue;
+
+			// 计算目标路径和规则匹配
+			// 注意：这里我们需要重复 prepareFilesToCreate 中的部分逻辑来确定最终路径
+			// 但为了聚合数据，我们先基于 consolidated key 进行聚合
+
+			// 应用规则匹配逻辑以获取更准确的 key (如果需要)
+			// 这里简化处理，主要聚合源文件信息
+
+			if (!results.has(key)) {
+				// 初步计算预期路径，用于规则匹配
+				let resolvedFilename = this.resolveRelativePath(link.filename);
+				const baseFilename = link.baseName || resolvedFilename.split('/').pop() || resolvedFilename;
+				const ruleMatch = this.ruleManager.matchRule(baseFilename);
+
+				let ruleMatchInfo = undefined;
+				if (this.settings.useRules && ruleMatch.matched) {
+					ruleMatchInfo = {
+						name: ruleMatch.rule?.name || '',
+						templatePath: ruleMatch.templatePath
+					};
+				}
+
+				results.set(key, {
+					filePath: key, // 初始 key，后续可能在 prepare 阶段细化
+					aliases: new Set<string>(),
+					sourceFiles: new Set<string>(),
+					occurrenceCount: 0,
+					ruleMatch: ruleMatchInfo
+				});
+			}
+
+			const data = results.get(key);
+			if (data) {
+				if (link.alias) data.aliases.add(link.alias);
+				if (link.sourcePath) data.sourceFiles.add(link.sourcePath);
+				data.occurrenceCount++;
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * 扫描整个 vault 并创建缺失的 MD 文件，支持多别名，带UI交互
+	 */
+	async checkAndCreateMDFilesInVault(): Promise<void> {
+		const files = this.app.vault.getMarkdownFiles();
 		if (files.length === 0) {
 			new Notice(t('noMarkdownFilesFoundInVault'));
 			return;
@@ -546,34 +766,50 @@ export class FileOperations {
 		);
 
 		try {
-			// 收集所有文件中的链接
-			const allLinks: LinkInfo[] = [];
-			let processedCount = 0;
-
-			for (const file of files) {
-				try {
-					const fileContent = await this.app.vault.read(file);
-					const fileLinks = this.extractMDLinks(fileContent);
-					allLinks.push(...fileLinks);
-				} catch (error) {
-					console.error(`Error processing file ${file.path}:`, error);
-				}
-
-				// 更新进度
-				processedCount++;
+			// 使用新的扫描方法获取缺失链接数据
+			const missingLinksMap = await this.scanVaultForMissingLinks((processed, total) => {
 				this.uiManager.updateProgressNotice(
 					progressNotice,
 					t('scanningVault'),
-					processedCount,
-					files.length
+					processed,
+					total
 				);
-			}
+			});
+
+			this.uiManager.updateProgressNotice(progressNotice, t('scanningVault'), files.length, files.length);
 
 			// 关闭进度通知
 			progressNotice.hide();
 
-			// 合并文件的多个别名
-			const fileMap = this.consolidateFileAliases(allLinks);
+			if (missingLinksMap.size === 0) {
+				new Notice(t('noLinkableFilesFoundInEntireVault'));
+				return;
+			}
+
+			// 将 Map<string, MissingLinkData> 转换为 Map<string, FileWithAliases>
+			// 以适配现有的 prepareFilesToCreate 方法
+			const fileMap = new Map<string, FileWithAliases>();
+
+			for (const [key, data] of missingLinksMap.entries()) {
+				// 从 key 中解析 path 和 filename
+				let path: string | undefined = undefined;
+				let filename = data.filePath;
+				let baseName: string | undefined = undefined;
+
+				if (data.filePath.includes('/')) {
+					const lastSlashIndex = data.filePath.lastIndexOf('/');
+					path = data.filePath.substring(0, lastSlashIndex);
+					baseName = data.filePath.substring(lastSlashIndex + 1);
+					filename = baseName; // filename 通常指不带路径的名称
+				}
+
+				fileMap.set(key, {
+					filename: filename,
+					path: path,
+					baseName: baseName,
+					aliases: data.aliases
+				});
+			}
 
 			// 待创建的文件列表
 			const filesToCreate = this.prepareFilesToCreate(fileMap);
@@ -1002,5 +1238,60 @@ export class FileOperations {
 		return result;
 	}
 
+	/**
+	 * 扫描整个 vault 中的缺失链接
+	 */
+
+
+	/**
+	 * 添加到忽略列表
+	 * @param path 要忽略的路径或文件名
+	 */
+	async addToIgnoreList(path: string): Promise<void> {
+		if (this.ignoreListManager) {
+			await this.ignoreListManager.add(path);
+			return;
+		}
+
+		// Legacy fallback
+		const plugin = (this.app as any).plugins.getPlugin('obsidian-missing-link-file-creator') as any;
+		if (!plugin) return;
+
+		if (!plugin.settings.ignoreList) {
+			plugin.settings.ignoreList = [];
+		}
+
+		if (!plugin.settings.ignoreList.includes(path)) {
+			plugin.settings.ignoreList.push(path);
+			await plugin.saveSettings();
+			// Update local reference just in case
+			this.settings.ignoreList = plugin.settings.ignoreList;
+			log.debug(`Added to ignore list: ${path}`);
+		}
+	}
+
+	/**
+	 * 从忽略列表中移除
+	 * @param path 要移除的路径或文件名
+	 */
+	async removeFromIgnoreList(path: string): Promise<void> {
+		if (this.ignoreListManager) {
+			await this.ignoreListManager.remove(path);
+			return;
+		}
+
+		// Legacy Legacy
+		const plugin = (this.app as any).plugins.getPlugin('obsidian-missing-link-file-creator') as any;
+		if (!plugin || !plugin.settings.ignoreList) return;
+
+		const index = plugin.settings.ignoreList.indexOf(path);
+		if (index !== -1) {
+			plugin.settings.ignoreList.splice(index, 1);
+			await plugin.saveSettings();
+			// Update local reference
+			this.settings.ignoreList = plugin.settings.ignoreList;
+			log.debug(`Removed from ignore list: ${path}`);
+		}
+	}
 }
 

@@ -1,10 +1,10 @@
-import {App, PluginSettingTab, Setting, TFolder} from 'obsidian'
-import {FileCreationRule} from "@/model/rule-types";
+import { App, PluginSettingTab, Setting, TFolder } from 'obsidian'
+import { FileCreationRule } from "@/model/rule-types";
 import CheckAndCreateMDFilePlugin from "../main";
-import {FolderSuggest} from './suggesters/folder-suggester';
-import {log} from 'src/utils/log-utils';
-import {RuleManagementModal} from "@/ui-manager/rule-management-modal";
-import {t} from "@/i18n/locale";
+import { FolderSuggest } from './suggesters/folder-suggester';
+import { log } from 'src/utils/log-utils';
+import { RuleManagementModal } from "@/ui-manager/rule-management-modal";
+import { t } from "@/i18n/locale";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
@@ -29,6 +29,9 @@ export interface CreateFileSettings {
 
 	// Developer options
 	debugMode: boolean;
+
+	// 忽略列表
+	ignoreList: string[];
 }
 
 export const DEFAULT_SETTINGS: CreateFileSettings = {
@@ -54,6 +57,9 @@ export const DEFAULT_SETTINGS: CreateFileSettings = {
 
 	// Developer options
 	debugMode: false,
+
+	// 忽略列表
+	ignoreList: []
 }
 
 export class CreateFileSettingTab extends PluginSettingTab {
@@ -70,7 +76,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 		containerEl.empty();
 
 		// 添加新增文件通知设置
@@ -139,7 +145,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		containerEl.createEl('h3', {text: t('rulesManagement')});
+		containerEl.createEl('h3', { text: t('rulesManagement') });
 
 		new Setting(containerEl)
 			.setName(t('enableRules'))
@@ -260,7 +266,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 		let description = conditionDescriptions.join("; ");
 
 		if (remainingCount > 0) {
-			description += `; ${t('plusMoreConditions', {count: remainingCount.toString()})}`;
+			description += `; ${t('plusMoreConditions', { count: remainingCount.toString() })}`;
 		}
 
 		return description +
@@ -276,15 +282,15 @@ export class CreateFileSettingTab extends PluginSettingTab {
 		this.rulesInfoContainer.empty();
 
 		if (this.plugin.settings.rules && this.plugin.settings.rules.length > 0) {
-			const rulesInfo = this.rulesInfoContainer.createDiv({cls: 'rules-info'});
+			const rulesInfo = this.rulesInfoContainer.createDiv({ cls: 'rules-info' });
 			rulesInfo.createEl('p', {
-				text: t('rulesConfigured', {count: this.plugin.settings.rules.length.toString()}),
+				text: t('rulesConfigured', { count: this.plugin.settings.rules.length.toString() }),
 				cls: 'rules-count'
 			});
 
 			// 显示前3条规则摘要
 			const previewCount = Math.min(this.plugin.settings.rules.length, 3);
-			const rulesList = rulesInfo.createEl('ul', {cls: 'rules-preview'});
+			const rulesList = rulesInfo.createEl('ul', { cls: 'rules-preview' });
 
 			for (let i = 0; i < previewCount; i++) {
 				const rule = this.plugin.settings.rules[i];
@@ -294,7 +300,7 @@ export class CreateFileSettingTab extends PluginSettingTab {
 
 			if (this.plugin.settings.rules.length > 3) {
 				rulesInfo.createEl('p', {
-					text: t('andMoreRules', {count: (this.plugin.settings.rules.length - 3).toString()}),
+					text: t('andMoreRules', { count: (this.plugin.settings.rules.length - 3).toString() }),
 					cls: 'rules-more'
 				});
 			}
