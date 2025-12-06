@@ -1,8 +1,46 @@
+/* ===== CSS 变量定义 ===== */
+:root {
+	/* 主题色 */
+	--ccmd-primary: #4a8eff;
+	--ccmd-primary-hover: #3a7eef;
+	--ccmd-primary-light: rgba(74, 142, 255, 0.1);
+	--ccmd-primary-rgb: 74, 142, 255;
+
+	/* 间距系统 (基于 8px) */
+	--ccmd-space-1: 4px;
+	--ccmd-space-2: 8px;
+	--ccmd-space-3: 12px;
+	--ccmd-space-4: 16px;
+	--ccmd-space-5: 20px;
+	--ccmd-space-6: 24px;
+	--ccmd-space-8: 32px;
+	--ccmd-space-10: 40px;
+
+	/* 圆角 */
+	--ccmd-radius-sm: 4px;
+	--ccmd-radius-md: 6px;
+	--ccmd-radius-lg: 8px;
+
+	/* 阴影 */
+	--ccmd-shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+	--ccmd-shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
+	--ccmd-shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+	/* 状态色 */
+	--ccmd-success: #4caf50;
+	--ccmd-warning: #ff9800;
+	--ccmd-error: #f44336;
+	--ccmd-info: #2196f3;
+}
+
+/* ===== 文件创建确认模态框 ===== */
+
+/* 1. 容器和布局 */
 /* 模态框容器样式 */
 .ccmd-creation-confirm-modal {
 	width: 100% !important;
 	box-sizing: border-box !important;
-	padding: 20px !important;
+	padding: var(--ccmd-space-5) !important;
 	overflow: visible !important;
 }
 
@@ -17,6 +55,7 @@
 	margin: 0 auto !important;
 }
 
+/* 2. 表格样式 */
 /* 设置表格列宽 */
 .ccmd-creation-confirm-modal .ccmd-file-table .ccmd-select-column {
 	width: 40px;
@@ -30,6 +69,7 @@
 	width: 45%;
 }
 
+/* 3. 复选框样式 */
 /* 改进复选框样式 */
 .ccmd-creation-confirm-modal input[type="checkbox"] {
 	transition: all 0.2s ease-in-out !important;
@@ -44,22 +84,22 @@
 
 /* 复选框悬停状态 */
 .ccmd-creation-confirm-modal input[type="checkbox"]:hover {
-	border-color: #4a8eff !important;
-	box-shadow: 0 0 0 2px rgba(74, 142, 255, 0.2) !important;
+	border-color: var(--ccmd-primary) !important;
+	box-shadow: 0 0 0 2px var(--ccmd-primary-light) !important;
 }
 
 /* 选中+悬停状态 */
 .ccmd-creation-confirm-modal input[type="checkbox"]:checked:hover {
-	background-color: #3a7eef !important; /* 稍微深一点的蓝色 */
-	box-shadow: 0 0 0 2px rgba(74, 142, 255, 0.3) !important;
+	background-color: var(--ccmd-primary-hover) !important;
+	box-shadow: 0 0 0 2px rgba(var(--ccmd-primary-rgb), 0.3) !important;
 }
 
 /* 复选框选中状态 */
 .ccmd-creation-confirm-modal input[type="checkbox"]:checked {
-	background-color: #4a8eff !important;
-	border-color: #4a8eff !important;
+	background-color: var(--ccmd-primary) !important;
+	border-color: var(--ccmd-primary) !important;
 	box-shadow: none !important;
-	border-radius: 50% !important; /* 使复选框呈现为圆形 */
+	border-radius: 50% !important;
 }
 
 .ccmd-creation-confirm-modal input[type="checkbox"]:checked::after,
@@ -80,7 +120,7 @@
 }
 
 .ccmd-creation-confirm-modal thead th.ccmd-select-column input[type="checkbox"]:checked {
-	background-color: #4a8eff !important;
+	background-color: var(--ccmd-primary) !important;
 	border-radius: 50% !important;
 }
 
@@ -107,7 +147,7 @@
 	max-height: 430px !important;
 	overflow-y: auto !important;
 	margin: 15px 0;
-	border-radius: 5px;
+	border-radius: var(--ccmd-radius-md);
 	border: 1px solid var(--background-modifier-border);
 }
 
@@ -117,14 +157,14 @@
 	width: 100% !important;
 }
 
-/* 确保单元格内容不溢出 */
+/* 确保单元格内容不溢出 - 使用省略号 */
 .ccmd-file-table td {
-	overflow-x: auto !important; /* 改为自动水平滚动 */
-	overflow-y: hidden !important;
-	text-overflow: clip !important; /* 不使用省略号 */
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
 	white-space: nowrap !important;
-	max-width: 0 !important; /* 重要：强制单元格考虑内容宽度 */
-	padding: 8px !important;
+	max-width: 0 !important;
+	padding: var(--ccmd-space-2) !important;
+	position: relative !important;
 }
 
 .ccmd-file-table th {
@@ -135,18 +175,42 @@
 	font-weight: bold;
 }
 
-/* 确保鼠标悬停时显示滚动条 */
+/* 鼠标悬停时显示完整内容 */
 .ccmd-file-table td:hover {
-	overflow-x: auto !important;
+	overflow: visible !important;
+	white-space: normal !important;
+	z-index: 10 !important;
+	background-color: var(--background-primary) !important;
+	box-shadow: var(--ccmd-shadow-md) !important;
+	padding: var(--ccmd-space-2) !important;
+	border-radius: var(--ccmd-radius-sm) !important;
 }
 
-/* 美化滚动条样式 */
-.ccmd-file-table td::-webkit-scrollbar {
-	height: 4px !important;
+/* 美化滚动条样式 - 已移除，使用 hover tooltip 代替 */
+/* 悬停时显示完整内容的 tooltip 效果 */
+.ccmd-file-table td[title]:hover::after {
+	content: attr(title);
+	position: absolute;
+	left: 0;
+	top: 100%;
+	margin-top: var(--ccmd-space-1);
+	padding: var(--ccmd-space-2) var(--ccmd-space-3);
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--ccmd-radius-sm);
+	box-shadow: var(--ccmd-shadow-md);
+	z-index: 1000;
+	white-space: normal;
+	max-width: 400px;
+	word-break: break-word;
+	font-size: 13px;
+	line-height: 1.4;
+	pointer-events: none;
 }
 
 .ccmd-file-table td::-webkit-scrollbar-thumb {
-	background-color: rgba(74, 142, 255, 0.5) !important;
+	background-color: rgba(var(--ccmd-primary-rgb), 0.5) !important;
 	border-radius: 2px !important;
 }
 
@@ -154,11 +218,13 @@
 	background-color: var(--background-secondary) !important;
 }
 
-/* 让路径单元格也保持水平滚动 */
+/* 路径单元格特殊处理 - 支持长路径显示 */
 .ccmd-path-cell {
-	word-break: normal !important; /* 覆盖之前的 break-all 设置 */
-	white-space: nowrap !important; /* 覆盖之前的 normal 设置 */
-	overflow-x: auto !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	white-space: nowrap !important;
+	word-break: keep-all !important;
+	min-width: 100px !important;
 }
 
 .ccmd-aliases-cell-container::-webkit-scrollbar {
@@ -166,7 +232,7 @@
 }
 
 .ccmd-aliases-cell-container::-webkit-scrollbar-thumb {
-	background-color: rgba(74, 142, 255, 0.5) !important;
+	background-color: rgba(var(--ccmd-primary-rgb), 0.5) !important;
 	border-radius: 2px !important;
 }
 
@@ -181,17 +247,18 @@
 	display: block !important;
 }
 
+/* 4. 按钮样式 */
 /* 按钮样式增强 */
 .ccmd-creation-confirm-modal .ccmd-button-container {
 	display: flex !important;
 	justify-content: flex-end !important;
-	gap: 12px !important;
-	margin-top: 20px !important;
+	gap: var(--ccmd-space-3) !important;
+	margin-top: var(--ccmd-space-5) !important;
 }
 
 .ccmd-creation-confirm-modal .ccmd-button-container button {
-	padding: 8px 16px !important;
-	border-radius: 4px !important;
+	padding: var(--ccmd-space-2) var(--ccmd-space-4) !important;
+	border-radius: var(--ccmd-radius-sm) !important;
 	font-size: 14px !important;
 	font-weight: 500 !important;
 	transition: all 0.2s ease !important;
@@ -212,14 +279,14 @@
 
 /* 确认按钮样式 */
 .ccmd-creation-confirm-modal .ccmd-button-container button.mod-cta {
-	background-color: #4a8eff !important;
+	background-color: var(--ccmd-primary) !important;
 	color: white !important;
 	border: none !important;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+	box-shadow: var(--ccmd-shadow-sm) !important;
 }
 
 .ccmd-creation-confirm-modal .ccmd-button-container button.mod-cta:hover {
-	background-color: #3a7eef !important;
+	background-color: var(--ccmd-primary-hover) !important;
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
 	transform: translateY(-1px) !important;
 }
@@ -236,6 +303,7 @@
 	pointer-events: none !important;
 }
 
+/* 5. 分页控件 */
 /* 调整分页按钮位置 */
 .ccmd-pagination-container {
 	margin-top: 15px !important;
@@ -244,12 +312,13 @@
 	border-top: 1px solid var(--background-modifier-border) !important;
 }
 
+/* 6. 进度指示器 */
 /* 改进进度指示器样式 */
 .ccmd-progress-container {
-	margin: 20px 0 !important;
+	margin: var(--ccmd-space-5) 0 !important;
 	padding: 15px !important;
 	background-color: var(--background-secondary) !important;
-	border-radius: 6px !important;
+	border-radius: var(--ccmd-radius-md) !important;
 	border: 1px solid var(--background-modifier-border) !important;
 }
 
@@ -258,21 +327,23 @@
 	left: 0 !important;
 	top: 0 !important;
 	height: 100% !important;
-	background-color: #4a8eff !important;
-	background-image: linear-gradient(90deg, #4a8eff, #5c9dff) !important;
-	border-radius: 6px !important;
+	background-color: var(--ccmd-primary) !important;
+	background-image: linear-gradient(90deg, var(--ccmd-primary), #5c9dff) !important;
+	border-radius: var(--ccmd-radius-md) !important;
 	z-index: 5 !important;
 	transition: width 0.3s ease !important;
-	transform: none !important; /* 防止变形 */
+	transform: none !important;
+	/* 防止变形 */
 }
 
+/* 7. 结果容器 */
 /* 结果容器样式优化 */
 .ccmd-result-container {
 	background-color: var(--background-secondary) !important;
-	border-radius: 8px !important;
-	padding: 20px !important;
-	margin-top: 20px !important;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+	border-radius: var(--ccmd-radius-lg) !important;
+	padding: var(--ccmd-space-5) !important;
+	margin-top: var(--ccmd-space-5) !important;
+	box-shadow: var(--ccmd-shadow-md) !important;
 }
 
 .ccmd-result-summary {
@@ -280,29 +351,29 @@
 	line-height: 1.6 !important;
 }
 
-.ccmd-result-summary > div {
+.ccmd-result-summary>div {
 	margin-bottom: 8px !important;
 	padding-left: 28px !important;
 	position: relative !important;
 }
 
-.ccmd-result-summary > div:last-child {
+.ccmd-result-summary>div:last-child {
 	margin-bottom: 0 !important;
 }
 
 .ccmd-result-close-button {
-	background-color: #4a8eff !important;
+	background-color: var(--ccmd-primary) !important;
 	color: white !important;
-	padding: 8px 16px !important;
-	border-radius: 4px !important;
+	padding: var(--ccmd-space-2) var(--ccmd-space-4) !important;
+	border-radius: var(--ccmd-radius-sm) !important;
 	font-weight: 500 !important;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+	box-shadow: var(--ccmd-shadow-sm) !important;
 	margin-top: 15px !important;
 	transition: all 0.2s ease !important;
 }
 
 .ccmd-result-close-button:hover {
-	background-color: #3a7eef !important;
+	background-color: var(--ccmd-primary-hover) !important;
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
 	transform: translateY(-1px) !important;
 }
@@ -310,13 +381,13 @@
 /* 进度页面容器 */
 .ccmd-progress-page-container {
 	background-color: var(--background-secondary) !important;
-	border-radius: 8px !important;
+	border-radius: var(--ccmd-radius-lg) !important;
 	padding: 25px !important;
-	margin: 20px 0 !important;
+	margin: var(--ccmd-space-5) 0 !important;
 	display: flex !important;
 	flex-direction: column !important;
 	align-items: center !important;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+	box-shadow: var(--ccmd-shadow-md) !important;
 }
 
 /* 百分比显示 */
@@ -324,7 +395,7 @@
 	font-size: 48px !important;
 	font-weight: bold !important;
 	margin-bottom: 15px !important;
-	color: #4a8eff !important;
+	color: var(--ccmd-primary) !important;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -333,9 +404,9 @@
 	width: 100% !important;
 	height: 12px !important;
 	margin-bottom: 10px !important;
-	background: transparent !important; /* 移除背景色 */
-	overflow: visible !important; /* 允许内容溢出 */
-	border-radius: 6px !important;
+	background: transparent !important;
+	overflow: visible !important;
+	border-radius: var(--ccmd-radius-md) !important;
 }
 
 .ccmd-progress-bar-background {
@@ -345,7 +416,7 @@
 	width: 100% !important;
 	height: 100% !important;
 	background-color: var(--background-primary) !important;
-	border-radius: 6px !important;
+	border-radius: var(--ccmd-radius-md) !important;
 	z-index: 1 !important;
 }
 
@@ -361,7 +432,7 @@
 .ccmd-stats-container {
 	display: grid !important;
 	grid-template-columns: 1fr 1fr !important;
-	gap: 20px !important;
+	gap: var(--ccmd-space-5) !important;
 	margin-top: 30px !important;
 	width: 100% !important;
 }
@@ -369,35 +440,35 @@
 /* 统计项 */
 .ccmd-stat-item {
 	background-color: var(--background-primary) !important;
-	border-radius: 6px !important;
+	border-radius: var(--ccmd-radius-md) !important;
 	padding: 15px !important;
 	display: flex !important;
 	align-items: center !important;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+	box-shadow: var(--ccmd-shadow-sm) !important;
 	transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-	border-left: 4px solid transparent !important;
+	border-left: var(--ccmd-space-1) solid transparent !important;
 }
 
 .ccmd-stat-item:hover {
 	transform: translateY(-2px) !important;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+	box-shadow: var(--ccmd-shadow-md) !important;
 }
 
 /* 各类统计项的边框颜色 */
 .ccmd-created-stat {
-	border-left-color: #4caf50 !important; /* 绿色 */
+	border-left-color: var(--ccmd-success) !important;
 }
 
 .ccmd-skipped-stat {
-	border-left-color: #ff9800 !important; /* 橙色 */
+	border-left-color: var(--ccmd-warning) !important;
 }
 
 .ccmd-failed-stat {
-	border-left-color: #f44336 !important; /* 红色 */
+	border-left-color: var(--ccmd-error) !important;
 }
 
 .ccmd-aliases-stat {
-	border-left-color: #2196f3 !important; /* 蓝色 */
+	border-left-color: var(--ccmd-info) !important;
 }
 
 /* 统计图标 */
@@ -416,6 +487,8 @@
 	margin-left: 5px !important;
 }
 
+/* ===== 响应式样式 ===== */
+
 /* 响应式布局调整 */
 @media (max-width: 600px) {
 	.ccmd-stats-container {
@@ -429,6 +502,7 @@
 
 /* 移动设备适配 - iPhone 12 Pro Max及其他手机设备 */
 @media (max-width: 428px) {
+
 	/* 模态框容器调整 */
 	.ccmd-file-creation-modal-container {
 		width: 95vw !important;
@@ -454,7 +528,8 @@
 	}
 
 	.ccmd-file-table {
-		min-width: 600px !important; /* 确保表格有最小宽度，强制出现横向滚动 */
+		min-width: 600px !important;
+		/* 确保表格有最小宽度，强制出现横向滚动 */
 	}
 
 	.ccmd-file-table th {
@@ -525,8 +600,10 @@
 
 	.ccmd-creation-confirm-modal .ccmd-button-container button {
 		padding: 10px 14px !important;
-		font-size: 15px !important; /* 增大字体便于触摸 */
-		width: 100% !important; /* 按钮占满容器宽度 */
+		font-size: 15px !important;
+		/* 增大字体便于触摸 */
+		width: 100% !important;
+		/* 按钮占满容器宽度 */
 	}
 
 	/* 分页控件调整 */
@@ -613,6 +690,7 @@
 
 /* 触屏设备通用优化 */
 @media (pointer: coarse) {
+
 	/* 增大点击区域 */
 	.ccmd-creation-confirm-modal input[type="checkbox"] {
 		width: 22px !important;
@@ -647,7 +725,7 @@
 
 /* 暗色模式下的对比度优化 - 适用于所有设备 */
 .theme-dark .ccmd-progress-bar {
-	background-image: linear-gradient(90deg, #5c9dff, #3a7eef) !important;
+	background-image: linear-gradient(90deg, #5c9dff, var(--ccmd-primary-hover)) !important;
 }
 
 .theme-dark .ccmd-stat-item {
@@ -665,41 +743,50 @@
 .ccmd-folder-select-input-wrapper {
 	display: flex;
 	align-items: center;
-	border: 1px solid #d1d5db; /* 更细腻的边框颜色 */
-	border-radius: 6px; /* 更方正的边角 */
+	border: 1px solid #d1d5db;
+	border-radius: var(--ccmd-radius-md);
 	background-color: var(--background-primary);
 	overflow: hidden;
-	padding: 5px 10px; /* 适中的内边距 */
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 更微妙的阴影 */
-	transition: all 0.2s ease; /* 平滑过渡效果 */
+	padding: 5px 10px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	transition: all 0.2s ease;
+	/* 平滑过渡效果 */
 }
 
 .ccmd-folder-select-icon {
-	color: #6b7280; /* 更柔和的图标颜色 */
+	color: #6b7280;
+	/* 更柔和的图标颜色 */
 	margin-right: 8px;
-	font-size: 15px; /* 稍微小一点的图标 */
-	opacity: 0.8; /* 轻微透明度 */
+	font-size: 15px;
+	/* 稍微小一点的图标 */
+	opacity: 0.8;
+	/* 轻微透明度 */
 }
 
 .ccmd-folder-select-input {
 	flex: 1;
-	padding: 4px 0; /* 减少垂直内边距 */
+	padding: 4px 0;
+	/* 减少垂直内边距 */
 	border: none;
 	outline: none;
 	background-color: transparent;
-	color: #374151; /* 更鲜明的文字颜色 */
+	color: #374151;
+	/* 更鲜明的文字颜色 */
 	font-size: 14px;
 }
 
 .ccmd-folder-select-input-wrapper:focus-within {
-	border-color: #3b82f6; /* 蓝色聚焦边框 */
-	box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2); /* 更细腻的焦点阴影 */
+	border-color: #3b82f6;
+	/* 蓝色聚焦边框 */
+	box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+	/* 更细腻的焦点阴影 */
 	background-color: white;
 }
 
 /* 悬浮状态效果 */
 .ccmd-folder-select-input-wrapper:hover:not(:focus-within) {
-	border-color: #9ca3af; /* 悬浮时边框稍微深一点 */
+	border-color: #9ca3af;
+	/* 悬浮时边框稍微深一点 */
 }
 
 /* 添加清除按钮样式 */
@@ -721,16 +808,16 @@
 }
 
 .ccmd-folder-select-dropdown {
-	border-radius: 6px; /* 匹配输入框的圆角 */
+	border-radius: var(--ccmd-radius-md);
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	border: 1px solid #e5e7eb;
 	margin-top: 2px;
-	max-height: 200px !important; /* 固定最大高度 */
-	overflow-y: auto !important; /* 添加垂直滚动 */
-	background-color: var(--background-primary) !important; /* 保持与主题一致 */
-	position: absolute !important; /* 确保正确定位 */
-	width: 100% !important; /* 宽度与输入框一致 */
-	z-index: 1000 !important; /* 确保在其他元素之上 */
+	max-height: 200px !important;
+	overflow-y: auto !important;
+	background-color: var(--background-primary) !important;
+	position: absolute !important;
+	width: 100% !important;
+	z-index: 1000 !important;
 }
 
 .ccmd-folder-select-option {
@@ -743,8 +830,10 @@
 }
 
 .ccmd-folder-select-option-selected {
-	background-color: #eff6ff; /* 浅蓝色选中背景 */
-	color: #2563eb; /* 蓝色文字 */
+	background-color: #eff6ff;
+	/* 浅蓝色选中背景 */
+	color: #2563eb;
+	/* 蓝色文字 */
 }
 
 .ccmd-folder-select-option:hover:not(.ccmd-folder-select-option-selected) {
@@ -758,12 +847,15 @@
 
 @media (pointer: coarse) {
 	.ccmd-folder-select-option {
-		padding: 12px !important; /* 增大触摸区域 */
-		min-height: 44px !important; /* 确保足够高度方便触摸 */
+		padding: 12px !important;
+		/* 增大触摸区域 */
+		min-height: 44px !important;
+		/* 确保足够高度方便触摸 */
 	}
 
 	.ccmd-folder-select-dropdown {
-		max-height: 250px !important; /* 移动设备上稍大一些 */
+		max-height: 250px !important;
+		/* 移动设备上稍大一些 */
 	}
 }
 
@@ -773,38 +865,39 @@
 .ccmd-rule-management-modal {
 	width: 100%;
 	max-width: 1400px !important;
-	padding: 24px !important;
+	padding: var(--ccmd-space-6) !important;
 	background-color: var(--background-primary) !important;
-	border-radius: 8px !important;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+	border-radius: var(--ccmd-radius-lg) !important;
+	box-shadow: var(--ccmd-shadow-lg) !important;
 }
 
 /* Material Design - 头部区域 */
 .ccmd-rule-management-header {
-	margin-bottom: 20px !important;
-	padding-bottom: 16px !important;
+	margin-bottom: var(--ccmd-space-5) !important;
+	padding-bottom: var(--ccmd-space-4) !important;
 	border-bottom: 1px solid var(--background-modifier-border) !important;
 }
 
 /* Material Design - 搜索区域 */
 .ccmd-rule-search-section {
 	position: relative;
-	margin-bottom: 20px;
+	margin-bottom: var(--ccmd-space-5);
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: var(--ccmd-space-3);
 }
 
 .ccmd-rule-search-input {
 	flex: 1;
-	padding: 12px 16px 12px 40px !important;
+	padding: var(--ccmd-space-3) var(--ccmd-space-4) var(--ccmd-space-3) var(--ccmd-space-10) !important;
 	border: 1px solid var(--background-modifier-border) !important;
-	border-radius: 8px !important;
+	border-radius: var(--ccmd-radius-lg) !important;
 	background-color: var(--background-secondary) !important;
 	color: var(--text-normal) !important;
 	font-size: 14px !important;
 	transition: all 0.2s ease !important;
 	outline: none !important;
+	min-width: 200px !important;
 }
 
 .ccmd-rule-search-input:focus {
@@ -862,40 +955,41 @@
 }
 
 .ccmd-rules-list-container {
-	max-height: 55vh;
+	height: 55vh !important;
+	min-height: 400px !important;
 	overflow-y: auto;
-	margin-bottom: 20px;
+	margin-bottom: var(--ccmd-space-5);
 	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
+	border-radius: var(--ccmd-radius-lg);
 	background-color: var(--background-primary);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+	box-shadow: var(--ccmd-shadow-sm);
 }
 
 .ccmd-empty-rules-message {
-	padding: 40px 20px;
+	padding: var(--ccmd-space-10) var(--ccmd-space-5);
 	text-align: center;
 	color: var(--text-muted);
 	font-style: italic;
 	font-size: 16px;
 	background-color: var(--background-secondary-alt);
-	border-radius: 6px;
-	margin: 20px;
+	border-radius: var(--ccmd-radius-md);
+	margin: var(--ccmd-space-5);
 }
 
 /* 规则项目容器 */
 .ccmd-rule-item-container {
 	background-color: var(--background-secondary-alt);
-	border-radius: 8px;
-	margin: 16px;
-	padding: 16px;
+	border-radius: var(--ccmd-radius-lg);
+	margin: var(--ccmd-space-4);
+	padding: var(--ccmd-space-4);
 	transition: all 0.2s ease;
-	border-left: 4px solid var(--interactive-accent);
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+	border-left: var(--ccmd-space-1) solid var(--interactive-accent);
+	box-shadow: var(--ccmd-shadow-sm);
 }
 
 .ccmd-rule-item-container:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--ccmd-shadow-md);
 }
 
 /* 规则设置 */
@@ -906,7 +1000,8 @@
 }
 
 .ccmd-rule-setting .ccmd-setting-item-info {
-	flex: 2.5; /* 给名称更多空间 */
+	flex: 2.5;
+	/* 给名称更多空间 */
 }
 
 .ccmd-rule-setting .ccmd-setting-item-control {
@@ -918,33 +1013,37 @@
 .ccmd-rule-details-container {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	margin-bottom: 16px;
-	padding-left: 4px;
+	gap: var(--ccmd-space-2);
+	margin-bottom: var(--ccmd-space-4);
+	padding-left: var(--ccmd-space-1);
 }
 
 .ccmd-rule-detail-item {
 	background-color: var(--background-primary);
-	padding: 8px 12px;
-	border-radius: 6px;
+	padding: var(--ccmd-space-2) var(--ccmd-space-3);
+	border-radius: var(--ccmd-radius-md);
 	font-size: 14px;
 	color: var(--text-normal);
 	word-break: break-word;
+	overflow-wrap: break-word;
+	hyphens: auto;
+	max-width: 100%;
+	overflow: hidden;
 }
 
 /* 规则操作按钮容器 */
 .ccmd-rule-actions-container {
 	display: flex;
 	justify-content: flex-end;
-	gap: 12px;
-	margin-top: 12px;
+	gap: var(--ccmd-space-3);
+	margin-top: var(--ccmd-space-3);
 }
 
 .ccmd-rule-action-button {
 	background-color: var(--background-modifier-border);
 	color: var(--text-normal);
-	border-radius: 6px;
-	padding: 6px 10px;
+	border-radius: var(--ccmd-radius-md);
+	padding: var(--ccmd-space-2) 10px;
 	font-size: 14px;
 	transition: all 0.2s ease;
 	cursor: pointer;
@@ -959,38 +1058,42 @@
 
 .ccmd-rule-delete-button {
 	background-color: rgba(244, 67, 54, 0.1);
-	color: #f44336;
+	color: var(--ccmd-error);
 }
 
 .ccmd-rule-delete-button:hover {
-	background-color: #f44336;
+	background-color: var(--ccmd-error);
 	color: white;
 }
 
 /* 规则编辑模态窗口 */
 .ccmd-rule-edit-modal {
-	padding: 24px;
+	padding: var(--ccmd-space-6);
 	width: 100%;
 	max-width: 1400px !important;
 }
 
 .ccmd-condition-and {
-	border-left-color: #4CAF50 !important; /* 绿色 */
+	border-left-color: var(--ccmd-success) !important;
+	/* 绿色 */
 	background-color: rgba(76, 175, 80, 0.05) !important;
 }
 
 .ccmd-condition-or {
-	border-left-color: #2196F3 !important; /* 蓝色 */
+	border-left-color: var(--ccmd-info) !important;
+	/* 蓝色 */
 	background-color: rgba(33, 150, 243, 0.05) !important;
 }
 
 .ccmd-condition-not {
-	border-left-color: #FFC107 !important; /* 黄色 */
+	border-left-color: var(--ccmd-warning) !important;
+	/* 黄色 */
 	background-color: rgba(255, 193, 7, 0.05) !important;
 }
 
 .ccmd-condition-exclude {
-	border-left-color: #F44336 !important; /* 红色 */
+	border-left-color: var(--ccmd-error) !important;
+	/* 红色 */
 	background-color: rgba(244, 67, 54, 0.05) !important;
 }
 
@@ -1006,13 +1109,13 @@
 .ccmd-condition-delete-button {
 	color: var(--text-muted);
 	transition: color 0.2s ease;
-	padding: 6px;
-	border-radius: 4px;
+	padding: var(--ccmd-space-2);
+	border-radius: var(--ccmd-radius-sm);
 	margin-top: -10px;
 }
 
 .ccmd-condition-delete-button:hover {
-	color: #F44336;
+	color: var(--ccmd-error);
 	background-color: rgba(244, 67, 54, 0.1);
 }
 
@@ -1021,16 +1124,16 @@
 .ccmd-rule-edit-buttons {
 	display: flex;
 	justify-content: flex-end;
-	gap: 12px;
-	margin-top: 16px;
-	padding-top: 16px;
+	gap: var(--ccmd-space-3);
+	margin-top: var(--ccmd-space-4);
+	padding-top: var(--ccmd-space-4);
 	border-top: 1px solid var(--background-modifier-border);
 }
 
 .ccmd-rule-cancel-button,
 .ccmd-rule-save-button {
-	padding: 10px 24px;
-	border-radius: 6px;
+	padding: 10px var(--ccmd-space-6);
+	border-radius: var(--ccmd-radius-md);
 	font-size: 14px;
 	font-weight: 500;
 	transition: all 0.15s ease;
@@ -1062,13 +1165,13 @@
 
 .ccmd-template-search-input {
 	width: 100%;
-	padding: 10px 12px;
-	border-radius: 6px;
+	padding: 10px var(--ccmd-space-3);
+	border-radius: var(--ccmd-radius-md);
 	border: 1px solid var(--background-modifier-border);
 	background-color: var(--background-primary);
 	color: var(--text-normal);
 	font-size: 15px;
-	margin-bottom: 20px;
+	margin-bottom: var(--ccmd-space-5);
 	transition: all 0.2s ease;
 }
 
@@ -1083,7 +1186,7 @@
 }
 
 .ccmd-no-templates {
-	padding: 40px 20px;
+	padding: var(--ccmd-space-10) var(--ccmd-space-5);
 	text-align: center;
 	color: var(--text-muted);
 	font-style: italic;
@@ -1091,18 +1194,18 @@
 
 /* 确认删除模态窗口 */
 .ccmd-confirm-delete-modal {
-	padding: 24px;
+	padding: var(--ccmd-space-6);
 	max-width: 500px !important;
 	text-align: center;
 }
 
 .ccmd-confirm-delete-modal h2 {
-	margin-bottom: 16px;
-	color: #F44336;
+	margin-bottom: var(--ccmd-space-4);
+	color: var(--ccmd-error);
 }
 
 .ccmd-confirm-delete-modal p {
-	margin-bottom: 24px;
+	margin-bottom: var(--ccmd-space-6);
 	font-size: 16px;
 	line-height: 1.5;
 }
@@ -1110,7 +1213,7 @@
 .ccmd-confirm-buttons {
 	display: flex;
 	justify-content: center;
-	gap: 16px;
+	gap: var(--ccmd-space-4);
 }
 
 @media (min-width: 1921px) {
@@ -1127,14 +1230,15 @@
 
 /* 手机设备 */
 @media (max-width: 768px) {
+
 	.ccmd-rule-management-modal,
 	.ccmd-rule-edit-modal {
-		padding: 16px;
+		padding: var(--ccmd-space-4);
 	}
 
 	.ccmd-condition-content {
 		grid-template-columns: 1fr;
-		gap: 12px;
+		gap: var(--ccmd-space-3);
 	}
 
 	.ccmd-rule-actions-container {
@@ -1142,7 +1246,7 @@
 	}
 
 	.ccmd-rule-action-button {
-		padding: 8px 12px;
+		padding: var(--ccmd-space-2) var(--ccmd-space-3);
 		font-size: 14px;
 	}
 
@@ -1155,12 +1259,12 @@
 	.ccmd-rule-cancel-button,
 	.ccmd-rule-save-button {
 		width: 100%;
-		padding: 12px;
+		padding: var(--ccmd-space-3);
 	}
 
 	.ccmd-rule-item-container {
-		margin: 12px;
-		padding: 12px;
+		margin: var(--ccmd-space-3);
+		padding: var(--ccmd-space-3);
 	}
 
 	.ccmd-suggestion-container {
@@ -1179,8 +1283,8 @@
 /* 文件夹和模板路径选择设置项 */
 .ccmd-setting-item.ccmd-rule-folder-setting,
 .ccmd-setting-item.ccmd-rule-template-setting {
-	margin-bottom: 20px;
-	padding: 16px;
+	margin-bottom: var(--ccmd-space-5);
+	padding: var(--ccmd-space-4);
 	background-color: var(--background-secondary-alt);
 	border-radius: 8px;
 }
@@ -1288,7 +1392,8 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 @media (pointer: coarse) {
 	.ccmd-suggestion-item {
 		padding: 12px;
-		min-height: 44px; /* 增大触摸区域 */
+		min-height: 44px;
+		/* 增大触摸区域 */
 	}
 }
 
@@ -1619,11 +1724,13 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 
 /* 添加左侧边框来区分类型 */
 .ccmd-rule-target-text {
-	border-left: 3px solid #4CAF50; /* 绿色边框表示目标文件夹 */
+	border-left: 3px solid #4CAF50;
+	/* 绿色边框表示目标文件夹 */
 }
 
 .ccmd-rule-template-text {
-	border-left: 3px solid #2196F3; /* 蓝色边框表示模板 */
+	border-left: 3px solid #2196F3;
+	/* 蓝色边框表示模板 */
 }
 
 /* 改善空状态的显示 */
@@ -1727,7 +1834,8 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 	max-width: 100% !important;
 	width: 100% !important;
 	min-width: 0 !important;
-	font-size: 0.9em !important; /* 略微缩小字体 */
+	font-size: 0.9em !important;
+	/* 略微缩小字体 */
 }
 
 /* 调整输入框样式 */
@@ -1928,6 +2036,7 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 		opacity: 0;
 		transform: translateY(10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
@@ -1944,7 +2053,8 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 .ccmd-template-input-container input {
 	white-space: nowrap !important;
 	overflow-x: auto !important;
-	text-overflow: clip !important; /* 不使用省略号，允许完整内容滚动 */
+	text-overflow: clip !important;
+	/* 不使用省略号，允许完整内容滚动 */
 	scrollbar-width: thin !important;
 	scrollbar-color: var(--scrollbar-thumb-color) transparent !important;
 }
@@ -1993,19 +2103,24 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 
 /* 下拉菜单的提示样式 */
 .ccmd-suggestion-container .ccmd-path-tooltip {
-	max-width: 400px !important; /* 更宽的提示框，适合长路径 */
+	max-width: 400px !important;
+	/* 更宽的提示框，适合长路径 */
 	word-break: normal !important;
 	white-space: nowrap !important;
-	z-index: 1001 !important; /* 确保提示在最上层 */
+	z-index: 1001 !important;
+	/* 确保提示在最上层 */
 }
 
 /* 控制实际下拉列表的宽度和位置 */
 .ccmd-suggestion-container {
 	min-width: 300px !important;
-	max-width: min(800px, 90vw) !important; /* 确保不会超出视口 */
+	max-width: min(800px, 90vw) !important;
+	/* 确保不会超出视口 */
 	max-height: 300px !important;
-	width: auto !important; /* 让宽度根据内容自适应，但不超过最大宽度 */
-	z-index: 100; /* 确保在最上层 */
+	width: auto !important;
+	/* 让宽度根据内容自适应，但不超过最大宽度 */
+	z-index: 100;
+	/* 确保在最上层 */
 	overflow-y: auto !important;
 	scrollbar-width: thin !important;
 	background-color: var(--background-primary) !important;
@@ -2043,7 +2158,7 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 
 .ccmd-template-list {
 	width: 100% !important;
-	max-height: 450px !important;
+	height: 450px !important;
 	overflow-y: auto !important;
 	overflow-x: hidden !important;
 	border: 1px solid var(--background-modifier-border) !important;
@@ -2063,6 +2178,3 @@ body.theme-dark .ccmd-suggestion-item.is-selected {
 .ccmd-template-item:hover {
 	background-color: var(--background-secondary) !important;
 }
-
-
-

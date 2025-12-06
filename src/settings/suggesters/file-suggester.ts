@@ -1,10 +1,10 @@
 // Credits go to Liam's Periodic Notes Plugin: https://github.com/liamcain/obsidian-periodic-notes
 
-import {TAbstractFile, TFile} from "obsidian";
-import {TextInputSuggest} from "./suggest";
+import { TAbstractFile, TFile } from "obsidian";
+import { TextInputSuggest } from "./suggest";
 import CheckAndCreateMDFilePlugin from "../../main";
-import {get_tfiles_from_folder} from "../../utils/data-utils";
-import {errorWrapperSync} from "../../utils/error-utils";
+import { get_tfiles_from_folder } from "../../utils/data-utils";
+import { errorWrapperSync } from "../../utils/error-utils";
 
 export enum FileSuggestMode {
 	TemplateFiles,
@@ -92,39 +92,6 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 
 	private enhanceInputElement() {
 		const inputEl = this.inputEl;
-
-		let tooltip: HTMLElement | null = null;
-
-		inputEl.addEventListener('mouseenter', () => {
-			if (inputEl.value && inputEl.scrollWidth > inputEl.clientWidth) {
-				if (!tooltip) {
-					tooltip = document.createElement('div');
-					tooltip.addClass('ccmd-path-tooltip');
-					tooltip.setText(inputEl.value);
-					document.body.appendChild(tooltip);
-				}
-
-				const rect = inputEl.getBoundingClientRect();
-				tooltip.style.top = `${rect.bottom + 8}px`;
-				tooltip.style.left = `${rect.left}px`;
-
-				setTimeout(() => {
-					if (tooltip) tooltip.addClass('show');
-				}, 300);
-			}
-		});
-
-		inputEl.addEventListener('mouseleave', () => {
-			if (tooltip) {
-				tooltip.removeClass('show');
-				setTimeout(() => {
-					if (tooltip) {
-						tooltip.remove();
-						tooltip = null;
-					}
-				}, 200);
-			}
-		});
 
 		inputEl.addEventListener('focus', () => {
 			setTimeout(() => {
