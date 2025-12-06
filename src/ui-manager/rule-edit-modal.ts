@@ -1,17 +1,17 @@
-import {App, Modal, Setting, Notice, ButtonComponent} from 'obsidian';
-import {FileCreationRule, TemplateAliasHandling} from "@/model/rule-types";
-import {ConditionMatchType, ConditionOperator, MatchCondition} from "@/model/condition-types";
+import { App, Modal, Setting, Notice, ButtonComponent, SearchComponent } from 'obsidian';
+import { FileCreationRule, TemplateAliasHandling } from "@/model/rule-types";
+import { ConditionMatchType, ConditionOperator, MatchCondition } from "@/model/condition-types";
 import CheckAndCreateMDFilePlugin from "../main";
-import {FolderSuggest} from "@/settings/suggesters/folder-suggester";
-import {FileSuggest, FileSuggestMode} from "@/settings/suggesters/file-suggester";
+import { FolderSuggest } from "@/settings/suggesters/folder-suggester";
+import { FileSuggest, FileSuggestMode } from "@/settings/suggesters/file-suggester";
 import GenericInputPrompt from "./generic-input-prompt";
-import {ConditionEditor} from "./condition-editor";
-import {TemplateSelectionModal} from "./template-selection-modal";
-import {CustomModal} from "./custom-modal";
-import {log} from "@/utils/log-utils";
-import {RuleManagementModal} from './rule-management-modal';
-import {CreateFileSettingTab} from "@/settings/settings";
-import {t} from "@/i18n/locale";
+import { ConditionEditor } from "./condition-editor";
+import { TemplateSelectionModal } from "./template-selection-modal";
+import { CustomModal } from "./custom-modal";
+import { log } from "@/utils/log-utils";
+import { RuleManagementModal } from './rule-management-modal';
+import { CreateFileSettingTab } from "@/settings/settings";
+import { t } from "@/i18n/locale";
 
 export class RuleEditModal extends CustomModal {
 	private rule: FileCreationRule;
@@ -20,6 +20,7 @@ export class RuleEditModal extends CustomModal {
 	private didSubmit = false;
 	private conditionsContainer: HTMLElement;
 	private conditionEditors: ConditionEditor[] = [];
+	private templateInput: SearchComponent | null = null;
 
 	constructor(
 		app: App,
@@ -32,29 +33,29 @@ export class RuleEditModal extends CustomModal {
 			rule.conditions = [];
 		}
 
-		this.rule = {...rule}; // 创建副本，防止直接修改原对象
+		this.rule = { ...rule }; // 创建副本，防止直接修改原对象
 		this.onSave = onSave;
 		this.plugin = plugin;
 	}
 
 	onOpen() {
-		const {contentEl} = this;
+		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('ccmd-rule-edit-modal', 'ccmd-quickAddModal');
 
 		// 两列布局
-		const mainContainer = contentEl.createDiv({cls: 'ccmd-rule-edit-container '});
+		const mainContainer = contentEl.createDiv({ cls: 'ccmd-rule-edit-container ' });
 
 		// 左侧面板：基本信息和条件
-		const leftPanelScroll = mainContainer.createDiv({cls: 'ccmd-rule-edit-left-panel-scroll'});
-		const leftPanel = leftPanelScroll.createDiv({cls: 'ccmd-rule-edit-left-panel'});
+		const leftPanelScroll = mainContainer.createDiv({ cls: 'ccmd-rule-edit-left-panel-scroll' });
+		const leftPanel = leftPanelScroll.createDiv({ cls: 'ccmd-rule-edit-left-panel' });
 
 		// 右侧面板：目标设置
-		const rightPanel = mainContainer.createDiv({cls: 'ccmd-rule-edit-right-panel'});
+		const rightPanel = mainContainer.createDiv({ cls: 'ccmd-rule-edit-right-panel' });
 
 		// === 左侧面板内容 ===
 		// 标题和开关部分
-		const headerSection = leftPanel.createDiv({cls: 'ccmd-rule-header-section'});
+		const headerSection = leftPanel.createDiv({ cls: 'ccmd-rule-header-section' });
 
 		// 标题（可点击编辑）
 		const titleEl = headerSection.createEl('h2', {
@@ -91,10 +92,10 @@ export class RuleEditModal extends CustomModal {
 					});
 			});
 
-		const conditionsSection = leftPanel.createDiv({cls: 'ccmd-rule-section'});
-		conditionsSection.createEl('h3', {text: t('matching'), cls: 'ccmd-rule-section-title'});
+		const conditionsSection = leftPanel.createDiv({ cls: 'ccmd-rule-section' });
+		conditionsSection.createEl('h3', { text: t('matching'), cls: 'ccmd-rule-section-title' });
 
-		this.conditionsContainer = conditionsSection.createDiv({cls: 'ccmd-conditions-container'});
+		this.conditionsContainer = conditionsSection.createDiv({ cls: 'ccmd-conditions-container' });
 		this.renderConditions();
 
 		const addConditionBtn = new ButtonComponent(conditionsSection);
@@ -107,8 +108,8 @@ export class RuleEditModal extends CustomModal {
 			});
 
 		// === 右侧面板内容 ===
-		const targetSection = rightPanel.createDiv({cls: 'ccmd-rule-section'});
-		targetSection.createEl('h3', {text: t('targetSettings'), cls: 'ccmd-rule-section-title'});
+		const targetSection = rightPanel.createDiv({ cls: 'ccmd-rule-section' });
+		targetSection.createEl('h3', { text: t('targetSettings'), cls: 'ccmd-rule-section-title' });
 
 		// 目标文件夹，使用文件夹建议器
 		new Setting(targetSection)
@@ -127,6 +128,7 @@ export class RuleEditModal extends CustomModal {
 			.setName(t('useTemplate'))
 			.setDesc(t('useTemplateDesc'))
 			.addSearch(cb => {
+				this.templateInput = cb;
 				if (this.plugin.settings.templateFolder) {
 					new FileSuggest(
 						cb.inputEl,
@@ -164,7 +166,7 @@ export class RuleEditModal extends CustomModal {
 					});
 			});
 
-		const buttonContainer = contentEl.createDiv({cls: 'ccmd-rule-edit-buttons'});
+		const buttonContainer = contentEl.createDiv({ cls: 'ccmd-rule-edit-buttons' });
 
 		const cancelButton = new ButtonComponent(buttonContainer);
 		cancelButton
@@ -245,13 +247,9 @@ export class RuleEditModal extends CustomModal {
 			(templatePath) => {
 				this.rule.templatePath = templatePath;
 
-				const templateInputs = this.contentEl.querySelectorAll('.setting-item-control input');
-				templateInputs.forEach(input => {
-					const settingItem = input.closest('.setting-item');
-					if (settingItem && settingItem.querySelector('.setting-item-name')?.textContent?.includes('Use Template')) {
-						(input as HTMLInputElement).value = templatePath;
-					}
-				});
+				if (this.templateInput) {
+					this.templateInput.setValue(templatePath);
+				}
 			}
 		);
 
@@ -300,7 +298,7 @@ export class RuleEditModal extends CustomModal {
 		this.close();
 
 		// 显示通知
-		new Notice(t('ruleSaved', {name: this.rule.name}));
+		new Notice(t('ruleSaved', { name: this.rule.name }));
 
 		if (RuleManagementModal.currentInstance) {
 			RuleManagementModal.currentInstance.refreshRulesList();
@@ -312,7 +310,7 @@ export class RuleEditModal extends CustomModal {
 	}
 
 	onClose() {
-		const {contentEl} = this;
+		const { contentEl } = this;
 		contentEl.empty();
 
 		if (!this.didSubmit) {
