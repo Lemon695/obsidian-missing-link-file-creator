@@ -186,6 +186,23 @@ export class RuleEditModal extends CustomModal {
 			});
 	}
 
+	private createConditionEditor(condition: MatchCondition, index: number) {
+		const editor = new ConditionEditor(
+			this.app,
+			this.conditionsContainer,
+			condition,
+			(updatedCondition) => {
+				this.rule.conditions[index] = updatedCondition;
+			},
+			() => {
+				// 删除条件
+				this.rule.conditions.splice(index, 1);
+				this.renderConditions();
+			}
+		);
+		this.conditionEditors.push(editor);
+	}
+
 	private renderConditions() {
 		this.conditionEditors.forEach(editor => {
 			editor.destroy();
@@ -203,21 +220,7 @@ export class RuleEditModal extends CustomModal {
 		}
 
 		this.rule.conditions.forEach((condition, index) => {
-			const editor = new ConditionEditor(
-				this.app,
-				this.conditionsContainer,
-				condition,
-				(updatedCondition) => {
-					this.rule.conditions[index] = updatedCondition;
-				},
-				() => {
-					// 删除条件
-					this.rule.conditions.splice(index, 1);
-					this.renderConditions();
-				}
-			);
-
-			this.conditionEditors.push(editor);
+			this.createConditionEditor(condition, index);
 		});
 	}
 
@@ -229,8 +232,15 @@ export class RuleEditModal extends CustomModal {
 			operator: ConditionOperator.AND
 		};
 
+		// 移除空状态消息
+		const emptyMsg = this.conditionsContainer.querySelector('.ccmd-empty-conditions-message');
+		if (emptyMsg) {
+			emptyMsg.remove();
+		}
+
 		this.rule.conditions.push(newCondition);
-		this.renderConditions();
+		// 仅添加新条件，避免重建整个列表
+		this.createConditionEditor(newCondition, this.rule.conditions.length - 1);
 	}
 
 	private browseTemplates() {
