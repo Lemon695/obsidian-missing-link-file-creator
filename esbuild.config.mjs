@@ -1,6 +1,9 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
 const banner =
 `/*
@@ -10,6 +13,52 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = (process.argv[2] === "production");
+
+// --- Tailwind CSS Build Step ---
+function buildTailwindCSS() {
+	const inputFile = "src/styles/tailwind.css";
+	const outputFile = "dist/.tailwind-out.css";
+
+	if (!fs.existsSync(inputFile)) {
+		console.log("[CSS] No tailwind.css found, skipping Tailwind build.");
+		return "";
+	}
+
+	try {
+		execSync(
+			`npx tailwindcss -i ${inputFile} -o ${outputFile} ${prod ? "--minify" : ""}`,
+			{ stdio: "pipe" }
+		);
+		const css = fs.readFileSync(outputFile, "utf-8");
+		// Clean up temp file
+		fs.unlinkSync(outputFile);
+		return css;
+	} catch (e) {
+		console.error("[CSS] Tailwind build failed:", e.message);
+		return "";
+	}
+}
+
+// --- Merge CSS: legacy + tailwind ---
+function mergeCSS() {
+	const legacyCSS = fs.existsSync("styles.legacy.css")
+		? fs.readFileSync("styles.legacy.css", "utf-8")
+		: "";
+	const tailwindCSS = buildTailwindCSS();
+
+	const merged = `${legacyCSS}\n\n/* === Tailwind + shadcn/ui === */\n${tailwindCSS}`;
+
+	// Ensure dist directory exists
+	if (!fs.existsSync("dist")) {
+		fs.mkdirSync("dist", { recursive: true });
+	}
+
+	fs.writeFileSync("styles.css", merged);
+	console.log("[CSS] styles.css merged successfully.");
+}
+
+// Build CSS before JS
+mergeCSS();
 
 const context = await esbuild.context({
 	banner: {
@@ -39,6 +88,9 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "dist/main.js",
 	minify: prod,
+	jsx: "automatic",
+	jsxImportSource: "react",
+	resolveExtensions: [".tsx", ".ts", ".jsx", ".js"],
 });
 
 if (prod) {
