@@ -1,4 +1,7 @@
-import {App, ButtonComponent, Modal, TextComponent} from "obsidian";
+import { App, Modal } from "obsidian";
+import React from "react";
+import { createRoot, Root } from "react-dom/client";
+import { GenericInputDialog } from "@/react/modals/GenericInputDialog";
 
 export default class GenericInputPrompt extends Modal {
 	public waitForClose: Promise<string>;
@@ -6,9 +9,9 @@ export default class GenericInputPrompt extends Modal {
 	private resolvePromise: (input: string) => void;
 	private rejectPromise: (reason?: unknown) => void;
 	private didSubmit = false;
-	private inputComponent: TextComponent;
 	private input: string;
 	private readonly placeholder: string;
+	private root: Root | null = null;
 
 	public static Prompt(
 		app: App,
@@ -40,90 +43,38 @@ export default class GenericInputPrompt extends Modal {
 			this.rejectPromise = reject;
 		});
 
-		this.display();
 		this.open();
 	}
 
-	private display() {
+	onOpen() {
 		this.containerEl.addClass("ccmd-quickAddModal", "qaInputPrompt");
 		this.contentEl.empty();
 		this.titleEl.textContent = this.header;
 
-		const mainContentContainer: HTMLDivElement = this.contentEl.createDiv();
-		this.inputComponent = this.createInputField(
-			mainContentContainer,
-			this.placeholder,
-			this.input
+		this.root = createRoot(this.contentEl);
+		this.root.render(
+			React.createElement(GenericInputDialog, {
+				header: this.header,
+				placeholder: this.placeholder,
+				initialValue: this.input,
+				onConfirm: (value: string) => {
+					this.input = value;
+					this.didSubmit = true;
+					this.close();
+				},
+				onCancel: () => this.close(),
+			})
 		);
-		this.createButtonBar(mainContentContainer);
-	}
-
-	protected createInputField(
-		container: HTMLElement,
-		placeholder?: string,
-		value?: string
-	) {
-		const textComponent = new TextComponent(container);
-
-		textComponent.inputEl.style.width = "100%";
-		textComponent
-			.setPlaceholder(placeholder ?? "")
-			.setValue(value ?? "")
-			.onChange((value) => (this.input = value))
-			.inputEl.addEventListener("keydown", this.submitEnterCallback);
-
-		return textComponent;
-	}
-
-	private createButtonBar(mainContentContainer: HTMLDivElement) {
-		const buttonBarContainer: HTMLDivElement =
-			mainContentContainer.createDiv();
-
-		const confirmButton = new ButtonComponent(buttonBarContainer);
-		confirmButton.setButtonText("Confirm").onClick(this.submitClickCallback);
-		confirmButton.setCta();
-		confirmButton.buttonEl.style.marginRight = "8px";
-
-		const cancelButton = new ButtonComponent(buttonBarContainer);
-		cancelButton.setButtonText("Cancel").onClick(this.cancelClickCallback);
-
-		buttonBarContainer.style.display = "flex";
-		buttonBarContainer.style.flexDirection = "row-reverse";
-		buttonBarContainer.style.justifyContent = "flex-start";
-		buttonBarContainer.style.marginTop = "1rem";
-	}
-
-	private submitClickCallback = () => this.submit();
-	private cancelClickCallback = () => this.cancel();
-
-	private submitEnterCallback = (evt: KeyboardEvent) => {
-		if (evt.key === "Enter" && !evt.isComposing) {
-			evt.preventDefault();
-			this.submit();
-		}
-	};
-
-	private submit() {
-		this.didSubmit = true;
-		this.close();
-	}
-
-	private cancel() {
-		this.close();
 	}
 
 	onClose() {
-		super.onClose();
+		this.root?.unmount();
+		this.root = null;
 
 		if (this.didSubmit) {
 			this.resolvePromise(this.input);
 		} else {
 			this.rejectPromise("User Cancelled");
 		}
-
-		this.inputComponent.inputEl.removeEventListener(
-			"keydown",
-			this.submitEnterCallback
-		);
 	}
 }

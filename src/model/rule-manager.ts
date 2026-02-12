@@ -1,9 +1,11 @@
-import { App } from "obsidian";
-import { convertLegacyRule, FileCreationRule, RuleMatchResult, RuleMatchType } from "./rule-types";
+import type { App } from "obsidian";
+import { convertLegacyRule } from "./rule-types";
+import type { FileCreationRule, RuleMatchResult } from "./rule-types";
 import { log } from "@/utils/log-utils";
-import { ConditionMatchType, ConditionOperator, MatchCondition } from "./condition-types";
-import { CreateFileSettings } from "@/settings/settings";
-import { ObsidianFrontmatter, RuleMatchContext } from "@/types/frontmatter";
+import { ConditionMatchType, ConditionOperator } from "./condition-types";
+import type { MatchCondition } from "./condition-types";
+import type { CreateFileSettings } from "@/settings/settings";
+import type { RuleMatchContext } from "@/types/frontmatter";
 
 /**
  * 规则管理器 - 负责管理和应用文件创建规则

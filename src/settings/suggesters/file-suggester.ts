@@ -25,11 +25,9 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 	get_folder(mode: FileSuggestMode): string {
 		switch (mode) {
 			case FileSuggestMode.TemplateFiles:
-				// return this.plugin.settings.templates_folder;
 				return this.plugin.settings.templateFolder;
 			case FileSuggestMode.ScriptFiles:
-				//TODO
-				// return this.plugin.settings.user_scripts_folder;
+				// Script folder is not currently configurable in settings.
 				return "";
 		}
 	}

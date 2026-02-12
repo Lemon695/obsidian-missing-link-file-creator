@@ -99,7 +99,15 @@ export function RuleManagementDialog({ onOpenEditModal, onClose }: RuleManagemen
   };
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4 tw-h-full">
+    <div
+      className="tw-flex tw-flex-col tw-gap-4 tw-h-full"
+      onKeyDown={(e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "n") {
+          e.preventDefault();
+          createNewRule();
+        }
+      }}
+    >
       {/* Header */}
       <div className="tw-pb-3 tw-border-b tw-border-border">
         <h2 className="tw-m-0 tw-text-xl tw-font-semibold">{t("fileCreationRulesManagement")}</h2>
@@ -143,10 +151,13 @@ export function RuleManagementDialog({ onOpenEditModal, onClose }: RuleManagemen
                 <TableRow key={rule.id} className={rule.enabled ? "" : "tw-opacity-50"}>
                   <TableCell>
                     <button
+                      type="button"
                       className="tw-w-10 tw-h-5 tw-rounded-full tw-border tw-cursor-pointer tw-transition-colors"
                       style={{ backgroundColor: rule.enabled ? "hsl(var(--primary))" : "hsl(var(--muted))" }}
                       onClick={() => toggleEnabled(rule)}
                       title={rule.enabled ? t("enabled") : t("disabled")}
+                      aria-label={rule.enabled ? t("enabled") : t("disabled")}
+                      aria-pressed={rule.enabled}
                     />
                   </TableCell>
                   <TableCell className={`tw-font-medium ${!rule.enabled ? "tw-line-through tw-text-muted-foreground" : ""}`}>
@@ -167,20 +178,20 @@ export function RuleManagementDialog({ onOpenEditModal, onClose }: RuleManagemen
                   </TableCell>
                   <TableCell>
                     <div className="tw-flex tw-gap-1">
-                      <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => editRule(rule)} title={t("editRule")}>
+                      <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => editRule(rule)} title={t("editRule")} aria-label={t("editRule")}>
                         <Pencil className="tw-h-3.5 tw-w-3.5" />
                       </Button>
                       {index > 0 && (
-                        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => moveRule(index, "up")} title={t("moveUp")}>
+                        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => moveRule(index, "up")} title={t("moveUp")} aria-label={t("moveUp")}>
                           <ArrowUp className="tw-h-3.5 tw-w-3.5" />
                         </Button>
                       )}
                       {index < rules.length - 1 && (
-                        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => moveRule(index, "down")} title={t("moveDown")}>
+                        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => moveRule(index, "down")} title={t("moveDown")} aria-label={t("moveDown")}>
                           <ArrowDown className="tw-h-3.5 tw-w-3.5" />
                         </Button>
                       )}
-                      <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7 tw-text-destructive" onClick={() => deleteRule(rule.id)} title={t("deleteRule")}>
+                      <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7 tw-text-destructive" onClick={() => deleteRule(rule.id)} title={t("deleteRule")} aria-label={t("deleteRule")}>
                         <Trash2 className="tw-h-3.5 tw-w-3.5" />
                       </Button>
                     </div>

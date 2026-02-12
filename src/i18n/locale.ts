@@ -6,6 +6,8 @@ export const translations = {
 		scanEntireVaultAndCreateMissingFiles: 'Scan entire vault and create missing files',
 		manageFileCreationRules: 'Manage file creation rules',
 		createFilesForSelectedUnresolvedLinks: 'Create files for selected unresolved links',
+		openBatchOperationsDashboard: 'Open Batch Operations Dashboard',
+		openCurrentFileMissingLinksView: 'Open Current File Missing Links (Side View)',
 
 		// Main plugin
 		loadingPlugin: 'Loading plugin v',
@@ -15,10 +17,12 @@ export const translations = {
 		notificationSettingsDesc: 'Show a notification when a file is create',
 		defaultPath: 'Default path',
 		defaultPathDesc: 'Set the default folder where new md files will be created.',
+		pathsAndTemplates: 'Paths and templates',
 		templateFolder: 'Template folder',
 		templateFolderDesc: 'Set the folder for template files',
 		enableTemplates: 'Enable templates',
 		enableTemplatesDesc: 'Use template feature when creating files',
+		templaterMethod: 'Templater method',
 		addAliasesToFrontmatter: 'Add aliases to frontmatter',
 		addAliasesToFrontmatterDesc: 'When enabled, aliases from links will be added to frontmatter, disable this if it conflicts with templater.',
 		rulesManagement: 'Rules management',
@@ -170,6 +174,7 @@ export const translations = {
 		mergeWithTemplate: 'Merge with template',
 		clickAddCondition: 'Click "add condition" to create your first matching rule',
 		save: 'Save',
+		confirm: 'Confirm',
 		ruleNameCannotBeEmpty: 'Rule name cannot be empty',
 		atLeastOneConditionRequired: 'At least one match condition must be added',
 		matchPatternCannotBeEmpty: 'Match pattern cannot be empty',
@@ -179,6 +184,9 @@ export const translations = {
 		ruleNamePrompt: 'Rule Name',
 		enterRuleName: 'Enter rule name',
 		noTemplatesFound: 'No templates found, please check template folder settings',
+		noTemplateFilesFound: 'No template files found',
+		noMatchingTemplates: 'No matching templates',
+		searchTemplatesPlaceholder: 'Search templates...',
 
 		// Generic Input Prompt
 		noNewNameProvided: 'No new name provided',
@@ -246,6 +254,8 @@ export const translations = {
 		scanEntireVaultAndCreateMissingFiles: '扫描整个仓库并创建缺失文件',
 		manageFileCreationRules: '管理文件创建规则',
 		createFilesForSelectedUnresolvedLinks: '为选中的未解析链接创建文件',
+		openBatchOperationsDashboard: '打开批量操作仪表盘',
+		openCurrentFileMissingLinksView: '打开当前文件缺失链接视图（侧边栏）',
 
 		// 主插件
 		loadingPlugin: '加载插件 v',
@@ -255,10 +265,12 @@ export const translations = {
 		notificationSettingsDesc: '创建文件时显示通知',
 		defaultPath: '默认路径',
 		defaultPathDesc: '设置创建新 md 文件的默认文件夹',
+		pathsAndTemplates: '路径与模板',
 		templateFolder: '模板文件夹',
 		templateFolderDesc: '设置模板文件的文件夹',
 		enableTemplates: '启用模板',
 		enableTemplatesDesc: '创建文件时使用模板功能',
+		templaterMethod: '模板处理方式',
 		addAliasesToFrontmatter: '将别名添加到 frontmatter',
 		addAliasesToFrontmatterDesc: '启用后,链接中的别名将添加到 frontmatter,如果与 templater 冲突请禁用此选项',
 		rulesManagement: '规则管理',
@@ -410,6 +422,7 @@ export const translations = {
 		mergeWithTemplate: '与模板合并',
 		clickAddCondition: '点击"添加条件"创建第一个匹配规则',
 		save: '保存',
+		confirm: '确认',
 		ruleNameCannotBeEmpty: '规则名称不能为空',
 		atLeastOneConditionRequired: '必须至少添加一个匹配条件',
 		matchPatternCannotBeEmpty: '匹配模式不能为空',
@@ -419,6 +432,9 @@ export const translations = {
 		ruleNamePrompt: '规则名称',
 		enterRuleName: '输入规则名称',
 		noTemplatesFound: '未找到模板,请检查模板文件夹设置',
+		noTemplateFilesFound: '未找到模板文件',
+		noMatchingTemplates: '没有匹配的模板',
+		searchTemplatesPlaceholder: '搜索模板...',
 
 		// 通用输入提示
 		noNewNameProvided: '未提供新名称',

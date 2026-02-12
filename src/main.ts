@@ -104,7 +104,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 		this.addCommand({
 			id: 'open-batch-dashboard',
-			name: "Open Batch Operations Dashboard",
+			name: t('openBatchOperationsDashboard'),
 			callback: async () => {
 				const { workspace } = this.app;
 				let leaf: WorkspaceLeaf | null = null;
@@ -131,7 +131,7 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 
 		this.addCommand({
 			id: 'open-active-missing-links-view',
-			name: "Open Current File Missing Links (Side View)",
+			name: t('openCurrentFileMissingLinksView'),
 			callback: async () => {
 				const { workspace } = this.app;
 				let leaf: WorkspaceLeaf | null = null;
@@ -187,5 +187,4 @@ export default class CheckAndCreateMDFilePlugin extends Plugin {
 	}
 
 }
-
 

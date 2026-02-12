@@ -108,7 +108,15 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
   }, [nameInput, updateRule]);
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4 tw-h-full">
+    <div
+      className="tw-flex tw-flex-col tw-gap-4 tw-h-full"
+      onKeyDown={(e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          e.preventDefault();
+          handleSave();
+        }
+      }}
+    >
       {/* Title row */}
       <div className="tw-flex tw-items-center tw-justify-between tw-pb-3 tw-border-b tw-border-border">
         {editingName ? (
@@ -134,15 +142,18 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
         <label className="tw-flex tw-items-center tw-gap-2 tw-text-sm">
           <span>{t("enable")}</span>
           <button
+            type="button"
             className="tw-w-10 tw-h-5 tw-rounded-full tw-border tw-cursor-pointer tw-transition-colors"
             style={{ backgroundColor: rule.enabled ? "hsl(var(--primary))" : "hsl(var(--muted))" }}
             onClick={() => updateRule({ enabled: !rule.enabled })}
+            aria-label={t("enable")}
+            aria-pressed={rule.enabled}
           />
         </label>
       </div>
 
       {/* Two-column layout */}
-      <div className="tw-flex tw-gap-6 tw-flex-1 tw-min-h-0">
+      <div className="tw-flex tw-flex-col md:tw-flex-row tw-gap-4 md:tw-gap-6 tw-flex-1 tw-min-h-0">
         {/* Left: Conditions */}
         <div className="tw-flex-1 tw-flex tw-flex-col tw-min-w-0">
           <h3 className="tw-text-base tw-font-semibold tw-mb-3">{t("matching")}</h3>
@@ -165,10 +176,11 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
           </Button>
         </div>
 
-        <Separator orientation="vertical" className="tw-h-auto" />
+        <Separator orientation="vertical" className="tw-hidden md:tw-block tw-h-auto" />
+        <Separator orientation="horizontal" className="md:tw-hidden" />
 
         {/* Right: Target settings */}
-        <div className="tw-w-[320px] tw-flex-shrink-0 tw-flex tw-flex-col tw-gap-4">
+        <div className="tw-w-full md:tw-w-[320px] tw-flex-shrink-0 tw-flex tw-flex-col tw-gap-4">
           <h3 className="tw-text-base tw-font-semibold">{t("targetSettings")}</h3>
 
           {/* Target folder */}
@@ -202,6 +214,7 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
                 className="tw-h-8 tw-w-8"
                 onClick={() => onBrowseTemplates((path) => updateRule({ templatePath: path }))}
                 title={t("browseTemplates")}
+                aria-label={t("browseTemplates")}
               >
                 🔍
               </Button>

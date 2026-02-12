@@ -173,7 +173,7 @@ export function DashboardPanel() {
               <CheckSquare className="tw-h-4 tw-w-4 tw-mr-1" />
               {t("dashboardCreateSelected")}
             </Button>
-            <Button variant="outline" size="icon" onClick={refreshData} title={t("dashboardRefreshTooltip")}>
+            <Button variant="outline" size="icon" onClick={refreshData} title={t("dashboardRefreshTooltip")} aria-label={t("dashboardRefreshTooltip")}>
               <RefreshCw className="tw-h-4 tw-w-4" />
             </Button>
           </div>
@@ -195,6 +195,7 @@ export function DashboardPanel() {
               new Notice(t("dashboardScopeSwitched", { scope: next === "vault" ? t("dashboardScopeVault") : t("dashboardScopeActive") }));
             }}
             title={scopeMode === "vault" ? t("dashboardScopeVault") : t("dashboardScopeActive")}
+            aria-label={scopeMode === "vault" ? t("dashboardScopeVault") : t("dashboardScopeActive")}
           >
             {scopeMode === "vault" ? <Vault className="tw-h-4 tw-w-4" /> : <FileText className="tw-h-4 tw-w-4" />}
           </Button>
@@ -310,10 +311,10 @@ function DashboardListItem({ data, selected, onToggle, onCreate, onIgnore }: Das
         {data.filePath}
       </div>
       <div className="tw-flex tw-justify-end tw-gap-1">
-        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={onIgnore} title={t("sideViewIgnoreTooltip")}>
+        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={onIgnore} title={t("sideViewIgnoreTooltip")} aria-label={t("sideViewIgnoreTooltip")}>
           <EyeOff className="tw-h-3.5 tw-w-3.5" />
         </Button>
-        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={onCreate} title={t("sideViewCreateTooltip")}>
+        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={onCreate} title={t("sideViewCreateTooltip")} aria-label={t("sideViewCreateTooltip")}>
           <Plus className="tw-h-3.5 tw-w-3.5" />
         </Button>
       </div>

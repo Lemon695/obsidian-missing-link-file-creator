@@ -1,8 +1,14 @@
-import {App, Modal, TFile} from 'obsidian';
+import { App } from "obsidian";
+import React from "react";
+import { createRoot, Root } from "react-dom/client";
+import { TemplatePickerDialog } from "@/react/modals/TemplatePickerDialog";
+import { t } from "@/i18n/locale";
+import { SelectTemplateView } from "@/view/select-template-view";
 
-export class TemplateBrowserModal extends Modal {
+export class TemplateBrowserModal extends SelectTemplateView {
 	private templates: string[];
 	private onChoose: (templatePath: string) => void;
+	private root: Root | null = null;
 
 	constructor(app: App, templates: string[], onChoose: (templatePath: string) => void) {
 		super(app);
@@ -11,58 +17,29 @@ export class TemplateBrowserModal extends Modal {
 	}
 
 	onOpen() {
-		const {contentEl} = this;
+		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('ccmd-template-browser-modal');
+		contentEl.addClass("ccmd-react-root", "ccmd-template-browser-modal", "ccmd-quickAddModal");
 
-		contentEl.createEl('h2', {text: 'Select Template'});
-
-		const searchContainer = contentEl.createDiv({cls: 'template-search-container'});
-		const searchInput = searchContainer.createEl('input', {
-			type: 'text',
-			placeholder: 'Search templates...',
-			cls: 'ccmd-template-search-input'
-		});
-
-		const templateList = contentEl.createDiv({cls: 'ccmd-template-list'});
-
-		const renderTemplates = (templates: string[]) => {
-			templateList.empty();
-
-			if (templates.length === 0) {
-				templateList.createEl('div', {
-					text: 'No templates found',
-					cls: 'ccmd-no-templates'
-				});
-				return;
-			}
-
-			templates.forEach(templatePath => {
-				const item = templateList.createEl('div', {
-					cls: 'ccmd-template-item',
-					text: templatePath
-				});
-
-				item.addEventListener('click', () => {
+		this.root = createRoot(contentEl);
+		this.root.render(
+			React.createElement(TemplatePickerDialog, {
+				templates: this.templates,
+				title: t("selectTemplate"),
+				onChoose: (templatePath: string) => {
 					this.onChoose(templatePath);
 					this.close();
-				});
-			});
-		};
-
-		renderTemplates(this.templates);
-
-		searchInput.addEventListener('input', () => {
-			const searchTerm = searchInput.value.toLowerCase();
-			const filteredTemplates = this.templates.filter(
-				template => template.toLowerCase().includes(searchTerm)
-			);
-			renderTemplates(filteredTemplates);
-		});
+				},
+				onClose: () => this.close(),
+			})
+		);
 	}
 
 	onClose() {
-		const {contentEl} = this;
+		this.root?.unmount();
+		this.root = null;
+
+		const { contentEl } = this;
 		contentEl.empty();
 	}
 }

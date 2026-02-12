@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Notice } from "obsidian";
 import { CreationResult, FileToCreate } from "@/model/file-types";
 import { t } from "@/i18n/locale";
@@ -25,6 +25,7 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
   const [result, setResult] = useState<CreationResult>({ created: 0, skipped: 0, failed: 0, aliasesAdded: 0 });
   const [progressCurrent, setProgressCurrent] = useState(0);
   const [progressTotal, setProgressTotal] = useState(0);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const itemsPerPage = 10;
   const totalPages = Math.max(1, Math.ceil(fileStates.length / itemsPerPage));
@@ -87,10 +88,40 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
     setPhase("done");
 
     // Auto-close after 10s
-    setTimeout(() => onClose(), 10000);
+    autoCloseTimerRef.current = setTimeout(() => onClose(), 10000);
   }, [fileStates, onConfirm, onClose]);
 
   const percent = progressTotal > 0 ? Math.round((progressCurrent / progressTotal) * 100) : 0;
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (phase === "select" && (e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        void handleConfirm();
+        return;
+      }
+
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+
+      if (phase === "select") {
+        onCancel();
+      } else if (phase === "done") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [phase, handleConfirm, onCancel, onClose]);
+
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   // === SELECT PHASE ===
   if (phase === "select") {
@@ -151,7 +182,7 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
         />
 
         {/* Buttons */}
-        <div className="tw-flex tw-justify-end tw-gap-3 tw-mt-2">
+        <div className="tw-flex tw-flex-col-reverse sm:tw-flex-row tw-justify-end tw-gap-3 tw-mt-2">
           <Button variant="outline" onClick={onCancel}>{t("cancel")}</Button>
           <Button onClick={handleConfirm} disabled={selectedCount === 0}>
             {t("createSelectedFiles")}
