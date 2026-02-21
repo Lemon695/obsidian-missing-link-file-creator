@@ -281,9 +281,21 @@ export class UIManager {
 				const replaceText = replaceInput.value;
 
 				if (findText) {
+					// Guard against ReDoS: reject patterns exceeding 500 chars
+					if (findText.length > 500) {
+						new Notice(t('invalidRegularExpression'));
+						return;
+					}
+					let findRegex: RegExp;
+					try {
+						findRegex = new RegExp(findText, 'g');
+					} catch (e) {
+						new Notice(t('invalidRegularExpression'));
+						return;
+					}
 					for (const row of rows) {
 						const oldValue = row.newPathInput.value;
-						const newValue = oldValue.replace(new RegExp(findText, 'g'), replaceText);
+						const newValue = oldValue.replace(findRegex, replaceText);
 						row.newPathInput.value = newValue;
 					}
 				}

@@ -332,6 +332,11 @@ export class TemplaterService {
 	 * 合并两个YAML字符串
 	 * 简单实现，实际项目可能需要使用YAML库
 	 */
+	// Keys that must never be written into any object derived from YAML parsing
+	private static readonly YAML_KEY_BLOCKLIST = new Set([
+		'__proto__', 'constructor', 'prototype'
+	]);
+
 	private mergeYamlStrings(yaml1: string, yaml2: string): string {
 		const lines1 = yaml1.split('\n');
 		const lines2 = yaml2.split('\n');
@@ -343,8 +348,14 @@ export class TemplaterService {
 			const match = line.match(/^(\w+):(.*)/);
 			if (match) {
 				const [_, key, value] = match;
-				if (!yamlMap.has(key.trim())) {
-					yamlMap.set(key.trim(), value.trim());
+				const trimmedKey = key.trim();
+				// Block prototype-polluting keys
+				if (TemplaterService.YAML_KEY_BLOCKLIST.has(trimmedKey)) {
+					log.warn(`Blocked dangerous YAML key: "${trimmedKey}"`);
+					continue;
+				}
+				if (!yamlMap.has(trimmedKey)) {
+					yamlMap.set(trimmedKey, value.trim());
 				}
 			}
 		}

@@ -374,8 +374,8 @@ export class FileOperations {
 	}
 
 	private normalizeFilePath(path: string): string {
-		// 处理重复斜杠
-		let normalized = path.replace(/\/+/g, '/');
+		// 处理重复斜杠，并去除开头的斜杠（vault 路径均为相对路径）
+		let normalized = path.replace(/\/+/g, '/').replace(/^\/+/, '');
 
 		// 处理目录遍历 (./ 和 ../)
 		const segments = normalized.split('/');
@@ -383,9 +383,9 @@ export class FileOperations {
 
 		for (const segment of segments) {
 			if (segment === '.') {
-
+				// 忽略当前目录符号
 			} else if (segment === '..') {
-				// 后退一级目录
+				// 后退一级目录；若已在根部则忽略，防止逃逸 vault
 				if (resultSegments.length > 0) {
 					resultSegments.pop();
 				}
@@ -394,7 +394,15 @@ export class FileOperations {
 			}
 		}
 
-		return resultSegments.join('/');
+		const result = resultSegments.join('/');
+
+		// 最终安全检查：规范化后的路径不应以 '/' 开头或包含 '..' 段
+		if (result.startsWith('/') || result.split('/').includes('..')) {
+			log.warn(`Rejected potentially unsafe file path: "${result}"`);
+			return '';
+		}
+
+		return result;
 	}
 
 	/**

@@ -325,11 +325,16 @@ export class CreationConfirmModal extends Modal {
 		const failedStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-failed-stat'});
 		const aliasesStat = statsContainer.createDiv({cls: 'ccmd-stat-item ccmd-aliases-stat'});
 
-		// 初始化统计项内容
-		createdStat.innerHTML = `<span class="ccmd-stat-icon">✅</span> ${t('successfullyCreated', {count: '0'})}`;
-		skippedStat.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> ${t('skipped', {count: '0'})}`;
-		failedStat.innerHTML = `<span class="ccmd-stat-icon">❌</span> ${t('failed', {count: '0'})}`;
-		aliasesStat.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> ${t('aliases', {count: '0'})}`;
+		// 初始化统计项内容（使用安全 DOM API，避免 innerHTML 注入）
+		const buildStat = (parent: HTMLElement, icon: string, label: string) => {
+			const iconSpan = parent.createEl('span', { cls: 'ccmd-stat-icon' });
+			iconSpan.textContent = icon;
+			parent.appendText(' ' + label);
+		};
+		buildStat(createdStat, '✅', t('successfullyCreated', {count: '0'}));
+		buildStat(skippedStat, '⏭️', t('skipped', {count: '0'}));
+		buildStat(failedStat, '❌', t('failed', {count: '0'}));
+		buildStat(aliasesStat, '🏷️', t('aliases', {count: '0'}));
 
 		this.progressElements = {
 			percentageDisplay,
@@ -371,11 +376,16 @@ export class CreationConfirmModal extends Modal {
 		// 更新进度
 		this.progressElements.progressText.textContent = t('creatingFilesStatus', {current: current.toString(), total: total.toString()});
 
-		// 更新统计数据 - 重新生成HTML内容
-		this.progressElements.stats.created.innerHTML = `<span class="ccmd-stat-icon">✅</span> ${t('successfullyCreated', {count: result.created.toString()})}`;
-		this.progressElements.stats.skipped.innerHTML = `<span class="ccmd-stat-icon">⏭️</span> ${t('skipped', {count: result.skipped.toString()})}`;
-		this.progressElements.stats.failed.innerHTML = `<span class="ccmd-stat-icon">❌</span> ${t('failed', {count: result.failed.toString()})}`;
-		this.progressElements.stats.aliases.innerHTML = `<span class="ccmd-stat-icon">🏷️</span> ${t('aliases', {count: result.aliasesAdded.toString()})}`;
+		// 更新统计数据（使用安全 DOM API）
+		const updateStat = (el: HTMLElement, icon: string, label: string) => {
+			el.empty();
+			el.createEl('span', { cls: 'ccmd-stat-icon', text: icon });
+			el.appendText(' ' + label);
+		};
+		updateStat(this.progressElements.stats.created, '✅', t('successfullyCreated', {count: result.created.toString()}));
+		updateStat(this.progressElements.stats.skipped, '⏭️', t('skipped', {count: result.skipped.toString()}));
+		updateStat(this.progressElements.stats.failed, '❌', t('failed', {count: result.failed.toString()}));
+		updateStat(this.progressElements.stats.aliases, '🏷️', t('aliases', {count: result.aliasesAdded.toString()}));
 	}
 
 	/**
