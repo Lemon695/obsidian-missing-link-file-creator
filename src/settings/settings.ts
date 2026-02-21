@@ -295,7 +295,8 @@ export class CreateFileSettingTab extends PluginSettingTab {
 			for (let i = 0; i < previewCount; i++) {
 				const rule = this.plugin.settings.rules[i];
 				const ruleItem = rulesList.createEl('li');
-				ruleItem.innerHTML = `<strong>${rule.name}</strong>: ${this.getRuleMatchDescription(rule)}`;
+				ruleItem.createEl('strong', { text: rule.name });
+				ruleItem.appendText(': ' + this.getRuleMatchDescription(rule));
 			}
 
 			if (this.plugin.settings.rules.length > 3) {

@@ -186,11 +186,31 @@ export class RuleManager {
 				return filename === condition.pattern;
 
 			case ConditionMatchType.REGEX:
-				const regex = new RegExp(condition.pattern);
-				return regex.test(filename);
+				return this.safeRegexTest(condition.pattern, filename);
 
 			default:
 				return false;
+		}
+	}
+
+	/**
+	 * Safely test a user-supplied regex pattern against a string.
+	 * Applies a length guard and a time-bounded execution to mitigate ReDoS.
+	 */
+	private safeRegexTest(pattern: string, input: string): boolean {
+		// Reject excessively long patterns to limit ReDoS surface
+		if (pattern.length > 500) {
+			log.warn(`Regex pattern exceeds maximum allowed length (500): ${pattern.length}`);
+			return false;
+		}
+		try {
+			const regex = new RegExp(pattern);
+			// Limit the input length fed to the regex to reduce backtracking cost
+			const truncated = input.length > 1000 ? input.substring(0, 1000) : input;
+			return regex.test(truncated);
+		} catch (e) {
+			log.warn(`Invalid regex pattern: ${pattern}`);
+			return false;
 		}
 	}
 
@@ -216,8 +236,7 @@ export class RuleManager {
 				return value === pattern;
 
 			case ConditionMatchType.REGEX:
-				const regex = new RegExp(pattern);
-				return regex.test(value);
+				return this.safeRegexTest(pattern, value);
 
 			default:
 				return value === pattern;

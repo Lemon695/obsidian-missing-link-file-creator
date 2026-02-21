@@ -136,11 +136,20 @@ export const createLogger = (
 	return new Logger(pluginName, logLevel, debugMode);
 };
 
+function escapeHtml(str: string): string {
+	return str
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
+}
+
 export function log_update(msg: string): void {
 	const notice = new Notice("", 15000);
 	// TODO: Find better way for this
 	// @ts-ignore
-	notice.noticeEl.innerHTML = `<b>Templater update</b>:<br/>${msg}`;
+	notice.noticeEl.innerHTML = `<b>Templater update</b>:<br/>${escapeHtml(msg)}`;
 }
 
 export function log_error(e: Error | TemplaterError): void {
@@ -148,10 +157,10 @@ export function log_error(e: Error | TemplaterError): void {
 	if (e instanceof TemplaterError && e.console_msg) {
 		// TODO: Find a better way for this
 		// @ts-ignore
-		notice.noticeEl.innerHTML = `<b>Templater Error</b>:<br/>${e.message}<br/>Check console for more information`;
+		notice.noticeEl.innerHTML = `<b>Templater Error</b>:<br/>${escapeHtml(e.message)}<br/>Check console for more information`;
 		console.error(`Templater Error:`, e.message, "\n", e.console_msg);
 	} else {
 		// @ts-ignore
-		notice.noticeEl.innerHTML = `<b>Templater Error</b>:<br/>${e.message}`;
+		notice.noticeEl.innerHTML = `<b>Templater Error</b>:<br/>${escapeHtml(e.message)}`;
 	}
 }

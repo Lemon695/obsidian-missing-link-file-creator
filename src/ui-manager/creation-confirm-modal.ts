@@ -457,10 +457,19 @@ export class CreationConfirmModal extends Modal {
 		modal.open();
 	}
 
+	private escapeHtml(str: string): string {
+		return str
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;');
+	}
+
 	// 添加一个简单的Markdown到HTML转换方法
 	private convertMarkdownToHTML(markdown: string): string {
-		// 这是非常基本的转换，只处理最常见的markdown语法
-		let html = markdown
+		// Escape HTML entities first to prevent XSS, then apply safe markdown transforms
+		let html = this.escapeHtml(markdown)
 			// 处理标题
 			.replace(/^### (.*$)/gim, '<h3>$1</h3>')
 			.replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -470,7 +479,7 @@ export class CreationConfirmModal extends Modal {
 			.replace(/\*(.*?)\*/gim, '<em>$1</em>')
 			// 处理链接
 			.replace(/\[\[(.*?)\]\]/gim, '<a href="#" class="internal-link">$1</a>')
-			.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+			.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="#">$1</a>')
 			// 处理列表
 			.replace(/^\s*\* (.*$)/gim, '<ul><li>$1</li></ul>')
 			.replace(/^\s*- (.*$)/gim, '<ul><li>$1</li></ul>')
