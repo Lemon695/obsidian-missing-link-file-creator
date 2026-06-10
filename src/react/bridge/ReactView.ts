@@ -21,6 +21,7 @@ export abstract class ReactView extends ItemView {
     const container = this.containerEl.children[1] as HTMLElement;
     container.empty();
     container.addClass("ccmd-react-root");
+    container.addClass("ccmd-root");
 
     this.root = createRoot(container);
     this.root.render(

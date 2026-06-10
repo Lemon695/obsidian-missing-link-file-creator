@@ -208,9 +208,9 @@ export class TagHelper {
 
 		// 提取所有链接
 		const links: string[] = [];
-		const linkRegex = /\[\[((?:[^\[\]]|\\.)+?)(?:\|(?:[^\[\]]|\\.)+?)?\]\]/g;
+		const linkRegex = /\[\[((?:[^[\]]|\\.)+?)(?:\|(?:[^[\]]|\\.)+?)?\]\]/g;
 		let match;
-		while (match = linkRegex.exec(content)) {
+		while ((match = linkRegex.exec(content))) {
 			const link = match[1].split('#')[0].split('|')[0].trim();
 			links.push(link);
 		}

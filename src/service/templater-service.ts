@@ -58,13 +58,14 @@ export class TemplaterService {
 			}
 
 			// 读取模板内容
-			const templateContent = await this.app.vault.read(templateFile as TFile);
+			const templateContent = await this.app.vault.read(templateFile);
 			log.debug(`Template content has been read, length: ${templateContent.length} characters`);
 
 			try {
 				const templaterPlugin = this.app.plugins.plugins["templater-obsidian"];
 
 				// 使用Templater的overwrite_file_commands方法
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 				if (templaterPlugin && typeof (templaterPlugin as any).templater?.overwrite_file_commands === 'function') {
 
 					let targetFile = this.app.vault.getAbstractFileByPath(targetPath);
@@ -72,7 +73,7 @@ export class TemplaterService {
 						await this.app.vault.create(targetPath, templateContent);
 						targetFile = this.app.vault.getAbstractFileByPath(targetPath);
 					} else if (targetFile instanceof TFile) {
-						await this.app.vault.modify(targetFile as TFile, templateContent);
+						await this.app.vault.modify(targetFile, templateContent);
 					}
 
 					if (!(targetFile instanceof TFile)) {
@@ -83,85 +84,28 @@ export class TemplaterService {
 					await templaterPlugin.templater.overwrite_file_commands(targetFile);
 
 					// 读取处理后的文件内容
-					const processedContent = await this.app.vault.read(targetFile as TFile);
+					const processedContent = await this.app.vault.read(targetFile);
 					log.debug(`Templater processing completed, processed content length: ${processedContent.length} characters`);
 
 					let finalContent = processedContent;
 
-					// 如果设置为合并模式且有待处理的别名，将别名合并到处理后的内容中
-
+					// 合并模式：用 processFrontMatter 代替手写 regex，支持各种 YAML 格式
 					if (templaterMode === 'merge') {
 						const aliases = this.fileOperations && this.fileOperations.pendingAliases.get(targetPath);
 						if (aliases && aliases.length > 0) {
 							log.debug(`Merging aliases into file ${targetPath}, aliases: ${aliases.join(', ')}`);
 
-							// 检查是否包含frontmatter
-							const hasFrontmatter = finalContent.trim().startsWith('---');
+							await this.app.fileManager.processFrontMatter(targetFile, (fm) => {
+								const current: string[] = Array.isArray(fm.aliases)
+									? (fm.aliases as unknown[]).map(String)
+									: typeof fm.aliases === 'string' ? [fm.aliases as string] : [];
+								const toAdd = aliases.filter(a => !current.includes(a));
+								if (toAdd.length > 0) fm.aliases = [...current, ...toAdd];
+							});
 
-							if (hasFrontmatter) {
-								// 从处理后的内容中提取frontmatter
-								const fmRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
-								const fmMatch = finalContent.match(fmRegex);
-
-								if (fmMatch) {
-									const frontmatter = fmMatch[1];
-									const restContent = finalContent.slice(fmMatch[0].length);
-
-									// 检查是否已有aliases字段
-									const hasAliases = /^aliases:/m.test(frontmatter);
-
-									if (hasAliases) {
-										// 将新别名添加到现有别名列表中
-										// 支持多种格式: 数组格式和列表格式
-										const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
-
-										if (/aliases:\s*\[.*\]/m.test(frontmatter)) {
-											// 数组格式: aliases: ["别名1", "别名2"]
-											const updatedFrontmatter = frontmatter.replace(
-												/aliases:\s*\[(.*)\]/m,
-												(match, existingAliases) => {
-													const existingList = existingAliases.trim();
-													const prefix = existingList ? existingList + ', ' : '';
-													return `aliases: [${prefix}${aliases.map(a => `"${a}"`).join(', ')}]`;
-												}
-											);
-											finalContent = `---\n${updatedFrontmatter}\n---${restContent}`;
-										} else {
-											// 列表格式: aliases:\n  - "别名1"\n  - "别名2"
-											const indentMatch = frontmatter.match(/aliases:\s*\n(\s+)- /);
-											const indent = indentMatch ? indentMatch[1] : '  ';
-
-											// 根据现有缩进格式化新别名
-											const formattedAliases = aliases.map(a => `${indent}- "${a}"`).join('\n');
-
-											// 查找aliases块的结尾位置
-											const updatedFrontmatter = frontmatter.replace(
-												/aliases:\s*(\n\s+- .*)*$/m,
-												(match) => {
-													return `${match}\n${formattedAliases}`;
-												}
-											);
-											finalContent = `---\n${updatedFrontmatter}\n---${restContent}`;
-										}
-									} else {
-										// 没有aliases字段，添加新字段
-										const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
-										const updatedFrontmatter = `${frontmatter}\naliases:\n${aliasesYaml}`;
-										finalContent = `---\n${updatedFrontmatter}\n---${restContent}`;
-									}
-
-									// 更新文件内容
-									await this.app.vault.modify(targetFile as TFile, finalContent);
-									log.debug(`Alias merging completed, file has been updated`);
-								}
-							} else {
-								const aliasesYaml = aliases.map(a => `  - "${a}"`).join('\n');
-								finalContent = `---\naliases:\n${aliasesYaml}\n---\n\n${finalContent}`;
-								await this.app.vault.modify(targetFile as TFile, finalContent);
-								log.debug(`Added frontmatter and aliases`);
-							}
-
-							// 处理完成后清除pending别名
+							// 读取 processFrontMatter 修改后的最新内容保持 finalContent 同步
+							finalContent = await this.app.vault.read(targetFile);
+							log.debug(`Alias merging completed via processFrontMatter`);
 							this.fileOperations.pendingAliases.delete(targetPath);
 						}
 					}
@@ -342,7 +286,7 @@ export class TemplaterService {
 		for (const line of [...lines1, ...lines2]) {
 			const match = line.match(/^(\w+):(.*)/);
 			if (match) {
-				const [_, key, value] = match;
+				const [, key, value] = match;
 				if (!yamlMap.has(key.trim())) {
 					yamlMap.set(key.trim(), value.trim());
 				}
@@ -389,7 +333,7 @@ export class TemplaterService {
 			});
 		};
 
-		collectTemplates(folderObj as TFolder);
+		collectTemplates(folderObj);
 
 		// 保存到缓存
 		this.templateListCache = templates;
@@ -439,6 +383,24 @@ export class TemplaterService {
 			expanded.activeFilePath = activeFile.path;
 			expanded.activeFileFolder = activeFile.parent?.path || '';
 		}
+
+		// 来源文件变量（由调用者通过 variables 传入，或回退到活跃文件）
+		if (!expanded.source_file) {
+			expanded.source_file = expanded.activeFile || '';
+		}
+		if (!expanded.source_path) {
+			expanded.source_path = expanded.activeFilePath || '';
+		}
+
+		// alias 变量 — 取 aliases 的第一个值
+		if (!expanded.alias && expanded.aliases) {
+			expanded.alias = expanded.aliases.split(',')[0]?.trim() || '';
+		}
+		if (expanded.alias === undefined) expanded.alias = '';
+
+		// rule_name / link_text — 由调用者提供，无则为空字符串
+		if (expanded.rule_name === undefined) expanded.rule_name = '';
+		if (expanded.link_text === undefined) expanded.link_text = '';
 
 		return expanded;
 	}

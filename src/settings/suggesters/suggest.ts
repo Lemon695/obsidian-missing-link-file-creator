@@ -1,3 +1,4 @@
+/* eslint-disable obsidianmd/no-static-styles-assignment, obsidianmd/prefer-abstract-input-suggest -- 遗留 Suggester 实现，使用直接 DOM 定位；迁移到 AbstractInputSuggest 需整体重写 */
 // Credits go to Liam's Periodic Notes Plugin: https://github.com/liamcain/obsidian-periodic-notes
 
 import { App, ISuggestOwner, Scope } from "obsidian";
@@ -117,7 +118,7 @@ class Suggest<T> {
 
 	// 清除活跃的工具提示
 	clearActiveTooltip() {
-		const tooltips = document.querySelectorAll('.ccmd-path-tooltip');
+		const tooltips = activeDocument.querySelectorAll('.ccmd-path-tooltip');
 		tooltips.forEach(tooltip => {
 			tooltip.remove();
 		});
@@ -134,10 +135,10 @@ class Suggest<T> {
 				// 清除任何现有的工具提示
 				this.clearActiveTooltip();
 
-				tooltip = document.createElement('div');
+				tooltip = activeDocument.createElement('div');
 				tooltip.addClass('ccmd-path-tooltip');
 				tooltip.setText(suggestionEl.textContent || '');
-				document.body.appendChild(tooltip);
+				activeDocument.body.appendChild(tooltip);
 				this.activeTooltip = tooltip;  // 跟踪活跃的工具提示
 
 				const rect = suggestionEl.getBoundingClientRect();
@@ -145,7 +146,7 @@ class Suggest<T> {
 				tooltip.style.left = `${rect.left} px`;
 
 				// 延迟显示避免闪烁
-				setTimeout(() => {
+				window.setTimeout(() => {
 					if (tooltip) tooltip.addClass('show');
 				}, DELAYS.TOOLTIP_SHOW_MS);
 			}
@@ -154,7 +155,7 @@ class Suggest<T> {
 		suggestionEl.addEventListener('mouseleave', () => {
 			if (tooltip) {
 				tooltip.removeClass('show');
-				setTimeout(() => {
+				window.setTimeout(() => {
 					if (tooltip) {
 						tooltip.remove();
 						tooltip = null;
@@ -262,7 +263,7 @@ export abstract class TextInputSuggest<T> implements ISuggestOwner<T> {
 		this.app.keymap.popScope(this.scope);
 
 		// 确保清除任何可能存在的工具提示
-		const tooltips = document.querySelectorAll('.ccmd-path-tooltip');
+		const tooltips = activeDocument.querySelectorAll('.ccmd-path-tooltip');
 		tooltips.forEach(tooltip => {
 			tooltip.remove();
 		});

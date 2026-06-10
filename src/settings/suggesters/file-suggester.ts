@@ -1,3 +1,4 @@
+/* eslint-disable obsidianmd/no-static-styles-assignment -- 遗留 Suggester 布局 */
 // Credits go to Liam's Periodic Notes Plugin: https://github.com/liamcain/obsidian-periodic-notes
 
 import { TAbstractFile, TFile } from "obsidian";
@@ -92,7 +93,7 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 		const inputEl = this.inputEl;
 
 		inputEl.addEventListener('focus', () => {
-			setTimeout(() => {
+			window.setTimeout(() => {
 				const cursorPos = inputEl.selectionStart || 0;
 				const textWidthBeforeCursor = this.getTextWidth(inputEl.value.substring(0, cursorPos), getComputedStyle(inputEl));
 
@@ -105,7 +106,7 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 
 	// 辅助方法：计算文本宽度
 	private getTextWidth(text: string, style: CSSStyleDeclaration): number {
-		const canvas = document.createElement('canvas');
+		const canvas = activeDocument.createElement('canvas');
 		const context = canvas.getContext('2d');
 		if (context) {
 			context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;

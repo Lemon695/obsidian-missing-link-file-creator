@@ -1,3 +1,25 @@
+import { getLanguage } from 'obsidian';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 新 i18n 类型（供新模块使用）
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 双语字典类型。
+ *
+ * 示例：
+ *   const dict: I18nDict<{ name: string }> = {
+ *     zh: { name: '扫描' },
+ *     en: { name: 'Scan' },
+ *   }
+ *   t(dict).name  →  根据当前语言返回对应值
+ */
+export type I18nDict<T> = { zh: T; en: T };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 旧 i18n 系统（平铺字符串字典，保留向后兼容）
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const translations = {
 	'en-GB': {
 		// Command names
@@ -90,6 +112,8 @@ export const translations = {
 		skipped: 'Skipped: {count} files',
 		failed: 'Failed: {count} files',
 		aliases: 'Aliases: {count}',
+		undoCreation: 'Undo (5s)',
+		undoSuccess: 'Undo complete: {count} files deleted',
 		bulkRenameFiles: 'Bulk rename files',
 		currentPath: 'Current path',
 		newPath: 'New path',
@@ -125,6 +149,33 @@ export const translations = {
 		fileCreationRulesManagement: 'File creation rules management',
 		rulesManagementDescription: 'Rules determine file creation location and template based on filename patterns. Priority is listed from high to low.',
 		searchRules: 'Search rules...',
+		ruleFilterAll: 'All',
+		ruleFilterEnabled: 'Enabled',
+		ruleFilterDisabled: 'Disabled',
+		ruleFilterNoTemplate: 'No template',
+		ruleCountSummary: '{total} rules · {enabled} enabled',
+		colRuleName: 'Rule name',
+		colMatchCondition: 'Match condition',
+		colTargetFolder: 'Target folder',
+		colUseTemplate: 'Template',
+		colActions: 'Actions',
+		noRulesMatchSearch: 'No rules match "{query}"',
+		dragToReorder: 'Drag to reorder priority',
+		rulesGroupedSubtitle: 'Grouped by project · Drag to reorder priority',
+		ruleGroupOther: 'Other',
+		ruleGroupWholeToggle: 'Whole group',
+		copyRule: 'Copy',
+		more: 'More',
+		selectedCount: '{count} selected',
+		batchEnable: 'Enable',
+		batchChangeFolder: 'Change folder',
+		batchChangeFolderHeader: 'Change target folder',
+		batchChangeFolderPlaceholder: 'New target folder path...',
+		sortPriority: 'Priority ↓',
+		sortNameAsc: 'Name A-Z',
+		sortNameDesc: 'Name Z-A',
+		folderTreePreview: 'Folder tree',
+		folderTreeEmpty: 'No target folders configured.',
 		addRule: 'Add rule',
 		close: 'Close',
 		noRulesCreatedYet: 'No rules created yet',
@@ -145,6 +196,13 @@ export const translations = {
 		confirmDeleteRule: 'Are you sure you want to delete rule "{name}"?',
 		delete: 'Delete',
 		noMatchConditions: 'No match conditions',
+		exportRules: 'Export JSON',
+		importRules: 'Import JSON',
+		importModeOverwrite: 'Overwrite',
+		importModeMerge: 'Merge',
+		rulesExported: 'Rules exported to file',
+		rulesImported: 'Rules imported successfully',
+		importRulesError: 'Import failed: {message}',
 
 		// Condition operators and types
 		and: 'and',
@@ -182,6 +240,56 @@ export const translations = {
 		ruleSaved: 'Rule "{name}" saved',
 		ruleEditingCancelled: 'Rule editing cancelled',
 		ruleNamePrompt: 'Rule Name',
+		// Extra frontmatter (F-08)
+		extraFrontmatter: 'Extra frontmatter fields',
+		extraFrontmatterDesc: 'Key-value pairs added to the frontmatter of created files',
+		addFrontmatterField: 'Add field',
+		frontmatterKey: 'Key',
+		frontmatterValue: 'Value',
+		conditionLabel: 'Condition',
+		propertyName: 'Property name',
+		propertyValue: 'Property value',
+		textToMatch: 'Text to match',
+		unsavedChanges: 'Unsaved changes',
+		rulePreviewTitle: 'Match preview',
+		rulePreviewSampleLabel: 'Sample file name',
+		rulePreviewSamplePlaceholder: 'Type a file name to preview…',
+		rulePreviewEmpty: 'Enter a sample name to preview where this rule creates the file.',
+		rulePreviewMatched: 'Matched',
+		rulePreviewNoMatch: 'No match',
+		rulePreviewMissDesc: 'This rule does not match the sample name.',
+		rulePreviewTarget: 'Target',
+		rulePreviewTemplate: 'Template',
+		rulePreviewFrontmatter: 'Frontmatter',
+		// Rule test dialog (F-03)
+		testRules: 'Test rules',
+		ruleTestDialogTitle: 'Rule test',
+		ruleTestInputLabel: 'File name',
+		ruleTestInputPlaceholder: 'Enter a file name to test…',
+		ruleTestResult: 'Result',
+		ruleTestMatchedRule: 'Matched rule',
+		ruleTestTargetFolder: 'Target folder',
+		ruleTestTemplate: 'Template',
+		ruleTestNoMatch: 'No rule matched — default settings will be used',
+		ruleTestDefaultFolder: 'Default folder',
+		// History (F-04)
+		historyTab: 'History',
+		historyEmpty: 'No creation history yet',
+		linksTab: 'Links',
+		dashboardCreateFailedCount: 'Failed to create {count} file(s).',
+		// Stats (F-11)
+		statsTab: 'Stats',
+		statsTotalMissing: 'Total missing links',
+		statsTopMissing: 'Top 10 most-referenced',
+		statsRuleHit: 'Rule hit rate',
+		statsRuleHitValue: '{matched} / {total} links matched a rule ({pct}%)',
+		historyColTime: 'Time',
+		historyColFile: 'File',
+		historyColRule: 'Rule',
+		historyColSource: 'Source',
+		historyNoRule: 'Default',
+		// Source files expand (F-12)
+		sourcesLabel: 'Sources',
 		enterRuleName: 'Enter rule name',
 		noTemplatesFound: 'No templates found, please check template folder settings',
 		noTemplateFilesFound: 'No template files found',
@@ -204,6 +312,12 @@ export const translations = {
 		// Dashboard
 		dashboardTitle: 'Missing Links',
 		dashboardCreateSelected: 'Create Selected',
+		dashboardCreateAll: 'Create All {count}',
+		dashboardCreateGroup: 'Create group',
+		dashboardFooterInfo: '{total} links · {selected} selected',
+		dashboardSelectAll: 'Select All',
+		dashboardUnmatched: 'Unspecified',
+		dashboardRefLabel: 'Referenced',
 		dashboardCreateSelectedTooltip: 'Create selected files (Cmd+Enter)',
 		dashboardRefreshTooltip: 'Refresh Data (Cmd+Shift+R)',
 		dashboardSearchPlaceholder: 'Search links...',
@@ -246,6 +360,17 @@ export const translations = {
 		sideViewCreatedNoRule: '✓ Created: {file}',
 		sideViewIgnored: 'Ignored "{file}"',
 		sideViewCreateFailed: 'Failed to create file',
+		sideViewCreateAll: 'Create all {count}',
+		sideViewCreateAllSub: '{matched} matched · {unmatched} to assign',
+		sideViewSectionMatched: 'Matched rules',
+		sideViewSectionUnmatched: 'To assign',
+		sideViewSectionCreated: 'Created ({count})',
+		sideViewNoRule: 'No rule · default folder',
+		sideViewCreatedBadge: 'Done',
+		sideViewSelectedCount: '{count} selected',
+		sideViewClearSelection: 'Clear',
+		sideViewCreateSelected: 'Create selected',
+		sideViewEmptyAllClearDesc: 'All [[links]] now point to real files.',
 	},
 	'zh': {
 		// 命令名称
@@ -338,6 +463,8 @@ export const translations = {
 		skipped: '已跳过: {count} 个文件',
 		failed: '失败: {count} 个文件',
 		aliases: '别名: {count}',
+		undoCreation: '撤销（5秒内有效）',
+		undoSuccess: '撤销完成：已删除 {count} 个文件',
 		bulkRenameFiles: '批量重命名文件',
 		currentPath: '当前路径',
 		newPath: '新路径',
@@ -373,6 +500,33 @@ export const translations = {
 		fileCreationRulesManagement: '文件创建规则管理',
 		rulesManagementDescription: '规则根据文件名模式确定文件创建位置和模板。优先级从高到低列出。',
 		searchRules: '搜索规则...',
+		ruleFilterAll: '全部',
+		ruleFilterEnabled: '已启用',
+		ruleFilterDisabled: '已禁用',
+		ruleFilterNoTemplate: '无模板',
+		ruleCountSummary: '共 {total} 条 · {enabled} 启用',
+		colRuleName: '规则名称',
+		colMatchCondition: '匹配条件',
+		colTargetFolder: '目标文件夹',
+		colUseTemplate: '使用模板',
+		colActions: '操作',
+		noRulesMatchSearch: '没有匹配 “{query}” 的规则',
+		dragToReorder: '拖动调整优先级',
+		rulesGroupedSubtitle: '按项目分组管理 · 拖动排序即调整优先级',
+		ruleGroupOther: '其它',
+		ruleGroupWholeToggle: '整组',
+		copyRule: '复制',
+		more: '更多',
+		selectedCount: '已选 {count} 条',
+		batchEnable: '批量启用',
+		batchChangeFolder: '改目录',
+		batchChangeFolderHeader: '批量修改目标文件夹',
+		batchChangeFolderPlaceholder: '新目标文件夹路径...',
+		sortPriority: '优先级 ↓',
+		sortNameAsc: '名称 A-Z',
+		sortNameDesc: '名称 Z-A',
+		folderTreePreview: '目录树预览',
+		folderTreeEmpty: '尚未配置任何目标文件夹。',
 		addRule: '添加规则',
 		close: '关闭',
 		noRulesCreatedYet: '尚未创建规则',
@@ -393,6 +547,13 @@ export const translations = {
 		confirmDeleteRule: '确定要删除规则 "{name}" 吗?',
 		delete: '删除',
 		noMatchConditions: '无匹配条件',
+		exportRules: '导出 JSON',
+		importRules: '导入 JSON',
+		importModeOverwrite: '覆盖',
+		importModeMerge: '合并',
+		rulesExported: '规则已导出',
+		rulesImported: '规则导入成功',
+		importRulesError: '导入失败：{message}',
 
 		// 条件操作符和类型
 		and: '且',
@@ -430,6 +591,56 @@ export const translations = {
 		ruleSaved: '规则 "{name}" 已保存',
 		ruleEditingCancelled: '规则编辑已取消',
 		ruleNamePrompt: '规则名称',
+		// 附加 frontmatter (F-08)
+		extraFrontmatter: '附加 frontmatter 字段',
+		extraFrontmatterDesc: '创建文件时写入 frontmatter 的额外键值对',
+		addFrontmatterField: '添加字段',
+		frontmatterKey: '键',
+		frontmatterValue: '值',
+		conditionLabel: '条件',
+		propertyName: '属性名',
+		propertyValue: '属性值',
+		textToMatch: '要匹配的文本',
+		unsavedChanges: '更改未保存',
+		rulePreviewTitle: '命中预览',
+		rulePreviewSampleLabel: '样例文件名',
+		rulePreviewSamplePlaceholder: '输入文件名预览命中…',
+		rulePreviewEmpty: '输入样例文件名，预览此规则会把文件创建到哪里。',
+		rulePreviewMatched: '命中',
+		rulePreviewNoMatch: '未命中',
+		rulePreviewMissDesc: '此规则不匹配该样例文件名。',
+		rulePreviewTarget: '目标路径',
+		rulePreviewTemplate: '模板',
+		rulePreviewFrontmatter: '附加字段',
+		// 规则测试 (F-03)
+		testRules: '测试规则',
+		ruleTestDialogTitle: '规则测试',
+		ruleTestInputLabel: '文件名',
+		ruleTestInputPlaceholder: '输入要测试的文件名…',
+		ruleTestResult: '结果',
+		ruleTestMatchedRule: '命中规则',
+		ruleTestTargetFolder: '目标文件夹',
+		ruleTestTemplate: '模板',
+		ruleTestNoMatch: '无规则命中 — 将使用默认设置',
+		ruleTestDefaultFolder: '默认目录',
+		// 历史记录 (F-04)
+		historyTab: '历史',
+		historyEmpty: '暂无创建历史',
+		linksTab: '链接',
+		dashboardCreateFailedCount: '创建 {count} 个文件失败。',
+		// 统计 (F-11)
+		statsTab: '统计',
+		statsTotalMissing: '缺失链接总数',
+		statsTopMissing: 'Top 10 被引用最多',
+		statsRuleHit: '规则命中率',
+		statsRuleHitValue: '{matched} / {total} 条链接命中了规则（{pct}%）',
+		historyColTime: '时间',
+		historyColFile: '文件',
+		historyColRule: '规则',
+		historyColSource: '来源',
+		historyNoRule: '默认',
+		// 来源文件展开 (F-12)
+		sourcesLabel: '来源文件',
 		enterRuleName: '输入规则名称',
 		noTemplatesFound: '未找到模板,请检查模板文件夹设置',
 		noTemplateFilesFound: '未找到模板文件',
@@ -452,6 +663,12 @@ export const translations = {
 		// Dashboard
 		dashboardTitle: '缺失链接',
 		dashboardCreateSelected: '创建所选',
+		dashboardCreateAll: '创建全部 {count}',
+		dashboardCreateGroup: '建本组',
+		dashboardFooterInfo: '{total} 个缺失 · 已选 {selected}',
+		dashboardSelectAll: '全选',
+		dashboardUnmatched: '待指定',
+		dashboardRefLabel: '被引用',
 		dashboardCreateSelectedTooltip: '创建选中的文件 (Cmd+Enter)',
 		dashboardRefreshTooltip: '刷新数据 (Cmd+Shift+R)',
 		dashboardSearchPlaceholder: '搜索链接...',
@@ -494,36 +711,64 @@ export const translations = {
 		sideViewCreatedNoRule: '✓ 已创建: {file}',
 		sideViewIgnored: '已忽略 "{file}"',
 		sideViewCreateFailed: '创建文件失败',
+		sideViewCreateAll: '一键创建全部 {count} 个',
+		sideViewCreateAllSub: '{matched} 个已匹配 · {unmatched} 个待指定',
+		sideViewSectionMatched: '已匹配规则',
+		sideViewSectionUnmatched: '待指定',
+		sideViewSectionCreated: '本次已创建 {count}',
+		sideViewNoRule: '无规则 · 默认目录',
+		sideViewCreatedBadge: '已建',
+		sideViewSelectedCount: '已选 {count}',
+		sideViewClearSelection: '清除',
+		sideViewCreateSelected: '创建所选',
+		sideViewEmptyAllClearDesc: '所有 [[链接]] 都已指向真实文件。',
 	}
 };
 
 type Locale = keyof typeof translations;
 
 export function getLocale(): Locale {
-	const lang = window.localStorage.getItem('language') || 'en-GB';
-	return (lang in translations ? lang : 'en-GB') as Locale;
-}
-
-export function t(key: keyof typeof translations["en-GB"], params?: Record<string, string>): string {
-	const locale = getLocale();
-	let text = translations[locale][key] || translations["en-GB"][key];
-	// 替换占位符
-	if (params) {
-		Object.keys(params).forEach(paramKey => {
-			text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), params[paramKey]);
-		});
-	}
-	return text;
+	const lang = getLanguage();
+	if (lang in translations) return lang as Locale;
+	if (lang.startsWith('zh')) return 'zh';
+	return 'en-GB';
 }
 
 /**
- * 调试函数：打印当前语言设置
+ * 统一翻译函数，支持两种调用方式：
+ *
+ * 1. 新模块：类型安全字典（I18nDict<T>）
+ *    t({ zh: { name: '扫描' }, en: { name: 'Scan' } }).name
+ *
+ * 2. 旧代码：平铺字符串 key（向后兼容）
+ *    t('createFilesForUnresolvedLinksInCurrentFile')
+ *    t('errorProcessingFile', { message: err.message })
  */
-export function debugLocale(): void {
-	console.log('=== Locale Debug Info ===');
-	console.log('Current locale:', getLocale());
-	console.log('localStorage language:', window.localStorage.getItem('language'));
-	console.log('navigator.language:', navigator.language);
-	console.log('moment locale:', (window as any).moment?.locale());
-	console.log('========================');
+export function t<T>(dict: I18nDict<T>): T;
+export function t(key: keyof typeof translations['en-GB'], params?: Record<string, string>): string;
+export function t<T>(
+	dictOrKey: I18nDict<T> | keyof typeof translations['en-GB'],
+	params?: Record<string, string>
+): T | string {
+	// ── 新路径：传入的是 I18nDict<T> 对象 ───────────────────────────────────
+	if (
+		typeof dictOrKey === 'object' &&
+		dictOrKey !== null &&
+		'zh' in (dictOrKey as object) &&
+		'en' in (dictOrKey as object)
+	) {
+		const dict = dictOrKey;
+		return getLocale().startsWith('zh') ? dict.zh : dict.en;
+	}
+
+	// ── 旧路径：传入的是字符串 key ───────────────────────────────────────────
+	const key = dictOrKey as keyof typeof translations['en-GB'];
+	const locale = getLocale();
+	let text: string = translations[locale][key] || translations['en-GB'][key];
+	if (params) {
+		for (const paramKey of Object.keys(params)) {
+			text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), params[paramKey]);
+		}
+	}
+	return text;
 }

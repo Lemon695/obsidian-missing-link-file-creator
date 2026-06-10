@@ -63,7 +63,8 @@ export class RuleManager {
 					rule: rule,
 					targetFolder: rule.targetFolder,
 					templatePath: rule.templatePath,
-					templateAliasHandling: rule.templateAliasHandling
+					templateAliasHandling: rule.templateAliasHandling,
+					extraFrontmatter: rule.extraFrontmatter,
 				};
 			}
 		}
@@ -75,7 +76,6 @@ export class RuleManager {
 		if (!rule.conditions || rule.conditions.length === 0) return false;
 
 		try {
-			let finalResult = true;
 			let hasPositiveCondition = false;
 
 			// 先处理AND条件
@@ -187,9 +187,10 @@ export class RuleManager {
 			case ConditionMatchType.EXACT:
 				return filename === condition.pattern;
 
-			case ConditionMatchType.REGEX:
+			case ConditionMatchType.REGEX: {
 				const regex = new RegExp(condition.pattern);
 				return regex.test(filename);
+			}
 
 			default:
 				return false;
@@ -217,9 +218,10 @@ export class RuleManager {
 			case ConditionMatchType.EXACT:
 				return value === pattern;
 
-			case ConditionMatchType.REGEX:
+			case ConditionMatchType.REGEX: {
 				const regex = new RegExp(pattern);
 				return regex.test(value);
+			}
 
 			default:
 				return value === pattern;
@@ -314,5 +316,46 @@ export class RuleManager {
 	 */
 	getRuleCount(): number {
 		return this.settings.rules?.length || 0;
+	}
+
+	/**
+	 * 导出所有规则为 JSON 字符串
+	 */
+	exportRules(): string {
+		return JSON.stringify(this.getAllRules(), null, 2);
+	}
+
+	/**
+	 * 从 JSON 字符串导入规则
+	 * @param json JSON 字符串
+	 * @param mode 'overwrite' 覆盖现有规则；'merge' 合并（按 id 去重，已有则跳过）
+	 */
+	importRules(json: string, mode: 'overwrite' | 'merge'): void {
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(json);
+		} catch {
+			throw new Error('Invalid JSON format');
+		}
+
+		if (!Array.isArray(parsed)) {
+			throw new Error('Expected an array of rules');
+		}
+
+		const incoming = parsed as FileCreationRule[];
+		for (const rule of incoming) {
+			if (typeof rule.id !== 'string' || typeof rule.name !== 'string') {
+				throw new Error('Each rule must have an id and name');
+			}
+		}
+
+		if (mode === 'overwrite') {
+			this.settings.rules = incoming;
+		} else {
+			if (!this.settings.rules) this.settings.rules = [];
+			const existingIds = new Set(this.settings.rules.map((r) => r.id));
+			const toAdd = incoming.filter((r) => !existingIds.has(r.id));
+			this.settings.rules.push(...toAdd);
+		}
 	}
 }

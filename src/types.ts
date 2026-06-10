@@ -27,6 +27,7 @@ declare module "obsidian" {
     }
 
     interface EventRef {
+        // eslint-disable-next-line no-undef -- Events is declared in Obsidian's type module
         e: Events;
     }
 

@@ -1,30 +1,34 @@
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/react/lib/utils";
 
-const badgeVariants = cva(
-  "tw-inline-flex tw-items-center tw-rounded-full tw-border tw-px-2.5 tw-py-0.5 tw-text-xs tw-font-semibold tw-transition-colors focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-ring focus:tw-ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default: "tw-border-transparent tw-bg-primary tw-text-primary-foreground hover:tw-bg-primary/80",
-        secondary: "tw-border-transparent tw-bg-secondary tw-text-secondary-foreground hover:tw-bg-secondary/80",
-        destructive: "tw-border-transparent tw-bg-destructive tw-text-destructive-foreground hover:tw-bg-destructive/80",
-        outline: "tw-text-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+const VARIANT_CLASS: Record<BadgeVariant, string> = {
+  default: "ccmd-badge--accent",
+  secondary: "ccmd-badge--muted",
+  destructive: "ccmd-badge--warn",
+  outline: "",
+};
+
+function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(" ");
+}
+
+interface BadgeVariantOptions {
+  variant?: BadgeVariant | null;
+  className?: string;
+}
+
+function badgeVariants({ variant, className }: BadgeVariantOptions = {}): string {
+  const v: BadgeVariant = variant ?? "default";
+  return cx("ccmd-badge", VARIANT_CLASS[v], className);
+}
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: BadgeVariant;
+}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return <div className={badgeVariants({ variant, className })} {...props} />;
 }
 
 export { Badge, badgeVariants };

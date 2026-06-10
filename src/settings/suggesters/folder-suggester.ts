@@ -1,3 +1,4 @@
+/* eslint-disable obsidianmd/no-static-styles-assignment -- 遗留 Suggester 布局 */
 // Credits go to Liam's Periodic Notes Plugin: https://github.com/liamcain/obsidian-periodic-notes
 
 import { App, TAbstractFile, TFolder } from "obsidian";
@@ -51,7 +52,7 @@ export class FolderSuggest extends TextInputSuggest<TFolder> {
 		// 焦点时确保光标可见
 		inputEl.addEventListener('focus', () => {
 			// 延迟执行，确保在输入框完全渲染后执行
-			setTimeout(() => {
+			window.setTimeout(() => {
 				// 获取当前输入框中光标位置
 				const cursorPos = inputEl.selectionStart || 0;
 
@@ -68,7 +69,7 @@ export class FolderSuggest extends TextInputSuggest<TFolder> {
 
 	// 辅助方法：计算文本宽度
 	private getTextWidth(text: string, style: CSSStyleDeclaration): number {
-		const canvas = document.createElement('canvas');
+		const canvas = activeDocument.createElement('canvas');
 		const context = canvas.getContext('2d');
 		if (context) {
 			context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;

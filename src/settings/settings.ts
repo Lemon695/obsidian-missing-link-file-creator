@@ -1,11 +1,4 @@
-import React from "react";
-import { createRoot, Root } from "react-dom/client";
-import { App, PluginSettingTab } from "obsidian";
 import { FileCreationRule } from "@/model/rule-types";
-import CheckAndCreateMDFilePlugin from "../main";
-import { RuleManagementModal } from "@/ui-manager/rule-management-modal";
-import { ObsidianProvider } from "@/react/context/ObsidianContext";
-import { SettingsPanel } from "@/react/settings/SettingsPanel";
 
 export interface CreateFileSettings {
 	createFileSetting: string;
@@ -33,12 +26,18 @@ export interface CreateFileSettings {
 
 	// 忽略列表
 	ignoreList: string[];
+
+	// 仪表盘弹窗高度（CSS 值，如 80vh / 600px）
+	dashboardHeight: string;
+
+	// 模块启用状态（opt-out：undefined = 启用）
+	moduleEnabled?: Record<string, boolean>;
 }
 
 export const DEFAULT_SETTINGS: CreateFileSettings = {
 	createFileSetting: 'default',
 	showCreateFileNotification: true,
-	defaultFolderPath: '', // 默认为目录
+	defaultFolderPath: '',
 
 	addAliasesToFrontmatter: true,
 
@@ -60,60 +59,7 @@ export const DEFAULT_SETTINGS: CreateFileSettings = {
 	debugMode: false,
 
 	// 忽略列表
-	ignoreList: []
-}
+	ignoreList: [],
 
-export class CreateFileSettingTab extends PluginSettingTab {
-	plugin: CheckAndCreateMDFilePlugin;
-	private root: Root | null = null;
-	private refreshToken = 0;
-	public static currentInstance: CreateFileSettingTab | null = null;
-
-	constructor(app: App, plugin: CheckAndCreateMDFilePlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-
-		CreateFileSettingTab.currentInstance = this;
-	}
-
-	display(): void {
-		this.containerEl.empty();
-		this.containerEl.addClass("ccmd-react-root", "ccmd-settings-root");
-		this.renderReactPanel();
-	}
-
-	private renderReactPanel(): void {
-		if (!this.root) {
-			this.root = createRoot(this.containerEl);
-		}
-
-		this.root.render(
-			React.createElement(
-				ObsidianProvider,
-				{
-					app: this.app,
-					plugin: this.plugin,
-					settings: this.plugin.settings,
-				},
-				React.createElement(SettingsPanel, {
-					refreshToken: this.refreshToken,
-					onOpenRulesManagement: () => {
-						const modal = new RuleManagementModal(this.app, this.plugin);
-						modal.open();
-					},
-				})
-			)
-		);
-	}
-
-	public refreshRulesSummary() {
-		this.refreshToken += 1;
-		this.renderReactPanel();
-	}
-
-	hide() {
-		this.root?.unmount();
-		this.root = null;
-		CreateFileSettingTab.currentInstance = null;
-	}
+	dashboardHeight: '80vh',
 }

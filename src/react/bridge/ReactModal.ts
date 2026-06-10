@@ -21,6 +21,7 @@ export abstract class ReactModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass("ccmd-react-root");
+    contentEl.addClass("ccmd-root");
 
     this.root = createRoot(contentEl);
     this.root.render(

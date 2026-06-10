@@ -5,12 +5,10 @@ import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const outDir = path.join(root, ".codex-tests");
-const entries = [
-  path.join(root, "tests/rule-manager.test.ts"),
-  path.join(root, "tests/bridge-contract.test.ts"),
-  path.join(root, "tests/legacy-modal-bridge-contract.test.ts"),
-  path.join(root, "tests/i18n-contract.test.ts"),
-];
+const testsDir = path.join(root, "tests");
+const entries = fs.readdirSync(testsDir)
+  .filter((f) => f.endsWith(".test.ts") || f.endsWith(".test.tsx"))
+  .map((f) => path.join(testsDir, f));
 
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(outDir, { recursive: true });

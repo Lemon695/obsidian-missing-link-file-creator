@@ -2,12 +2,9 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Notice } from "obsidian";
 import { CreationResult, FileToCreate } from "@/model/file-types";
 import { t } from "@/i18n/locale";
-import { Button } from "@/react/components/ui/button";
 import { Checkbox } from "@/react/components/ui/checkbox";
-import { Progress } from "@/react/components/ui/progress";
-import { ScrollArea } from "@/react/components/ui/scroll-area";
 import { Pagination } from "@/react/components/shared/Pagination";
-import { CheckSquare } from "lucide-react";
+import { CheckCircle2, SkipForward, XCircle, Tag } from "lucide-react";
 
 type Phase = "select" | "progress" | "done";
 
@@ -25,7 +22,7 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
   const [result, setResult] = useState<CreationResult>({ created: 0, skipped: 0, failed: 0, aliasesAdded: 0 });
   const [progressCurrent, setProgressCurrent] = useState(0);
   const [progressTotal, setProgressTotal] = useState(0);
-  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoCloseTimerRef = useRef<number | null>(null);
 
   const itemsPerPage = 10;
   const totalPages = Math.max(1, Math.ceil(fileStates.length / itemsPerPage));
@@ -59,7 +56,7 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
     setPhase("progress");
     setProgressTotal(selected.length);
 
-    const res: CreationResult = { created: 0, skipped: 0, failed: 0, aliasesAdded: 0 };
+    const res: CreationResult = { created: 0, skipped: 0, failed: 0, aliasesAdded: 0, createdPaths: [] };
     const batchSize = 5;
 
     for (let i = 0; i < selected.length; i += batchSize) {
@@ -72,6 +69,7 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
             if (ok) {
               res.created++;
               res.aliasesAdded += file.aliases.length;
+              res.createdPaths!.push(file.path);
             } else {
               res.skipped++;
             }
@@ -80,7 +78,8 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
           }
         })
       );
-      setProgressCurrent(Math.min(i + batchSize, selected.length));
+      // 进度按已完成（成功+跳过+失败）数量显示，而非批次偏移量
+      setProgressCurrent(res.created + res.skipped + res.failed);
       setResult({ ...res });
     }
 
@@ -88,7 +87,7 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
     setPhase("done");
 
     // Auto-close after 10s
-    autoCloseTimerRef.current = setTimeout(() => onClose(), 10000);
+    autoCloseTimerRef.current = window.setTimeout(() => onClose(), 10000);
   }, [fileStates, onConfirm, onClose]);
 
   const percent = progressTotal > 0 ? Math.round((progressCurrent / progressTotal) * 100) : 0;
@@ -118,55 +117,52 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
   useEffect(() => {
     return () => {
       if (autoCloseTimerRef.current) {
-        clearTimeout(autoCloseTimerRef.current);
+        window.clearTimeout(autoCloseTimerRef.current);
       }
     };
   }, []);
 
   // === SELECT PHASE ===
   if (phase === "select") {
+    const aliasHeader = t("aliases", { count: "" }).replace(": ", "");
     return (
-      <div className="tw-flex tw-flex-col tw-gap-4">
-        <h2 className="tw-text-lg tw-font-semibold tw-m-0">{t("createFiles")}</h2>
-        <p className="tw-text-sm tw-text-muted-foreground tw-m-0">
-          {t("linksDetected", { count: String(fileStates.length) })}
-        </p>
+      <div className="ccmd-dialog ccmd-dialog--fill">
+        <div className="ccmd-dialog__head">
+          <h2 className="ccmd-modal__title">{t("createFiles")}</h2>
+          <p className="ccmd-modal__subtitle">{t("linksDetected", { count: String(fileStates.length) })}</p>
+        </div>
 
         {/* File table */}
-        <ScrollArea className="tw-h-[430px] tw-border tw-border-border tw-rounded-md">
-          <table className="tw-w-full tw-text-sm">
-            <thead>
-              <tr className="tw-border-b tw-bg-secondary">
-                <th className="tw-w-10 tw-p-2 tw-text-center">
-                  <Checkbox
-                    checked={isAllPageSelected ? true : isSomePageSelected ? "indeterminate" : false}
-                    onCheckedChange={toggleAll}
-                  />
-                </th>
-                <th className="tw-p-2 tw-text-left tw-w-1/4">{t("filename")}</th>
-                <th className="tw-p-2 tw-text-left tw-w-[35%]">{t("path")}</th>
-                <th className="tw-p-2 tw-text-left">{t("aliases", { count: "" }).replace(": ", "")}</th>
-                <th className="tw-p-2 tw-text-left tw-w-[15%]">{t("matchedRule")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pageFiles.map((file, pageIdx) => {
-                const globalIdx = (safePage - 1) * itemsPerPage + pageIdx;
-                return (
-                  <tr key={globalIdx} className="tw-border-b tw-border-border hover:tw-bg-muted/50">
-                    <td className="tw-p-2 tw-text-center">
-                      <Checkbox checked={file.selected} onCheckedChange={() => toggleFile(globalIdx)} />
-                    </td>
-                    <td className="tw-p-2 tw-truncate" title={file.filename}>{file.filename}</td>
-                    <td className="tw-p-2 tw-truncate tw-text-muted-foreground" title={file.path}>{file.path}</td>
-                    <td className="tw-p-2 tw-truncate">{file.aliases.length > 0 ? file.aliases.join(", ") : "-"}</td>
-                    <td className="tw-p-2 tw-truncate">{file.matchedRule || <span className="tw-text-muted-foreground tw-italic">-</span>}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </ScrollArea>
+        <div className="ccmd-create-table ccmd-scroll">
+          <div className="ccmd-create-row ccmd-create-row--head">
+            <span className="ccmd-create-row__check">
+              <Checkbox
+                checked={isAllPageSelected ? true : isSomePageSelected ? "indeterminate" : false}
+                onCheckedChange={toggleAll}
+              />
+            </span>
+            <span className="ccmd-create-row__cell">{t("filename")}</span>
+            <span className="ccmd-create-row__cell">{t("path")}</span>
+            <span className="ccmd-create-row__cell">{aliasHeader}</span>
+            <span className="ccmd-create-row__cell">{t("matchedRule")}</span>
+          </div>
+          {pageFiles.map((file, pageIdx) => {
+            const globalIdx = (safePage - 1) * itemsPerPage + pageIdx;
+            return (
+              <div key={globalIdx} className="ccmd-create-row">
+                <span className="ccmd-create-row__check">
+                  <Checkbox checked={file.selected} onCheckedChange={() => toggleFile(globalIdx)} />
+                </span>
+                <span className="ccmd-create-row__cell" title={file.filename}>{file.filename}</span>
+                <span className="ccmd-create-row__cell ccmd-create-row__muted" title={file.path}>{file.path}</span>
+                <span className="ccmd-create-row__cell">{file.aliases.length > 0 ? file.aliases.join(", ") : "-"}</span>
+                <span className="ccmd-create-row__cell">
+                  {file.matchedRule || <span className="ccmd-create-row__faint">-</span>}
+                </span>
+              </div>
+            );
+          })}
+        </div>
 
         {/* Pagination */}
         <Pagination
@@ -182,11 +178,11 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
         />
 
         {/* Buttons */}
-        <div className="tw-flex tw-flex-col-reverse sm:tw-flex-row tw-justify-end tw-gap-3 tw-mt-2">
-          <Button variant="outline" onClick={onCancel}>{t("cancel")}</Button>
-          <Button onClick={handleConfirm} disabled={selectedCount === 0}>
+        <div className="ccmd-dialog__foot ccmd-dialog__foot--end">
+          <button className="ccmd-btn" onClick={onCancel}>{t("cancel")}</button>
+          <button className="ccmd-btn ccmd-btn--cta" onClick={handleConfirm} disabled={selectedCount === 0}>
             {t("createSelectedFiles")}
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -194,39 +190,43 @@ export function CreationConfirmDialog({ files, onConfirm, onCancel, onClose }: C
 
   // === PROGRESS / DONE PHASE ===
   return (
-    <div className="tw-flex tw-flex-col tw-items-center tw-gap-6 tw-py-6">
-      <h2 className="tw-text-lg tw-font-semibold tw-m-0">
-        {phase === "done" ? t("fileCreationCompleted", { total: String(result.created + result.skipped + result.failed) }) : t("creatingFilesProgress")}
+    <div className="ccmd-dialog ccmd-dialog--fill ccmd-create-progress">
+      <h2 className="ccmd-modal__title">
+        {phase === "done"
+          ? t("fileCreationCompleted", { total: String(result.created + result.skipped + result.failed) })
+          : t("creatingFilesProgress")}
       </h2>
 
-      <span className="tw-text-5xl tw-font-bold tw-text-primary">{percent}%</span>
+      <span className="ccmd-create-progress__pct">{percent}%</span>
 
-      <Progress value={percent} className="tw-w-full tw-h-3" />
+      <div className="ccmd-meter ccmd-create-progress__bar">
+        <div className="ccmd-meter__fill" style={{ ["--meter" as string]: `${percent}%` } as React.CSSProperties} />
+      </div>
 
-      <span className="tw-text-base tw-text-muted-foreground">
+      <span className="ccmd-create-progress__status">
         {t("creatingFilesStatus", { current: String(progressCurrent), total: String(progressTotal) })}
       </span>
 
       {/* Stats grid */}
-      <div className="tw-grid tw-grid-cols-2 tw-gap-4 tw-w-full tw-mt-4">
-        <StatItem icon="✅" label={t("successfullyCreated", { count: String(result.created) })} color="tw-border-l-green-500" />
-        <StatItem icon="⏭️" label={t("skipped", { count: String(result.skipped) })} color="tw-border-l-yellow-500" />
-        <StatItem icon="❌" label={t("failed", { count: String(result.failed) })} color="tw-border-l-red-500" />
-        <StatItem icon="🏷️" label={t("aliases", { count: String(result.aliasesAdded) })} color="tw-border-l-blue-500" />
+      <div className="ccmd-create-stats">
+        <StatItem kind="success" icon={<CheckCircle2 size={18} />} label={t("successfullyCreated", { count: String(result.created) })} />
+        <StatItem kind="skip" icon={<SkipForward size={18} />} label={t("skipped", { count: String(result.skipped) })} />
+        <StatItem kind="fail" icon={<XCircle size={18} />} label={t("failed", { count: String(result.failed) })} />
+        <StatItem kind="alias" icon={<Tag size={18} />} label={t("aliases", { count: String(result.aliasesAdded) })} />
       </div>
 
       {phase === "done" && (
-        <Button onClick={onClose} className="tw-mt-4">{t("close")}</Button>
+        <button className="ccmd-btn ccmd-btn--cta" onClick={onClose}>{t("close")}</button>
       )}
     </div>
   );
 }
 
-function StatItem({ icon, label, color }: { icon: string; label: string; color: string }) {
+function StatItem({ kind, icon, label }: { kind: "success" | "skip" | "fail" | "alias"; icon: React.ReactNode; label: string }) {
   return (
-    <div className={`tw-flex tw-items-center tw-gap-3 tw-p-3 tw-bg-secondary tw-rounded-md tw-border-l-4 ${color}`}>
-      <span className="tw-text-xl">{icon}</span>
-      <span className="tw-text-sm">{label}</span>
+    <div className="ccmd-create-stat" data-kind={kind}>
+      <span className="ccmd-create-stat__icon">{icon}</span>
+      <span>{label}</span>
     </div>
   );
 }

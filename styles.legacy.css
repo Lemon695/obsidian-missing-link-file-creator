@@ -3,11 +3,6 @@
  */
 
 :root {
-	--ccmd-primary: #4a8eff;
-	--ccmd-primary-hover: #3a7eef;
-	--ccmd-primary-light: rgba(74, 142, 255, 0.1);
-	--ccmd-primary-rgb: 74, 142, 255;
-
 	--ccmd-space-1: 4px;
 	--ccmd-space-2: 8px;
 	--ccmd-space-3: 12px;
@@ -20,8 +15,6 @@
 	--ccmd-radius-md: 6px;
 	--ccmd-radius-lg: 8px;
 
-	--ccmd-shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
-	--ccmd-shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
 	--ccmd-shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -72,24 +65,6 @@
 .ccmd-template-selection-modal {
 	padding: var(--ccmd-space-6) !important;
 	overflow-x: hidden !important;
-}
-
-.ccmd-template-search-input {
-	width: 100%;
-	padding: 10px var(--ccmd-space-3);
-	border-radius: var(--ccmd-radius-md);
-	border: 1px solid var(--background-modifier-border);
-	background-color: var(--background-primary);
-	color: var(--text-normal);
-	font-size: 15px;
-	margin-bottom: var(--ccmd-space-5);
-	transition: all 0.2s ease;
-}
-
-.ccmd-template-search-input:focus {
-	border-color: var(--interactive-accent);
-	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
-	outline: none;
 }
 
 .ccmd-template-list {

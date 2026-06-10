@@ -1,3 +1,4 @@
+/* eslint-disable obsidianmd/no-static-styles-assignment -- 直接定位 Obsidian 原生 .modal/.modal-container DOM，无对应 setCssProps 方案 */
 import {App, Modal} from 'obsidian';
 
 export class SelectTemplateView extends Modal {
@@ -8,7 +9,7 @@ export class SelectTemplateView extends Modal {
 	open() {
 		super.open();
 
-		setTimeout(() => {
+		window.setTimeout(() => {
 			const modalEl = this.contentEl.closest('.modal');
 			if (modalEl instanceof HTMLElement) {
 				modalEl.style.width = '700px';

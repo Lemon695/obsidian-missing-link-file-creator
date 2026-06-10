@@ -1,9 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
-import { execSync } from "child_process";
 import fs from "fs";
-import path from "path";
 
 const banner =
 `/*
@@ -14,39 +12,20 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = (process.argv[2] === "production");
 
-// --- Tailwind CSS Build Step ---
-function buildTailwindCSS() {
-	const inputFile = "src/styles/tailwind.css";
-	const outputFile = "dist/.tailwind-out.css";
-
-	if (!fs.existsSync(inputFile)) {
-		console.log("[CSS] No tailwind.css found, skipping Tailwind build.");
-		return "";
-	}
-
-	try {
-		execSync(
-			`npx tailwindcss -i ${inputFile} -o ${outputFile} ${prod ? "--minify" : ""}`,
-			{ stdio: "pipe" }
-		);
-		const css = fs.readFileSync(outputFile, "utf-8");
-		// Clean up temp file
-		fs.unlinkSync(outputFile);
-		return css;
-	} catch (e) {
-		console.error("[CSS] Tailwind build failed:", e.message);
-		return "";
-	}
-}
-
-// --- Merge CSS: legacy + tailwind ---
+// --- Merge CSS: ccmd-system + legacy ---
+// Tailwind 已于 M7 P2-7 退役；样式全部由 ccmd-system.css（语义设计系统）
+// 与 styles.legacy.css（残留 ccmd 规则）提供。
 function mergeCSS() {
+	// ccmd-system.css 优先（语义设计系统，绑定 Obsidian 主题变量）
+	const ccmdCSS = fs.existsSync("src/styles/ccmd-system.css")
+		? fs.readFileSync("src/styles/ccmd-system.css", "utf-8")
+		: "";
+	// legacy 放最后，保持覆盖优先级
 	const legacyCSS = fs.existsSync("styles.legacy.css")
 		? fs.readFileSync("styles.legacy.css", "utf-8")
 		: "";
-	const tailwindCSS = buildTailwindCSS();
 
-	const merged = `${legacyCSS}\n\n/* === Tailwind + shadcn/ui === */\n${tailwindCSS}`;
+	const merged = `/* === ccmd design system === */\n${ccmdCSS}\n\n/* === Legacy styles === */\n${legacyCSS}`;
 
 	// Ensure dist directory exists
 	if (!fs.existsSync("dist")) {

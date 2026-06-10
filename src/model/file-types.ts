@@ -29,4 +29,5 @@ export interface CreationResult {
 	skipped: number;    // 跳过的文件数
 	failed: number;     // 失败的文件数
 	aliasesAdded: number; // 添加的别名数
+	createdPaths?: string[]; // 成功创建的文件路径（用于撤销）
 }

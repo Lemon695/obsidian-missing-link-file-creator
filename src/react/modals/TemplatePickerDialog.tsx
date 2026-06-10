@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { t } from "@/i18n/locale";
-import { Input } from "@/react/components/ui/input";
-import { ScrollArea } from "@/react/components/ui/scroll-area";
+import { Search, X } from "lucide-react";
 
 interface TemplatePickerDialogProps {
   templates: string[];
@@ -20,30 +19,28 @@ export function TemplatePickerDialog({ templates, onChoose, title, onClose }: Te
   }, [templates, query]);
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4">
-      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
-        <h2 className="tw-m-0 tw-text-lg tw-font-semibold">{title || t("selectTemplate")}</h2>
+    <div className="ccmd-dialog">
+      <div className="ccmd-dialog__head ccmd-dialog__head-row">
+        <h2 className="ccmd-modal__title">{title || t("selectTemplate")}</h2>
         {onClose && (
-          <button
-            type="button"
-            className="tw-text-sm tw-text-muted-foreground hover:tw-text-foreground"
-            onClick={onClose}
-            aria-label={t("close")}
-          >
-            {t("close")}
+          <button className="ccmd-modal__close" onClick={onClose} title={t("close")} aria-label={t("close")}>
+            <X size={18} />
           </button>
         )}
       </div>
 
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={t("searchTemplatesPlaceholder")}
-        className="ccmd-template-search-input"
-        autoFocus
-      />
+      <div className="ccmd-search">
+        <Search />
+        <input
+          type="text"
+          value={query}
+          placeholder={t("searchTemplatesPlaceholder")}
+          onChange={(e) => setQuery(e.target.value)}
+          autoFocus
+        />
+      </div>
 
-      <ScrollArea className="ccmd-template-list tw-border tw-border-border tw-rounded-md">
+      <div className="ccmd-card ccmd-scroll ccmd-picker-list ccmd-template-list">
         {templates.length === 0 && (
           <div className="ccmd-no-templates">{t("noTemplateFilesFound")}</div>
         )}
@@ -70,7 +67,7 @@ export function TemplatePickerDialog({ templates, onChoose, title, onClose }: Te
             {templatePath}
           </div>
         ))}
-      </ScrollArea>
+      </div>
     </div>
   );
 }

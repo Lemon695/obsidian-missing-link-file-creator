@@ -1,7 +1,7 @@
-import { App, Modal } from 'obsidian';
+import { Modal } from 'obsidian';
 import { createRoot, Root } from "react-dom/client";
 import React from "react";
-import { CreationModalParams, CreationResult, FileToCreate } from "@/model/file-types";
+import { CreationModalParams, CreationResult } from "@/model/file-types";
 import { CreationConfirmDialog } from "@/react/modals/CreationConfirmDialog";
 
 /**

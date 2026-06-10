@@ -38,6 +38,7 @@ export class Logger {
 	 */
 	public setDebugMode(enabled: boolean): void {
 		if (this.debugMode !== enabled) {
+   // eslint-disable-next-line obsidianmd/rule-custom-message -- Logger class utility
 			console.log(`[${this.pluginName}] 调试模式${enabled ? '开启' : '关闭'}`);
 			this.debugMode = enabled;
 		}
@@ -59,6 +60,7 @@ export class Logger {
 		// 当调试模式开启或日志级别设置为DEBUG时显示调试日志
 		if (this.debugMode || this.logLevel <= LogLevel.DEBUG) {
 			const finalMessage = typeof message === 'function' ? message() : message;
+   // eslint-disable-next-line obsidianmd/rule-custom-message -- Logger class utility
 			console.log(`[${this.pluginName}] [DEBUG] ${finalMessage}`);
 		}
 	}
@@ -70,6 +72,7 @@ export class Logger {
 	public info(message: string | (() => string)): void {
 		if (this.logLevel <= LogLevel.INFO) {
 			const finalMessage = typeof message === 'function' ? message() : message;
+   // eslint-disable-next-line obsidianmd/rule-custom-message -- Logger class utility
 			console.log(`[${this.pluginName}] [INFO] ${finalMessage}`);
 		}
 	}
@@ -138,15 +141,23 @@ export const createLogger = (
 
 export function log_update(msg: string): void {
 	const notice = new Notice("", 15000);
-	notice.noticeEl.innerHTML = `<b>Templater update</b>:<br/>${msg}`;
+	const el = notice.messageEl;
+	el.empty();
+	el.createEl('b', { text: 'Templater update' });
+	el.createEl('br');
+	el.appendText(msg);
 }
 
 export function log_error(e: Error | TemplaterError): void {
 	const notice = new Notice("", 8000);
+	const el = notice.messageEl;
+	el.empty();
+	el.createEl('b', { text: 'Templater error' });
+	el.createEl('br');
+	el.appendText(e.message);
 	if (e instanceof TemplaterError && e.console_msg) {
-		notice.noticeEl.innerHTML = `<b>Templater Error</b>:<br/>${e.message}<br/>Check console for more information`;
+		el.createEl('br');
+		el.appendText('Check console for more information');
 		console.error(`Templater Error:`, e.message, "\n", e.console_msg);
-	} else {
-		notice.noticeEl.innerHTML = `<b>Templater Error</b>:<br/>${e.message}`;
 	}
 }

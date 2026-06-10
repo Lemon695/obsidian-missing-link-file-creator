@@ -1,17 +1,16 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { Notice } from "obsidian";
 import { useObsidian } from "@/react/context/ObsidianContext";
 import { FileCreationRule, TemplateAliasHandling } from "@/model/rule-types";
 import { ConditionMatchType, ConditionOperator, MatchCondition } from "@/model/condition-types";
+import { RuleManager } from "@/model/rule-manager";
+import { computeRulePreview } from "@/model/rule-preview";
 import { t } from "@/i18n/locale";
-import { Button } from "@/react/components/ui/button";
 import { Input } from "@/react/components/ui/input";
-import { ScrollArea } from "@/react/components/ui/scroll-area";
-import { Separator } from "@/react/components/ui/separator";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/react/components/ui/select";
-import { PlusCircle, Pencil } from "lucide-react";
+import { PlusCircle, Trash2, X, Search, Eye } from "lucide-react";
 import { ConditionEditorCard } from "./ConditionEditorCard";
 import { FolderSuggest } from "@/settings/suggesters/folder-suggester";
 import { FileSuggest, FileSuggestMode } from "@/settings/suggesters/file-suggester";
@@ -23,17 +22,34 @@ interface RuleEditDialogProps {
   onBrowseTemplates: (onChoose: (path: string) => void) => void;
 }
 
+function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(" ");
+}
+
 export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTemplates }: RuleEditDialogProps) {
   const { app, plugin } = useObsidian();
   const [rule, setRule] = useState<FileCreationRule>(() => ({
     ...initialRule,
     conditions: initialRule.conditions.map((c) => ({ ...c })),
   }));
-  const [editingName, setEditingName] = useState(false);
-  const [nameInput, setNameInput] = useState(rule.name);
+  const [sampleName, setSampleName] = useState("");
 
   const folderInputRef = useRef<HTMLInputElement | null>(null);
   const templateInputRef = useRef<HTMLInputElement | null>(null);
+
+  // 未保存变更检测（与传入的原始规则比对）
+  const initialSerialized = useMemo(() => JSON.stringify(initialRule), [initialRule]);
+  const dirty = useMemo(() => JSON.stringify(rule) !== initialSerialized, [rule, initialSerialized]);
+
+  // 命中预览：用「当前编辑中的规则」（强制 enabled）构造临时 RuleManager，依赖注入给 computeRulePreview
+  const previewManager = useMemo(
+    () => new RuleManager(app, { ...plugin.settings, useRules: true, rules: [{ ...rule, enabled: true }] }),
+    [app, plugin.settings, rule]
+  );
+  const preview = useMemo(
+    () => (sampleName.trim() ? computeRulePreview(previewManager, sampleName) : null),
+    [previewManager, sampleName]
+  );
 
   // Attach FolderSuggest
   useEffect(() => {
@@ -102,14 +118,12 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
     onSave(rule);
   }, [rule, onSave]);
 
-  const handleNameSave = useCallback(() => {
-    if (nameInput.trim()) updateRule({ name: nameInput.trim() });
-    setEditingName(false);
-  }, [nameInput, updateRule]);
+  const extraEntries = Object.entries(rule.extraFrontmatter ?? {});
+  const fmPreview = preview?.previewFrontmatter ? Object.entries(preview.previewFrontmatter) : [];
 
   return (
     <div
-      className="tw-flex tw-flex-col tw-gap-4 tw-h-full"
+      className="ccmd-modal"
       onKeyDown={(e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
           e.preventDefault();
@@ -117,49 +131,40 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
         }
       }}
     >
-      {/* Title row */}
-      <div className="tw-flex tw-items-center tw-justify-between tw-pb-3 tw-border-b tw-border-border">
-        {editingName ? (
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <Input
-              className="tw-h-8 tw-w-[260px]"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleNameSave(); if (e.key === "Escape") setEditingName(false); }}
-              autoFocus
-            />
-            <Button size="sm" onClick={handleNameSave}>{t("save")}</Button>
-          </div>
-        ) : (
-          <h2
-            className="tw-m-0 tw-text-xl tw-font-semibold tw-cursor-pointer hover:tw-text-primary tw-flex tw-items-center tw-gap-2"
-            onClick={() => { setNameInput(rule.name); setEditingName(true); }}
-          >
-            {rule.name}
-            <Pencil className="tw-h-3.5 tw-w-3.5 tw-text-muted-foreground" />
-          </h2>
-        )}
-        <label className="tw-flex tw-items-center tw-gap-2 tw-text-sm">
-          <span>{t("enable")}</span>
+      {/* Header */}
+      <div className="ccmd-modal__header">
+        <div className="ccmd-modal__header-text">
+          <h2 className="ccmd-modal__title">{t("editRule")}</h2>
+          {rule.name && <p className="ccmd-modal__subtitle">{rule.name}</p>}
+        </div>
+        <label className="ccmd-ruleedit__head-enable">
+          {t("enable")}
           <button
             type="button"
-            className="tw-w-10 tw-h-5 tw-rounded-full tw-border tw-cursor-pointer tw-transition-colors"
-            style={{ backgroundColor: rule.enabled ? "hsl(var(--primary))" : "hsl(var(--muted))" }}
+            className={cx("ccmd-toggle", rule.enabled && "ccmd-toggle--on")}
             onClick={() => updateRule({ enabled: !rule.enabled })}
             aria-label={t("enable")}
             aria-pressed={rule.enabled}
           />
         </label>
+        <button className="ccmd-modal__close" onClick={onCancel} title={t("cancel")} aria-label={t("cancel")}>
+          <X size={18} />
+        </button>
       </div>
 
-      {/* Two-column layout */}
-      <div className="tw-flex tw-flex-col md:tw-flex-row tw-gap-4 md:tw-gap-6 tw-flex-1 tw-min-h-0">
-        {/* Left: Conditions */}
-        <div className="tw-flex-1 tw-flex tw-flex-col tw-min-w-0">
-          <h3 className="tw-text-base tw-font-semibold tw-mb-3">{t("matching")}</h3>
-          <ScrollArea className="tw-flex-1 tw-min-h-[300px]">
+      {/* Two-column body */}
+      <div className="ccmd-ruleedit__cols">
+        {/* Left: editable fields */}
+        <div className="ccmd-ruleedit__left ccmd-scroll">
+          <div className="ccmd-field">
+            <label className="ccmd-field__label">{t("ruleName")}</label>
+            <Input value={rule.name} placeholder={t("ruleName")} onChange={(e) => updateRule({ name: e.target.value })} />
+          </div>
+
+          <div>
+            <div className="ccmd-setting-heading">{t("matching")}</div>
             {rule.conditions.length === 0 && (
-              <p className="tw-text-sm tw-text-muted-foreground tw-italic tw-p-4">{t("clickAddCondition")}</p>
+              <p className="ccmd-field__desc">{t("clickAddCondition")}</p>
             )}
             {rule.conditions.map((cond, idx) => (
               <ConditionEditorCard
@@ -169,67 +174,53 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
                 onDelete={() => deleteCondition(idx)}
               />
             ))}
-          </ScrollArea>
-          <Button variant="outline" className="tw-mt-3" onClick={addCondition}>
-            <PlusCircle className="tw-h-4 tw-w-4 tw-mr-1" />
-            {t("addCondition")}
-          </Button>
-        </div>
+            <button className="ccmd-btn ccmd-btn--sm" onClick={addCondition}>
+              <PlusCircle size={14} />
+              {t("addCondition")}
+            </button>
+          </div>
 
-        <Separator orientation="vertical" className="tw-hidden md:tw-block tw-h-auto" />
-        <Separator orientation="horizontal" className="md:tw-hidden" />
-
-        {/* Right: Target settings */}
-        <div className="tw-w-full md:tw-w-[320px] tw-flex-shrink-0 tw-flex tw-flex-col tw-gap-4">
-          <h3 className="tw-text-base tw-font-semibold">{t("targetSettings")}</h3>
-
-          {/* Target folder */}
-          <div className="tw-flex tw-flex-col tw-gap-1">
-            <label className="tw-text-sm tw-font-medium">{t("targetFolder")}</label>
-            <p className="tw-text-xs tw-text-muted-foreground tw-m-0">{t("targetFolderDesc")}</p>
+          <div className="ccmd-field">
+            <label className="ccmd-field__label">{t("targetFolder")}</label>
+            <p className="ccmd-field__desc">{t("targetFolderDesc")}</p>
             <Input
               ref={folderInputRef}
-              className="tw-h-8"
               placeholder={t("exampleFolder")}
               value={rule.targetFolder}
               onChange={(e) => updateRule({ targetFolder: e.target.value })}
             />
           </div>
 
-          {/* Template */}
-          <div className="tw-flex tw-flex-col tw-gap-1">
-            <label className="tw-text-sm tw-font-medium">{t("useTemplate")}</label>
-            <p className="tw-text-xs tw-text-muted-foreground tw-m-0">{t("useTemplateDesc")}</p>
-            <div className="tw-flex tw-gap-2">
+          <div className="ccmd-field">
+            <label className="ccmd-field__label">{t("useTemplate")}</label>
+            <p className="ccmd-field__desc">{t("useTemplateDesc")}</p>
+            <div className="ccmd-field__row">
               <Input
                 ref={templateInputRef}
-                className="tw-h-8 tw-flex-1"
                 placeholder={t("selectTemplate")}
                 value={rule.templatePath}
                 onChange={(e) => updateRule({ templatePath: e.target.value })}
               />
-              <Button
-                variant="outline"
-                size="icon"
-                className="tw-h-8 tw-w-8"
+              <button
+                type="button"
+                className="ccmd-iconbtn"
                 onClick={() => onBrowseTemplates((path) => updateRule({ templatePath: path }))}
                 title={t("browseTemplates")}
                 aria-label={t("browseTemplates")}
               >
-                🔍
-              </Button>
+                <Search size={15} />
+              </button>
             </div>
           </div>
 
-          {/* Template alias handling */}
-          <div className="tw-flex tw-flex-col tw-gap-1">
-            <label className="tw-text-sm tw-font-medium">{t("templateAliasHandling")}</label>
-            <p className="tw-text-xs tw-text-muted-foreground tw-m-0">{t("templateAliasHandlingDesc")}</p>
+          <div className="ccmd-field">
+            <label className="ccmd-field__label">{t("templateAliasHandling")}</label>
+            <p className="ccmd-field__desc">{t("templateAliasHandlingDesc")}</p>
             <Select
               value={rule.templateAliasHandling || TemplateAliasHandling.SKIP}
               onValueChange={(v) => updateRule({ templateAliasHandling: v as TemplateAliasHandling })}
             >
-              <SelectTrigger className="tw-h-8">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -238,13 +229,118 @@ export function RuleEditDialog({ rule: initialRule, onSave, onCancel, onBrowseTe
               </SelectContent>
             </Select>
           </div>
+
+          <div className="ccmd-field">
+            <label className="ccmd-field__label">{t("extraFrontmatter")}</label>
+            <p className="ccmd-field__desc">{t("extraFrontmatterDesc")}</p>
+            {extraEntries.map(([key, value], idx) => (
+              <div key={idx} className="ccmd-kv-row">
+                <Input
+                  placeholder={t("frontmatterKey")}
+                  value={key}
+                  onChange={(e) => {
+                    const entries = Object.entries(rule.extraFrontmatter ?? {});
+                    entries[idx] = [e.target.value, value];
+                    updateRule({ extraFrontmatter: Object.fromEntries(entries) });
+                  }}
+                />
+                <Input
+                  placeholder={t("frontmatterValue")}
+                  value={value}
+                  onChange={(e) => {
+                    const entries = Object.entries(rule.extraFrontmatter ?? {});
+                    entries[idx] = [key, e.target.value];
+                    updateRule({ extraFrontmatter: Object.fromEntries(entries) });
+                  }}
+                />
+                <button
+                  type="button"
+                  className="ccmd-iconbtn ccmd-iconbtn--sm ccmd-iconbtn--danger"
+                  onClick={() => {
+                    const entries = Object.entries(rule.extraFrontmatter ?? {}).filter((_, i) => i !== idx);
+                    updateRule({ extraFrontmatter: Object.fromEntries(entries) });
+                  }}
+                  title={t("delete")}
+                  aria-label={t("delete")}
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ))}
+            <button
+              className="ccmd-btn ccmd-btn--sm"
+              onClick={() => {
+                const entries = Object.entries(rule.extraFrontmatter ?? {});
+                entries.push(["", ""]);
+                updateRule({ extraFrontmatter: Object.fromEntries(entries) });
+              }}
+            >
+              <PlusCircle size={13} />
+              {t("addFrontmatterField")}
+            </button>
+          </div>
+        </div>
+
+        {/* Right: live match preview */}
+        <div className="ccmd-ruleedit__right">
+          <div className="ccmd-preview">
+            <div className="ccmd-preview__title">
+              <Eye />
+              {t("rulePreviewTitle")}
+            </div>
+            <div className="ccmd-field">
+              <label className="ccmd-field__label">{t("rulePreviewSampleLabel")}</label>
+              <input
+                type="text"
+                className="ccmd-input"
+                placeholder={t("rulePreviewSamplePlaceholder")}
+                value={sampleName}
+                onChange={(e) => setSampleName(e.target.value)}
+              />
+            </div>
+
+            {!sampleName.trim() ? (
+              <div className="ccmd-preview__empty">{t("rulePreviewEmpty")}</div>
+            ) : preview?.hit ? (
+              <div className="ccmd-preview__result">
+                <span><span className="ccmd-badge ccmd-badge--accent">{t("rulePreviewMatched")}</span></span>
+                <div className="ccmd-preview__row">
+                  <span className="ccmd-preview__row-label">{t("rulePreviewTarget")}</span>
+                  <span className="ccmd-path"><span className="ccmd-path__name">{preview.targetPath}</span></span>
+                </div>
+                {preview.templatePath && (
+                  <div className="ccmd-preview__row">
+                    <span className="ccmd-preview__row-label">{t("rulePreviewTemplate")}</span>
+                    <span className="ccmd-path">{preview.templatePath}</span>
+                  </div>
+                )}
+                {fmPreview.length > 0 && (
+                  <div className="ccmd-preview__row">
+                    <span className="ccmd-preview__row-label">{t("rulePreviewFrontmatter")}</span>
+                    <div className="ccmd-preview__fm">
+                      {fmPreview.map(([k, v]) => (
+                        <span key={k} className="ccmd-preview__fm-item">{k}: {v}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="ccmd-preview__result">
+                <span><span className="ccmd-badge ccmd-badge--muted">{t("rulePreviewNoMatch")}</span></span>
+                <div className="ccmd-preview__empty">{t("rulePreviewMissDesc")}</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="tw-flex tw-justify-end tw-gap-3 tw-pt-3 tw-border-t tw-border-border">
-        <Button variant="outline" onClick={onCancel}>{t("cancel")}</Button>
-        <Button onClick={handleSave}>{t("save")}</Button>
+      <div className="ccmd-modal__footer">
+        {dirty && <span className="ccmd-modal__dirty">{t("unsavedChanges")}</span>}
+        <span className="ccmd-modal__footer-spacer" />
+        <button className="ccmd-btn" onClick={onCancel}>{t("cancel")}</button>
+        <button className="ccmd-btn ccmd-btn--cta" onClick={handleSave}>{t("save")}</button>
       </div>
     </div>
   );

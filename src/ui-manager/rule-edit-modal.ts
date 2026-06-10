@@ -1,3 +1,4 @@
+/* eslint-disable obsidianmd/no-static-styles-assignment -- 遗留 Modal 布局 */
 import { App, Notice } from 'obsidian';
 import { createRoot, Root } from "react-dom/client";
 import React from "react";
@@ -7,7 +8,7 @@ import { TemplateSelectionModal } from "./template-selection-modal";
 import { CustomModal } from "./custom-modal";
 import { ObsidianProvider } from "@/react/context/ObsidianContext";
 import { RuleManagementModal } from './rule-management-modal';
-import { CreateFileSettingTab } from "@/settings/settings";
+import { ModularSettingTab } from "@/core/settings-tab";
 import CheckAndCreateMDFilePlugin from "../main";
 import { t } from "@/i18n/locale";
 
@@ -30,8 +31,11 @@ export class RuleEditModal extends CustomModal {
 	}
 
 	onOpen() {
-		const { contentEl } = this;
+		const { contentEl, modalEl } = this;
 		contentEl.empty();
+		// CSS-005: 隐藏 Obsidian 原生关闭按钮，避免与 RuleEditDialog 自己的 X 重叠
+		const nativeClose = modalEl.querySelector('.modal-close-button');
+		if (nativeClose instanceof HTMLElement) nativeClose.style.display = 'none';
 		contentEl.addClass('ccmd-react-root', 'ccmd-rule-edit-modal', 'ccmd-quickAddModal');
 
 		this.root = createRoot(contentEl);
@@ -52,8 +56,8 @@ export class RuleEditModal extends CustomModal {
 						if (RuleManagementModal.currentInstance) {
 							RuleManagementModal.currentInstance.refreshRulesList();
 						}
-						if (CreateFileSettingTab.currentInstance) {
-							CreateFileSettingTab.currentInstance.refreshRulesSummary();
+						if (ModularSettingTab.currentInstance) {
+							ModularSettingTab.currentInstance.refreshRulesSummary();
 						}
 					},
 					onCancel: () => this.close(),

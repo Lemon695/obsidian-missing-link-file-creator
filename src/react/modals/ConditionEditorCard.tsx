@@ -1,9 +1,7 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import { App } from "obsidian";
+import React, { useCallback, useRef, useEffect } from "react";
 import { MatchCondition, ConditionMatchType, ConditionOperator } from "@/model/condition-types";
 import { t } from "@/i18n/locale";
 import { useObsidian } from "@/react/context/ObsidianContext";
-import { Button } from "@/react/components/ui/button";
 import { Input } from "@/react/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -48,13 +46,6 @@ function getConditionTypeFromPropertyType(value: string, currentType: ConditionM
   return ConditionMatchType.CONTAINS;
 }
 
-const OPERATOR_COLORS: Record<string, string> = {
-  [ConditionOperator.AND]: "tw-border-l-blue-500",
-  [ConditionOperator.OR]: "tw-border-l-green-500",
-  [ConditionOperator.NOT]: "tw-border-l-yellow-500",
-  [ConditionOperator.EXCLUDE]: "tw-border-l-red-500",
-};
-
 /** Hook to attach an Obsidian Suggester to a native input ref */
 function useSuggester<T>(
   ref: React.RefObject<HTMLInputElement | null>,
@@ -74,7 +65,6 @@ function useSuggester<T>(
 export function ConditionEditorCard({ condition, onChange, onDelete }: ConditionEditorCardProps) {
   const { app } = useObsidian();
   const isFrontmatter = condition.type === ConditionMatchType.FRONTMATTER;
-  const borderColor = OPERATOR_COLORS[condition.operator] || "tw-border-l-blue-500";
 
   const propertyInputRef = useRef<HTMLInputElement | null>(null);
   const valueInputRef = useRef<HTMLInputElement | null>(null);
@@ -108,13 +98,13 @@ export function ConditionEditorCard({ condition, onChange, onDelete }: Condition
   }, [condition.type, update]);
 
   return (
-    <div className={`tw-p-4 tw-mb-3 tw-rounded-md tw-border tw-border-border tw-border-l-4 ${borderColor} tw-bg-secondary/30`}>
+    <div className="ccmd-cond-card" data-op={condition.operator}>
       {/* Header: operator + delete */}
-      <div className="tw-flex tw-items-center tw-justify-between tw-mb-3">
-        <div className="tw-flex tw-items-center tw-gap-2">
-          <span className="tw-text-sm tw-font-medium">Condition</span>
+      <div className="ccmd-cond-card__head">
+        <div className="ccmd-cond-card__head-left">
+          <span className="ccmd-cond-card__label">{t("conditionLabel")}</span>
           <Select value={condition.operator} onValueChange={(v) => update({ operator: v as ConditionOperator })}>
-            <SelectTrigger className="tw-w-[110px] tw-h-8">
+            <SelectTrigger className="ccmd-cond-card__op">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -124,16 +114,22 @@ export function ConditionEditorCard({ condition, onChange, onDelete }: Condition
             </SelectContent>
           </Select>
         </div>
-        <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7 tw-text-destructive" onClick={onDelete}>
-          <Trash2 className="tw-h-3.5 tw-w-3.5" />
-        </Button>
+        <button
+          type="button"
+          className="ccmd-iconbtn ccmd-iconbtn--sm ccmd-iconbtn--danger"
+          onClick={onDelete}
+          title={t("delete")}
+          aria-label={t("delete")}
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
 
       {/* Body: property type + match type + pattern */}
-      <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+      <div className="ccmd-cond-card__body">
         {/* Property type */}
         <Select value={getPropertyTypeFromCondition(condition.type)} onValueChange={handlePropertyTypeChange}>
-          <SelectTrigger className="tw-w-[130px] tw-h-8">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -147,8 +143,7 @@ export function ConditionEditorCard({ condition, onChange, onDelete }: Condition
         {isFrontmatter && (
           <Input
             ref={propertyInputRef}
-            className="tw-w-[140px] tw-h-8"
-            placeholder="Property name"
+            placeholder={t("propertyName")}
             value={condition.property || ""}
             onChange={(e) => {
               update({ property: e.target.value });
@@ -170,7 +165,7 @@ export function ConditionEditorCard({ condition, onChange, onDelete }: Condition
             }
           }}
         >
-          <SelectTrigger className="tw-w-[120px] tw-h-8">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -183,8 +178,8 @@ export function ConditionEditorCard({ condition, onChange, onDelete }: Condition
         {/* Pattern / value input */}
         <Input
           ref={isFrontmatter ? valueInputRef : undefined}
-          className="tw-flex-1 tw-min-w-[140px] tw-h-8"
-          placeholder={isFrontmatter ? "Property value" : "Text to match"}
+          className="ccmd-cond-card__pattern"
+          placeholder={isFrontmatter ? t("propertyValue") : t("textToMatch")}
           value={condition.pattern}
           onChange={(e) => update({ pattern: e.target.value })}
         />

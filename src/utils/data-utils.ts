@@ -13,7 +13,7 @@ import {
 import {TemplaterError} from "./error-utils";
 
 export function delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 export function escape_RegExp(str: string): string {
@@ -149,6 +149,7 @@ function generate_jsdoc_return(
 		}
 
 		// 尝试将节点转换为字符串
+		// eslint-disable-next-line @typescript-eslint/no-base-to-string -- 兜底转换
 		return String(textNode).trim();
 	} catch (error) {
 		console.error("Error parsing return section:", error);
@@ -242,12 +243,12 @@ export function append_bolded_label_with_value_to_parent(
      title: string,
      value: string
 ): HTMLElement{
-    const tag = parent instanceof HTMLOListElement ? "li" : "p";  
+    const tag = parent.instanceOf(HTMLOListElement) ? "li" : "p";  
 
     const para = parent.createEl(tag);
     const bold = parent.createEl('b', {text: title});
     para.appendChild(bold);
-    para.appendChild(document.createTextNode(`: ${value}`))
+    para.appendChild(activeDocument.createTextNode(`: ${value}`))
 
     // Returns a p or li element
     // Resulting in <b>Title</b>: value

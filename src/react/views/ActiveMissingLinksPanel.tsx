@@ -1,18 +1,33 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { Notice, TFile } from "obsidian";
 import { useObsidian, useActiveFile } from "@/react/context/ObsidianContext";
 import { useObsidianEvent } from "@/react/bridge/useObsidianEvent";
 import { MissingLinkData } from "@/utils/file-operations";
 import { t } from "@/i18n/locale";
-import { Button } from "@/react/components/ui/button";
-import { ScrollArea } from "@/react/components/ui/scroll-area";
-import { CountBadge } from "@/react/components/shared/CountBadge";
-import { RefreshCw, Plus, EyeOff } from "lucide-react";
+import {
+  RefreshCw,
+  FilePlus,
+  Check,
+  BookOpen,
+  Zap,
+  AlertTriangle,
+  Link2Off,
+  CheckCircle2,
+} from "lucide-react";
+
+function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(" ");
+}
 
 export function ActiveMissingLinksPanel() {
   const { app, plugin } = useObsidian();
   const activeFile = useActiveFile(app);
   const [missingLinks, setMissingLinks] = useState<MissingLinkData[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  // 会话级「本次已创建」列表：创建后保留展示，随活跃文件切换重置
+  const [createdItems, setCreatedItems] = useState<MissingLinkData[]>([]);
+  // 防止批量创建时多次 setTimeout 叠加
+  const scanTimerRef = useRef<number | null>(null);
 
   const scan = useCallback(() => {
     if (!activeFile) {
@@ -35,6 +50,7 @@ export function ActiveMissingLinksPanel() {
         if (ignoreList.includes(linkPath)) continue;
 
         let count = 0;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const allUnresolved = (app.metadataCache as any).unresolvedLinks;
         for (const filePath in allUnresolved) {
           if (allUnresolved[filePath][linkPath]) {
@@ -68,10 +84,46 @@ export function ActiveMissingLinksPanel() {
   // Scan on mount and when active file changes
   useEffect(() => { scan(); }, [scan]);
 
+  // 切换活跃文件时重置会话选择与已创建段
+  useEffect(() => {
+    setSelected(new Set());
+    setCreatedItems([]);
+  }, [activeFile?.path]);
+
   // Re-scan when the active file is modified
   useObsidianEvent(app.vault, "modify", (file: TFile) => {
     if (activeFile && file.path === activeFile.path) scan();
   }, [activeFile, scan]);
+
+  const createdPaths = useMemo(
+    () => new Set(createdItems.map((c) => c.filePath)),
+    [createdItems]
+  );
+  const pending = useMemo(
+    () => missingLinks.filter((l) => !createdPaths.has(l.filePath)),
+    [missingLinks, createdPaths]
+  );
+  const matched = useMemo(() => pending.filter((l) => l.ruleMatch), [pending]);
+  const unmatched = useMemo(() => pending.filter((l) => !l.ruleMatch), [pending]);
+  const selPending = useMemo(
+    () => pending.filter((l) => selected.has(l.filePath)),
+    [pending, selected]
+  );
+
+  const markCreated = useCallback((links: MissingLinkData[]) => {
+    setCreatedItems((prev) => {
+      const existing = new Set(prev.map((p) => p.filePath));
+      const fresh = links.filter((l) => !existing.has(l.filePath));
+      return fresh.length ? [...prev, ...fresh] : prev;
+    });
+    setSelected((prev) => {
+      const next = new Set(prev);
+      links.forEach((l) => next.delete(l.filePath));
+      return next;
+    });
+    if (scanTimerRef.current) window.clearTimeout(scanTimerRef.current);
+    scanTimerRef.current = window.setTimeout(() => scan(), 100);
+  }, [scan]);
 
   const handleCreate = useCallback(async (link: MissingLinkData) => {
     try {
@@ -85,113 +137,225 @@ export function ActiveMissingLinksPanel() {
           ? t("sideViewCreatedWithRule", { file: fileName, rule: link.ruleMatch.name })
           : t("sideViewCreatedNoRule", { file: fileName });
         new Notice(message);
-        setTimeout(() => scan(), 100);
+        markCreated([link]);
       } else {
         new Notice(result.message || t("sideViewCreateFailed"));
       }
-    } catch (e: any) {
+    } catch (e) {
       new Notice(t("failedToCreateFileMessage", { message: e.message }));
     }
-  }, [plugin, activeFile, scan]);
+  }, [plugin, activeFile, markCreated]);
 
-  const handleIgnore = useCallback(async (link: MissingLinkData) => {
-    await plugin.fileOperations.addToIgnoreList(link.filePath);
-    scan();
-    new Notice(t("sideViewIgnored", { file: link.filePath }));
-  }, [plugin, scan]);
+  const createMany = useCallback(async (links: MissingLinkData[]) => {
+    if (links.length === 0) return;
+    const done: MissingLinkData[] = [];
+    let failed = 0;
+    for (const link of links) {
+      try {
+        const result = await plugin.fileOperations.createSingleFileFromLink(
+          link.filePath,
+          activeFile?.path
+        );
+        if (result.success) done.push(link);
+        else failed++;
+      } catch {
+        failed++;
+      }
+    }
+    if (done.length > 0) {
+      new Notice(t("sideViewSectionCreated", { count: String(done.length) }));
+      markCreated(done);
+    }
+    if (failed > 0) new Notice(t("sideViewCreateFailed"));
+  }, [plugin, activeFile, markCreated]);
+
+  const toggleSelect = useCallback((filePath: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(filePath)) next.delete(filePath); else next.add(filePath);
+      return next;
+    });
+  }, []);
 
   return (
-    <div className="tw-flex tw-flex-col tw-h-full tw-p-2.5">
+    <div className="ccmd-sidebar">
       {/* Header */}
-      <div className="tw-flex tw-justify-between tw-items-center tw-mb-3 tw-pb-2.5 tw-border-b tw-border-border">
-        <h4 className="tw-m-0 tw-text-sm tw-font-semibold">{t("sideViewHeader")}</h4>
-        <Button variant="ghost" size="icon" onClick={scan} title={t("sideViewRefresh")}>
-          <RefreshCw className="tw-h-4 tw-w-4" />
-        </Button>
-      </div>
-
-      {/* Active file label */}
-      <div className="tw-text-xs tw-text-muted-foreground tw-italic tw-mb-2.5">
-        {activeFile ? activeFile.basename : t("sideViewNoActiveFile")}
-      </div>
-
-      {/* Content */}
-      <ScrollArea className="tw-flex-1">
-        {!activeFile && (
-          <div className="tw-text-center tw-p-5 tw-text-muted-foreground">
-            {t("sideViewEmptyNoActive")}
+      <div className="ccmd-sidebar__head">
+        <div className="ccmd-sidebar__head-row">
+          <Link2Off size={16} />
+          <span className="ccmd-sidebar__title">{t("sideViewHeader")}</span>
+          <span className="ccmd-badge ccmd-badge--count">{pending.length}</span>
+          <span className="ccmd-sidebar__spacer" />
+          <button className="ccmd-iconbtn ccmd-iconbtn--sm" onClick={scan} title={t("sideViewRefresh")} aria-label={t("sideViewRefresh")}>
+            <RefreshCw />
+          </button>
+        </div>
+        {activeFile && (
+          <div className="ccmd-file-crumb">
+            <BookOpen size={13} />
+            <span className="ccmd-file-crumb__name">{activeFile.basename}</span>
           </div>
         )}
+      </div>
 
-        {activeFile && missingLinks.length === 0 && (
-          <div className="tw-text-center tw-p-5 tw-text-muted-foreground tw-flex tw-flex-col tw-items-center tw-gap-2">
-            <span className="tw-text-2xl">🎉</span>
-            <span>{t("sideViewEmptyAllClear")}</span>
+      {/* Create-all CTA or empty state */}
+      {!activeFile ? (
+        <div className="ccmd-empty-state ccmd-empty-state--fill">
+          <div className="ccmd-empty-state__title">{t("sideViewNoActiveFile")}</div>
+          <div className="ccmd-empty-state__desc">{t("sideViewEmptyNoActive")}</div>
+        </div>
+      ) : pending.length > 0 ? (
+        <div className="ccmd-sidebar__cta">
+          <button className="ccmd-btn ccmd-btn--cta" onClick={() => createMany(pending)}>
+            <Zap size={15} />
+            {t("sideViewCreateAll", { count: String(pending.length) })}
+          </button>
+          <div className="ccmd-sidebar__cta-sub">
+            {t("sideViewCreateAllSub", {
+              matched: String(matched.length),
+              unmatched: String(unmatched.length),
+            })}
           </div>
-        )}
+        </div>
+      ) : createdItems.length === 0 ? (
+        <div className="ccmd-empty-state ccmd-empty-state--fill">
+          <div className="ccmd-empty-state__icon ccmd-empty-state__icon--success">
+            <CheckCircle2 size={24} strokeWidth={2.2} />
+          </div>
+          <div className="ccmd-empty-state__title">{t("sideViewEmptyAllClear")}</div>
+          <div className="ccmd-empty-state__desc">{t("sideViewEmptyAllClearDesc")}</div>
+        </div>
+      ) : null}
 
-        {missingLinks.length > 0 && (
-          <div className="tw-flex tw-flex-col tw-gap-2">
-            {missingLinks.map((link) => (
-              <LinkItem
-                key={link.filePath}
-                link={link}
-                onCreate={handleCreate}
-                onIgnore={handleIgnore}
-              />
+      {/* Sections */}
+      <div className="ccmd-sidebar__body ccmd-scroll">
+        {matched.length > 0 && (
+          <div className="ccmd-section-label">{t("sideViewSectionMatched")}</div>
+        )}
+        {matched.map((link) => (
+          <LinkRow
+            key={link.filePath}
+            link={link}
+            selected={selected.has(link.filePath)}
+            onToggle={toggleSelect}
+            onCreate={handleCreate}
+          />
+        ))}
+
+        {unmatched.length > 0 && (
+          <div className="ccmd-section-label">{t("sideViewSectionUnmatched")}</div>
+        )}
+        {unmatched.map((link) => (
+          <LinkRow
+            key={link.filePath}
+            link={link}
+            selected={selected.has(link.filePath)}
+            onToggle={toggleSelect}
+            onCreate={handleCreate}
+          />
+        ))}
+
+        {createdItems.length > 0 && (
+          <>
+            <div className="ccmd-section-label">
+              {t("sideViewSectionCreated", { count: String(createdItems.length) })}
+            </div>
+            {createdItems.map((link) => (
+              <div key={link.filePath} className="ccmd-list__item ccmd-link-row--done">
+                <Check size={14} />
+                <span className="ccmd-link-row__main ccmd-link-row__title">{link.filePath}</span>
+                <span className="ccmd-badge">{t("sideViewCreatedBadge")}</span>
+              </div>
             ))}
-          </div>
+          </>
         )}
-      </ScrollArea>
+      </div>
+
+      {/* Selection bar */}
+      {selPending.length > 0 && (
+        <div className="ccmd-select-bar">
+          <span className="ccmd-select-bar__count">
+            {t("sideViewSelectedCount", { count: String(selPending.length) })}
+          </span>
+          <span className="ccmd-sidebar__spacer" />
+          <button className="ccmd-btn ccmd-btn--sm" onClick={() => setSelected(new Set())}>
+            {t("sideViewClearSelection")}
+          </button>
+          <button className="ccmd-btn ccmd-btn--cta ccmd-btn--sm" onClick={() => createMany(selPending)}>
+            <FilePlus size={13} />
+            {t("sideViewCreateSelected")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-interface LinkItemProps {
+interface LinkRowProps {
   link: MissingLinkData;
+  selected: boolean;
+  onToggle: (filePath: string) => void;
   onCreate: (link: MissingLinkData) => void;
-  onIgnore: (link: MissingLinkData) => void;
 }
 
-function LinkItem({ link, onCreate, onIgnore }: LinkItemProps) {
+function LinkRow({ link, selected, onToggle, onCreate }: LinkRowProps) {
   const [creating, setCreating] = useState(false);
+  const rule = link.ruleMatch;
+  const templateTail = rule?.templatePath
+    ? rule.templatePath.split("/").pop()?.replace(/\.md$/, "")
+    : undefined;
 
   return (
-    <div className="tw-flex tw-justify-between tw-items-center tw-px-2.5 tw-py-1.5 tw-bg-background tw-border tw-border-border tw-rounded-md tw-gap-2 hover:tw-bg-secondary/50">
-      <div className="tw-flex tw-items-center tw-gap-2 tw-flex-1 tw-min-w-0">
-        <span className="tw-flex-1 tw-overflow-hidden tw-text-ellipsis tw-whitespace-nowrap tw-text-sm">
-          {link.filePath}
-        </span>
-        <CountBadge
-          count={link.occurrenceCount}
-          title={`${t("dashboardColRef")}: ${link.occurrenceCount}`}
-        />
+    <div
+      className={cx("ccmd-list__item ccmd-link-row", selected && "ccmd-list__item--selected")}
+      onClick={() => onToggle(link.filePath)}
+    >
+      <span
+        className={cx("ccmd-check ccmd-link-row__check", selected && "ccmd-check--on")}
+        data-state={selected ? "checked" : "unchecked"}
+      >
+        <Check />
+      </span>
+
+      <div className="ccmd-link-row__main">
+        <div className="ccmd-link-row__title">{link.filePath}</div>
+        <div className="ccmd-link-row__meta">
+          {rule ? (
+            <>
+              <span className="ccmd-badge ccmd-badge--accent">{rule.name}</span>
+              {templateTail && <span className="ccmd-link-row__folder">{templateTail}</span>}
+            </>
+          ) : (
+            <span className="ccmd-link-row__norule">
+              <AlertTriangle size={11} />
+              {t("sideViewNoRule")}
+            </span>
+          )}
+          {link.occurrenceCount > 1 && (
+            <span
+              className="ccmd-badge ccmd-badge--count"
+              title={`${t("dashboardColRef")}: ${link.occurrenceCount}`}
+            >
+              {link.occurrenceCount}
+            </span>
+          )}
+        </div>
       </div>
-      <div className="tw-flex tw-gap-1 tw-shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="tw-h-7 tw-w-7"
-          disabled={creating}
-          onClick={async () => {
-            setCreating(true);
-            await onCreate(link);
-            setCreating(false);
-          }}
-          title={t("sideViewCreateTooltip")}
-        >
-          <Plus className="tw-h-3.5 tw-w-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="tw-h-7 tw-w-7"
-          onClick={() => onIgnore(link)}
-          title={t("sideViewIgnoreTooltip")}
-        >
-          <EyeOff className="tw-h-3.5 tw-w-3.5" />
-        </Button>
-      </div>
+
+      <button
+        className="ccmd-iconbtn ccmd-iconbtn--sm"
+        disabled={creating}
+        title={t("sideViewCreateTooltip")}
+        aria-label={t("sideViewCreateTooltip")}
+        onClick={(e) => {
+          e.stopPropagation();
+          setCreating(true);
+          onCreate(link);
+          setCreating(false);
+        }}
+      >
+        <FilePlus size={14} />
+      </button>
     </div>
   );
 }

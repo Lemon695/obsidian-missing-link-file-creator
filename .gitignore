@@ -27,3 +27,5 @@ data.json
 /dist/main.css
 /lint-result.txt
 /styles.css.v1.backup
+.codex-tests/
+/manifest.json.bak

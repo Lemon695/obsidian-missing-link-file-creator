@@ -26,6 +26,7 @@ export interface FileCreationRule {
 	priority: number;           // 规则优先级（数字越小优先级越高）
 	description?: string;       // 规则描述(可选)
 	templateAliasHandling?: TemplateAliasHandling; // 模板别名处理方式
+	extraFrontmatter?: Record<string, string>; // 创建文件时附加的 frontmatter 字段
 }
 
 // 规则匹配结果
@@ -35,6 +36,7 @@ export interface RuleMatchResult {
 	targetFolder?: string;      // 计算后的目标文件夹
 	templatePath?: string;      // 使用的模板路径
 	templateAliasHandling?: TemplateAliasHandling; // 模板别名处理方式
+	extraFrontmatter?: Record<string, string>; // 附加 frontmatter 字段
 }
 
 /**
@@ -78,7 +80,7 @@ export function convertLegacyRule(rule: LegacyRule | FileCreationRule): FileCrea
 	}
 
 	// 验证必需字段
-	const legacyRule = rule as LegacyRule;
+	const legacyRule = rule;
 	if (!legacyRule.id || !legacyRule.name || !legacyRule.matchType) {
 		throw new Error(`Invalid legacy rule: missing required fields (id, name, or matchType)`);
 	}

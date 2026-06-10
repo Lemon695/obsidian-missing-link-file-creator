@@ -82,7 +82,7 @@ export class TagLinkAnalyzer {
 		// 匹配标签 (#tag)
 		const tagRegex = /#([a-zA-Z0-9_\-/]+)/g;
 		let match;
-		while (match = tagRegex.exec(content)) {
+		while ((match = tagRegex.exec(content))) {
 			tags.push(match[1]);
 		}
 
@@ -102,7 +102,7 @@ export class TagLinkAnalyzer {
 					const tagListText = tagListMatch[1];
 					const tagListRegex = /\s*-\s*["']?([^"'\n]*)["']?/g;
 					let tagMatch;
-					while (tagMatch = tagListRegex.exec(tagListText)) {
+					while ((tagMatch = tagListRegex.exec(tagListText))) {
 						tags.push(tagMatch[1].trim());
 					}
 				}
@@ -115,9 +115,9 @@ export class TagLinkAnalyzer {
 	private extractLinks(content: string): string[] {
 		const links: string[] = [];
 		// 匹配 [[link]] 或 [[link|alias]]
-		const linkRegex = /\[\[((?:[^\[\]]|\\.)+?)(?:\|(?:[^\[\]]|\\.)+?)?\]\]/g;
+		const linkRegex = /\[\[((?:[^[\]]|\\.)+?)(?:\|(?:[^[\]]|\\.)+?)?\]\]/g;
 		let match;
-		while (match = linkRegex.exec(content)) {
+		while ((match = linkRegex.exec(content))) {
 			const link = match[1].split('#')[0].split('|')[0].trim();
 			if (link) links.push(link);
 		}

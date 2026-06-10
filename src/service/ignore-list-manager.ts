@@ -1,4 +1,4 @@
-import { App, FileSystemAdapter } from "obsidian";
+import { App, PluginManifest } from "obsidian";
 import { log } from "../utils/log-utils";
 
 const IGNORE_LIST_FILENAME = "ignore_list.json";
@@ -9,9 +9,9 @@ export class IgnoreListManager {
     private loaded: boolean = false;
     private pluginDir: string;
 
-    constructor(app: App, manifest: any) {
+    constructor(app: App, manifest: PluginManifest) {
         this.app = app;
-        this.pluginDir = manifest.dir;
+        this.pluginDir = manifest.dir ?? '';
     }
 
     private getFilePath(): string {
@@ -67,6 +67,13 @@ export class IgnoreListManager {
     async remove(path: string): Promise<void> {
         if (this.ignoreList.has(path)) {
             this.ignoreList.delete(path);
+            await this.saveIgnoreList();
+        }
+    }
+
+    async clear(): Promise<void> {
+        if (this.ignoreList.size > 0) {
+            this.ignoreList.clear();
             await this.saveIgnoreList();
         }
     }

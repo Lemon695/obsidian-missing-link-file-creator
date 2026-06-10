@@ -1,3 +1,4 @@
+/* eslint-disable obsidianmd/no-static-styles-assignment -- 遗留 Modal 布局 */
 import { App } from 'obsidian';
 import { createRoot, Root } from "react-dom/client";
 import React from "react";
@@ -21,8 +22,11 @@ export class RuleManagementModal extends CustomModal {
 	}
 
 	onOpen() {
-		const { contentEl } = this;
+		const { contentEl, modalEl } = this;
 		contentEl.empty();
+		// Hide Obsidian's native close button — our React header renders its own
+		const nativeClose = modalEl.querySelector('.modal-close-button');
+		if (nativeClose instanceof HTMLElement) nativeClose.style.display = 'none';
 		contentEl.addClass('ccmd-react-root', 'ccmd-rule-management-modal', 'ccmd-quickAddModal');
 
 		this.root = createRoot(contentEl);

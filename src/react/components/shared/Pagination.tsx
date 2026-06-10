@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "@/react/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
@@ -11,30 +10,26 @@ interface PaginationProps {
 
 export function Pagination({ currentPage, totalPages, onPageChange, infoText }: PaginationProps) {
   return (
-    <div className="tw-flex tw-items-center tw-justify-between tw-pt-3 tw-border-t tw-border-border">
-      {infoText && (
-        <span className="tw-text-sm tw-text-muted-foreground">{infoText}</span>
-      )}
-      <div className="tw-flex tw-items-center tw-gap-2">
-        <Button
-          variant="outline"
-          size="icon"
+    <div className="ccmd-pagination">
+      {infoText && <span className="ccmd-pagination__info">{infoText}</span>}
+      <div className="ccmd-pagination__nav">
+        <button
+          className="ccmd-iconbtn ccmd-iconbtn--sm"
           disabled={currentPage <= 1}
           onClick={() => onPageChange(currentPage - 1)}
+          aria-label="Previous page"
         >
-          <ChevronLeft className="tw-h-4 tw-w-4" />
-        </Button>
-        <span className="tw-text-sm tw-text-muted-foreground">
-          {currentPage} / {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
+          <ChevronLeft size={15} />
+        </button>
+        <span className="ccmd-pagination__page">{currentPage} / {totalPages}</span>
+        <button
+          className="ccmd-iconbtn ccmd-iconbtn--sm"
           disabled={currentPage >= totalPages}
           onClick={() => onPageChange(currentPage + 1)}
+          aria-label="Next page"
         >
-          <ChevronRight className="tw-h-4 tw-w-4" />
-        </Button>
+          <ChevronRight size={15} />
+        </button>
       </div>
     </div>
   );

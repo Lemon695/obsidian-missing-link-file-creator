@@ -1,4 +1,4 @@
-import {App, Modal, Notice} from "obsidian";
+import {App, Modal, Notice, TFile} from "obsidian";
 import {CreationConfirmModal} from "./creation-confirm-modal";
 import {CreationResult, FileToCreate} from "@/model/file-types";
 import {TemplateAliasHandling} from "@/model/rule-types";
@@ -122,20 +122,10 @@ export class UIManager {
 			`${progressEmoji} ${message} (${current}/${total}, ${percent}%)`, 0
 		);
 
-		if (notice.noticeEl) {
-			const progressBar = document.createElement('div');
-			progressBar.addClass('notice-progress-bar');
-			progressBar.style.width = `${percent}%`;
-			progressBar.style.height = '3px';
-			progressBar.style.backgroundColor = 'var(--interactive-accent)';
-			progressBar.style.position = 'absolute';
-			progressBar.style.bottom = '0';
-			progressBar.style.left = '0';
-			progressBar.style.transition = 'width 0.3s ease';
-
-			notice.noticeEl.style.position = 'relative';
-			notice.noticeEl.style.paddingBottom = '5px';
-			notice.noticeEl.appendChild(progressBar);
+		if (notice.messageEl) {
+			notice.messageEl.addClass('notice-progress-container');
+			const progressBar = notice.messageEl.createEl('div', { cls: 'notice-progress-bar' });
+			progressBar.setCssProps({ '--bar-w': `${percent}%` });
 		}
 
 		return notice;
@@ -152,16 +142,13 @@ export class UIManager {
 		const percent = Math.round((current / total) * 100);
 		const progressEmoji = percent < 30 ? '🔍' : (percent < 70 ? '⏳' : '🚀');
 
-		if (notice.noticeEl) {
-			// 更新文本
-			const textContainer = notice.noticeEl.querySelector('.notice-content') || notice.noticeEl;
+		if (notice.messageEl) {
+			const textContainer = notice.messageEl.querySelector('.notice-content') ?? notice.messageEl;
 			textContainer.textContent = `${progressEmoji} ${message} (${current}/${total}, ${percent}%)`;
 
-			// 更新进度条
-			const progressBar = notice.noticeEl.querySelector('.notice-progress-bar') as HTMLElement;
-			if (progressBar) {
-				progressBar.style.width = `${percent}%`;
-			}
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			const progressBar = notice.messageEl.querySelector('.notice-progress-bar') as HTMLElement | null;
+			progressBar?.setCssProps({ '--bar-w': `${percent}%` });
 		}
 	}
 
@@ -187,11 +174,41 @@ export class UIManager {
 
 		const notice = new Notice(message, 10000); // 显示10秒,自动消失显示框
 
-		if (notice.noticeEl) {
-			notice.noticeEl.addClass('result-summary-notice');
-			notice.noticeEl.style.fontSize = '14px';
-			notice.noticeEl.style.lineHeight = '1.5';
-			notice.noticeEl.style.maxWidth = '300px';
+		if (notice.messageEl) {
+			notice.messageEl.addClass('result-summary-notice');
+
+			// 撤销按钮：5 秒内有效，仅当有成功创建的文件时显示
+			const createdPaths = result.createdPaths;
+			if (result.created > 0 && createdPaths && createdPaths.length > 0) {
+				const undoBtn = notice.messageEl.createEl('button', { text: t('undoCreation') });
+				undoBtn.addClass('ccmd-undo-btn');
+
+				let undone = false;
+				const deadline = Date.now() + 5000;
+
+				const timeout = window.setTimeout(() => {
+					undoBtn.disabled = true;
+					undoBtn.setCssProps({ '--undo-opacity': '0.4' });
+				}, 5000);
+
+				undoBtn.addEventListener('click', () => { void (async () => {
+					if (undone || Date.now() > deadline) return;
+					undone = true;
+					window.clearTimeout(timeout);
+					undoBtn.remove();
+
+					let deletedCount = 0;
+					for (const path of createdPaths) {
+						const file = this.app.vault.getAbstractFileByPath(path);
+						if (file instanceof TFile) {
+							await this.app.fileManager.trashFile(file);
+							deletedCount++;
+						}
+					}
+					notice.hide();
+					new Notice(t('undoSuccess', { count: deletedCount.toString() }), 4000);
+				})(); });
+			}
 		}
 	}
 
@@ -314,6 +331,7 @@ export class UIManager {
 			});
 
 			// 确认按钮点击处理
+			// eslint-disable-next-line @typescript-eslint/no-misused-promises
 			confirmButton.addEventListener('click', async () => {
 				const renamePairs = rows
 					.filter(row => row.oldPath !== row.newPathInput.value)

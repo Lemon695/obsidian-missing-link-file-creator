@@ -22,8 +22,17 @@ test("Required i18n keys exist in en-GB and zh", () => {
   }
 });
 
-test("main.ts uses i18n keys for view commands", () => {
-  const source = fs.readFileSync(path.join(ROOT, "src/main.ts"), "utf8");
-  assert.match(source, /t\('openBatchOperationsDashboard'\)/);
-  assert.match(source, /t\('openCurrentFileMissingLinksView'\)/);
+test("module files define view open commands via i18n dictionaries", () => {
+  const dashboard = fs.readFileSync(
+    path.join(ROOT, "src/modules/dashboard/index.ts"),
+    "utf8"
+  );
+  const sidebar = fs.readFileSync(
+    path.join(ROOT, "src/modules/sidebar/index.ts"),
+    "utf8"
+  );
+  assert.match(dashboard, /dashboardModuleI18n/);
+  assert.match(sidebar, /sidebarModuleI18n/);
+  assert.match(dashboard, /openCommand/);
+  assert.match(sidebar, /openCommand/);
 });

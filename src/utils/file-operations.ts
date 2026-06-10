@@ -1,4 +1,4 @@
-import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
+import { App, Notice, TFile } from 'obsidian';
 import { FileUtils } from './file-utils';
 import { log } from "./log-utils";
 import { resolveFilePath } from "./path-utils";
@@ -11,11 +11,14 @@ import { CreateFileSettings } from "../settings/settings";
 import { t } from "../i18n/locale";
 import { RuleMatchContext } from "../types/frontmatter";
 import { IgnoreListManager } from "../service/ignore-list-manager";
+import { HistoryManager } from "../service/history-manager";
+import { extractCanvasTextContent } from "./canvas-utils";
 
 export interface FileOperationsOptions {
 	app: App;
 	settings: CreateFileSettings;
 	ignoreListManager?: IgnoreListManager;
+	historyManager?: HistoryManager;
 }
 
 interface LinkInfo {
@@ -57,6 +60,7 @@ export class FileOperations {
 	public pendingAliases: Map<string, string[]> = new Map();
 	private tagHelper: TagHelper;
 	public ignoreListManager?: IgnoreListManager;
+	private historyManager?: HistoryManager;
 
 	constructor(options: FileOperationsOptions) {
 		this.app = options.app;
@@ -67,6 +71,7 @@ export class FileOperations {
 		this.ruleManager = new RuleManager(options.app, options.settings);
 		this.tagHelper = new TagHelper(options.app);
 		this.ignoreListManager = options.ignoreListManager;
+		this.historyManager = options.historyManager;
 	}
 
 	/**
@@ -83,12 +88,12 @@ export class FileOperations {
 	 * @returns 提取的链接信息数组
 	 */
 	extractMDLinks(content: string, sourcePath?: string): LinkInfo[] {
-		const regex = /!?\[\[((?:\\.|[^\[\]\|])+(?:\|(?:\\.|[^\[\]])+?)?)(?<!\\)]]/g;
+		const regex = /!?\[\[((?:\\.|[^[\]|])+(?:\|(?:\\.|[^[\]])+?)?)(?<!\\)]]/g;
 		const linkInfos: LinkInfo[] = [];
 		let match;
 
 		while ((match = regex.exec(content)) !== null) {
-			const linkText = match[1].replace(/\\([\[\]])/g, '$1'); // 处理转义的方括号
+			const linkText = match[1].replace(/\\([[\]])/g, '$1'); // 处理转义的方括号
 			const isEmbed = match[0].startsWith('!');
 
 			// 处理块引用和标题引用: 检查是否包含#或^符号（用于标题引用或块引用）
@@ -159,6 +164,42 @@ export class FileOperations {
 	}
 
 	/**
+	 * 提取已解析 frontmatter 对象中的 wiki 链接
+	 * 遍历所有字符串值，使用相同的正则提取 [[...]] 链接
+	 * @param frontmatter metadataCache 返回的已解析 frontmatter 对象
+	 * @param sourcePath 源文件路径（可选）
+	 * @returns 提取的链接信息数组
+	 */
+	extractFrontmatterLinks(frontmatter: Record<string, unknown>, sourcePath?: string): LinkInfo[] {
+		const strings = this.collectFrontmatterStrings(frontmatter);
+		if (strings.length === 0) return [];
+		return this.extractMDLinks(strings.join('\n'), sourcePath);
+	}
+
+	/**
+	 * 递归收集 frontmatter 对象中所有字符串值
+	 */
+	private collectFrontmatterStrings(obj: Record<string, unknown>): string[] {
+		const result: string[] = [];
+		for (const value of Object.values(obj)) {
+			if (typeof value === 'string') {
+				result.push(value);
+			} else if (Array.isArray(value)) {
+				for (const item of value) {
+					if (typeof item === 'string') {
+						result.push(item);
+					} else if (typeof item === 'object' && item !== null) {
+						result.push(...this.collectFrontmatterStrings(item as Record<string, unknown>));
+					}
+				}
+			} else if (typeof value === 'object' && value !== null) {
+				result.push(...this.collectFrontmatterStrings(value as Record<string, unknown>));
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * 将LinkInfo数组转换为FileWithAliases映射，合并同一文件的多个别名
 	 * @param linkInfos 链接信息数组
 	 * @returns 文件及其别名的映射
@@ -221,7 +262,7 @@ export class FileOperations {
 	 * @param fileMap 文件和别名的映射
 	 * @returns 准备创建的文件数组
 	 */
-	prepareFilesToCreate(fileMap: Map<string, FileWithAliases>, context?: { frontmatter?: any, sourcePath?: string }): {
+	prepareFilesToCreate(fileMap: Map<string, FileWithAliases>, context?: RuleMatchContext): {
 		filename: string,
 		path: string,
 		aliases: Set<string>,
@@ -242,7 +283,7 @@ export class FileOperations {
 
 		const pathTracker = new Map<string, boolean>(); // 跟踪路径是否已存在
 
-		for (const [key, fileInfo] of fileMap.entries()) {
+		for (const [, fileInfo] of fileMap.entries()) {
 
 			// 处理相对路径
 			let resolvedFilename = this.resolveRelativePath(fileInfo.filename);
@@ -383,7 +424,7 @@ export class FileOperations {
 
 		for (const segment of segments) {
 			if (segment === '.') {
-
+				// skip current-dir segment
 			} else if (segment === '..') {
 				// 后退一级目录
 				if (resultSegments.length > 0) {
@@ -419,7 +460,8 @@ export class FileOperations {
 		}
 
 		// 2. Resolve Relative Path (if needed) & Normalize
-		let resolvedFilename = this.resolveRelativePath(filename);
+		// 传入 sourcePath 确保相对路径相对于源文件解析，而非当前活跃文件
+		let resolvedFilename = this.resolveRelativePath(filename, sourcePath);
 		const ruleBaseName = baseName || resolvedFilename.split('/').pop() || resolvedFilename;
 
 		// 3. Match Rule
@@ -448,7 +490,7 @@ export class FileOperations {
 					? `${folderPath}/${ruleBaseName}.md`
 					: `${ruleBaseName}.md`;
 			} else if (pathProp) {
-				const resolvedPath = this.resolveRelativePath(pathProp);
+				const resolvedPath = this.resolveRelativePath(pathProp, sourcePath);
 				targetPath = `${resolvedPath}/${ruleBaseName}.md`;
 			} else {
 				let folderPath = this.settings.defaultFolderPath || '';
@@ -460,7 +502,7 @@ export class FileOperations {
 		} else {
 			// Default Logic
 			if (pathProp) {
-				const resolvedPath = this.resolveRelativePath(pathProp);
+				const resolvedPath = this.resolveRelativePath(pathProp, sourcePath);
 				targetPath = `${resolvedPath}/${ruleBaseName}.md`;
 			} else {
 				let folderPath = this.settings.defaultFolderPath || '';
@@ -486,8 +528,18 @@ export class FileOperations {
 			targetPath,
 			[],
 			templatePath,
-			templateAliasHandling
+			templateAliasHandling,
+			true,
+			ruleMatch.extraFrontmatter
 		);
+
+		if (result.success && this.historyManager) {
+			this.historyManager.record({
+				filePath: targetPath,
+				ruleName: ruleMatch.matched ? ruleMatch.rule?.name : undefined,
+				sourcePath: sourcePath,
+			}).catch(() => {/* non-critical */});
+		}
 
 		return { ...result, path: targetPath };
 	}
@@ -516,9 +568,10 @@ export class FileOperations {
 				sourcePath: currentFile.path
 			};
 
-			// 提取链接并合并别名
-			const linkInfos = this.extractMDLinks(fileContent);
-			const fileMap = this.consolidateFileAliases(linkInfos);
+			// 提取链接（正文 + frontmatter）并合并别名
+			const bodyLinks = this.extractMDLinks(fileContent);
+			const fmLinks = frontmatter ? this.extractFrontmatterLinks(frontmatter, currentFile.path) : [];
+			const fileMap = this.consolidateFileAliases([...bodyLinks, ...fmLinks]);
 
 			// 关闭加载通知
 			loadingNotice.hide();
@@ -596,8 +649,10 @@ export class FileOperations {
 			for (const file of files) {
 				try {
 					const fileContent = await this.app.vault.read(file);
-					const fileLinks = this.extractMDLinks(fileContent);
-					allLinks.push(...fileLinks);
+					const bodyLinks = this.extractMDLinks(fileContent, file.path);
+					const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+					const fmLinks = fm ? this.extractFrontmatterLinks(fm, file.path) : [];
+					allLinks.push(...bodyLinks, ...fmLinks);
 				} catch (error) {
 					console.error(`Error processing file ${file.path}:`, error);
 				}
@@ -653,7 +708,9 @@ export class FileOperations {
 	 * 扫描整个 vault 中的缺失链接
 	 */
 	async scanVaultForMissingLinks(progressCallback?: (processed: number, total: number) => void): Promise<Map<string, MissingLinkData>> {
-		const files = this.app.vault.getMarkdownFiles();
+		const mdFiles = this.app.vault.getMarkdownFiles();
+		const canvasFiles = this.app.vault.getFiles().filter(f => f.extension === 'canvas');
+		const files: TFile[] = [...mdFiles, ...canvasFiles];
 		const results = new Map<string, MissingLinkData>();
 
 		if (files.length === 0) return results;
@@ -666,8 +723,17 @@ export class FileOperations {
 		for (const file of files) {
 			try {
 				const fileContent = await this.app.vault.read(file);
-				const fileLinks = this.extractMDLinks(fileContent, file.path);
-				allLinkInfos.push(...fileLinks);
+				if (file.extension === 'canvas') {
+					const canvasText = extractCanvasTextContent(fileContent);
+					if (canvasText) {
+						allLinkInfos.push(...this.extractMDLinks(canvasText, file.path));
+					}
+				} else {
+					const bodyLinks = this.extractMDLinks(fileContent, file.path);
+					const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+					const fmLinks = fm ? this.extractFrontmatterLinks(fm, file.path) : [];
+					allLinkInfos.push(...bodyLinks, ...fmLinks);
+				}
 			} catch (error) {
 				console.error(`Error processing file ${file.path}:`, error);
 			}
@@ -879,7 +945,8 @@ export class FileOperations {
 		aliases: string[],
 		templatePath?: string,
 		templateAliasHandling?: TemplateAliasHandling,
-		autoTagging: boolean = true
+		autoTagging: boolean = true,
+		extraFrontmatter?: Record<string, string>
 	): Promise<{ success: boolean, message?: string }> {
 		try {
 			// 添加调试日志
@@ -928,7 +995,8 @@ export class FileOperations {
 			const variables = {
 				filename: filename,
 				path: filePath,
-				aliases: aliases.join(', ')
+				aliases: aliases.join(', '),
+				alias: aliases[0] || '',
 			};
 
 			// 如果使用模板且设置为合并别名，保存别名到待处理队列
@@ -937,7 +1005,6 @@ export class FileOperations {
 			}
 
 			let success = false;
-			let matchedRule;
 
 			if (this.settings.useTemplates && templatePath) {
 				log.debug(t('applyingTemplate', { template: templatePath, file: filePath }));
@@ -969,7 +1036,7 @@ export class FileOperations {
 					if (!success) {
 						log.debug(t('processingWithBasicTemplate'));
 
-						const newFile = await this.app.vault.create(filePath, fileContent);
+						await this.app.vault.create(filePath, fileContent);
 						log.debug(t('initialFileCreated', { path: filePath }));
 
 						// 获取模板文件
@@ -1046,6 +1113,25 @@ export class FileOperations {
 				}
 			}
 
+			// 如果有附加 frontmatter 字段，通过 FileManager.processFrontMatter 写入
+			if (success && extraFrontmatter && Object.keys(extraFrontmatter).length > 0) {
+				const targetFile = this.app.vault.getAbstractFileByPath(filePath);
+				if (targetFile instanceof TFile) {
+					try {
+						await this.app.fileManager.processFrontMatter(targetFile, (fm) => {
+							for (const [key, value] of Object.entries(extraFrontmatter)) {
+								if (!(key in fm)) {
+									fm[key] = value;
+								}
+							}
+						});
+						log.debug(`Extra frontmatter applied to ${filePath}`);
+					} catch (fmError) {
+						log.error(`Failed to apply extra frontmatter: ${fmError}`);
+					}
+				}
+			}
+
 			return { success: true };
 		} catch (error) {
 			console.error(t('failedToCreateFile') + `: ${filePath}`, error);
@@ -1061,16 +1147,16 @@ export class FileOperations {
 	 * @param path 需要解析的路径
 	 * @returns 解析后的绝对路径
 	 */
-	private resolveRelativePath(path: string): string {
+	private resolveRelativePath(path: string, basePath?: string): string {
 		// 如果已经是绝对路径，直接返回
 		if (path.startsWith('/')) return path;
 
-		const activeFile = this.app.workspace.getActiveFile();
-		if (!activeFile) return path;
+		// 优先使用传入的 basePath（调用方已捕获的文件路径），
+		// 避免在 dialog 确认时 getActiveFile() 可能已切换到其他文件
+		const sourcePath = basePath ?? this.app.workspace.getActiveFile()?.path;
+		if (!sourcePath) return path;
 
-		// 获取当前文件所在目录
-		const currentFilePath = activeFile.path;
-		const currentDir = currentFilePath.substring(0, currentFilePath.lastIndexOf('/') || 0);
+		const currentDir = sourcePath.substring(0, sourcePath.lastIndexOf('/') || 0);
 
 		if (path.startsWith('./') || path.startsWith('../')) {
 			return resolveFilePath(path, currentDir, this.settings);
@@ -1254,7 +1340,8 @@ export class FileOperations {
 		}
 
 		// Legacy fallback
-		const plugin = (this.app as any).plugins.getPlugin('obsidian-missing-link-file-creator') as any;
+		const plugin = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(this.app as any).plugins.getPlugin('obsidian-missing-link-file-creator');
 		if (!plugin) return;
 
 		if (!plugin.settings.ignoreList) {
@@ -1281,7 +1368,8 @@ export class FileOperations {
 		}
 
 		// Legacy Legacy
-		const plugin = (this.app as any).plugins.getPlugin('obsidian-missing-link-file-creator') as any;
+		const plugin = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(this.app as any).plugins.getPlugin('obsidian-missing-link-file-creator');
 		if (!plugin || !plugin.settings.ignoreList) return;
 
 		const index = plugin.settings.ignoreList.indexOf(path);

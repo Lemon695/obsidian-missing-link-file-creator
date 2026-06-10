@@ -1,7 +1,10 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { cn } from "@/react/lib/utils";
+
+function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(" ");
+}
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -14,10 +17,7 @@ const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn(
-      "tw-fixed tw-inset-0 tw-z-50 tw-bg-black/80",
-      className
-    )}
+    className={cx("ccmd-modal-overlay", className)}
     {...props}
   />
 ));
@@ -31,16 +31,12 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(
-        "tw-fixed tw-left-[50%] tw-top-[50%] tw-z-50 tw-grid tw-w-full tw-max-w-lg tw-translate-x-[-50%] tw-translate-y-[-50%] tw-gap-4 tw-border tw-bg-background tw-p-6 tw-shadow-lg tw-duration-200 sm:tw-rounded-lg",
-        className
-      )}
+      className={cx("ccmd-modal ccmd-modal--floating", className)}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="tw-absolute tw-right-4 tw-top-4 tw-rounded-sm tw-opacity-70 tw-ring-offset-background tw-transition-opacity hover:tw-opacity-100 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-ring focus:tw-ring-offset-2 disabled:tw-pointer-events-none">
-        <X className="tw-h-4 tw-w-4" />
-        <span className="tw-sr-only">Close</span>
+      <DialogPrimitive.Close className="ccmd-modal__close" aria-label="Close">
+        <X />
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
@@ -48,12 +44,12 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("tw-flex tw-flex-col tw-space-y-1.5 tw-text-center sm:tw-text-left", className)} {...props} />
+  <div className={cx("ccmd-modal__header", className)} {...props} />
 );
 DialogHeader.displayName = "DialogHeader";
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("tw-flex tw-flex-col-reverse sm:tw-flex-row sm:tw-justify-end sm:tw-space-x-2", className)} {...props} />
+  <div className={cx("ccmd-modal__footer", className)} {...props} />
 );
 DialogFooter.displayName = "DialogFooter";
 
@@ -61,7 +57,7 @@ const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title ref={ref} className={cn("tw-text-lg tw-font-semibold tw-leading-none tw-tracking-tight", className)} {...props} />
+  <DialogPrimitive.Title ref={ref} className={cx("ccmd-modal__title", className)} {...props} />
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
@@ -69,7 +65,7 @@ const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description ref={ref} className={cn("tw-text-sm tw-text-muted-foreground", className)} {...props} />
+  <DialogPrimitive.Description ref={ref} className={cx("ccmd-modal__subtitle", className)} {...props} />
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
